@@ -5,7 +5,6 @@ namespace tool_courserating\output;
 use plugin_renderer_base;
 use tool_courserating\external\summary_exporter;
 use tool_courserating\external\ratings_list_exporter;
-use tool_courserating\local\models\summary;
 
 class renderer extends plugin_renderer_base {
 

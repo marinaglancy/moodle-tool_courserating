@@ -78,7 +78,7 @@ class rating_exporter extends persistent_exporter {
             'user' => ['type' => user_summary_exporter::read_properties_definition(), 'optional' => true],
             'reviewstars' => ['type' => stars_exporter::read_properties_definition()],
             'reviewdate' => ['type' => PARAM_RAW],
-            'reviewflag' => [
+            'ratingflag' => [
                 'type' => 'array',
                 'optional' => true,
             ],
@@ -113,7 +113,7 @@ class rating_exporter extends persistent_exporter {
         }
         $flagged = flag::get_records(['ratingid' => $this->data->id, 'userid' => $USER->id]) ? true : false;
 
-        $result['reviewflag'] = (object)[
+        $result['ratingflag'] = (object)[
             'flagged' => $flagged,
             'toggleflag' => api::get_flag_inplace_editable($this->data->id, $flagged)->export_for_template($output),
             'flags' => $flags,

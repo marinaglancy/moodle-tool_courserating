@@ -155,7 +155,7 @@ function tool_courserating_output_fragment_rating_flag($args) {
     $rating = new \tool_courserating\local\models\rating($args['ratingid']);
     \tool_courserating\permission::require_can_view_ratings($rating->get('courseid'));
     $data = (array)(new \tool_courserating\external\rating_exporter($rating))->export($output);
-    return $output->render_from_template('tool_courserating/rating_flag', $data['reviewflag']);
+    return $output->render_from_template('tool_courserating/rating_flag', $data['ratingflag']);
 }
 
 /**
