@@ -1,0 +1,35 @@
+<div class="tool_courserating-reviews-popup">
+    <div class="container course-rating-summary">
+        <div class="row align-items-center">
+            <div class="col-4 align-middle text-center">
+                <div data-purpose="average-rating"
+                     class="course-average-value">{{ avgrating }}
+                </div>
+                <div class=""><span class="">{{{ stars }}}</span></div>
+                <p class="course-average-caption">{{#str}}ratinglabel, tool_courserating{{/str}}</p>
+            </div>
+            <div class="col-8 align-middle">
+                <div class="container">
+                    {{#lines}}
+                        <div class="row align-items-center">
+                            <div class="col-md-7">
+                                <div class="course-rating-bar">
+                                    <span class="course-rating-bar-rating" style="width: {{percent}} !important"></span>
+                                </div>
+                            </div>
+                            <div class="col-md-5"><span
+                                    class="star-rating--star-wrapper--1QyBg star-rating--large--25176">{{{ star }}}</span><span
+                                    class="course-rating-percent ml-1"><span>{{{ percent }}}</span></span></div>
+                        </div>
+                    {{/lines}}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="course-reviews" data-contextid="{{systemcontextid}}">
+        {{#reviews}}
+            {{> tool_courserating/review}}
+        {{/reviews}}
+    </div>
+</div>

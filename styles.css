@@ -1,0 +1,56 @@
+
+.tool_courserating-stars {
+    color: #e59819;
+}
+.tool_courserating-stars .icon {
+    margin-right: 1px;
+}
+.tool_courserating-cfield .course-average-value {
+    color: #b4690e;
+    font-weight: bold;
+}
+.tool_courserating-cfield .tool_courserating-ratings:hover {
+    text-decoration: none;
+}
+
+.tool_courserating-widget {
+    background-color: #f0f0f0;
+    border: 1px solid #d0d0d0;
+    padding: 0.75rem 1.25rem;
+    margin-bottom: 1rem;
+    border-radius: 0.5rem;
+}
+
+.tool_courserating-reviews-popup .course-average-value {
+    font-weight: 700;
+    letter-spacing: -.02rem;
+    font-size: 4rem;
+    color: #b4690e;
+}
+.tool_courserating-reviews-popup .course-average-caption {
+    font-weight: 700;
+    line-height: 1.4;
+    font-size: 0.9rem;
+    color: #b4690e;
+}
+.tool_courserating-reviews-popup .course-rating-percent {
+    color: #b4690e;
+    font-weight: 700;
+}
+.tool_courserating-reviews-popup .course-rating-bar {
+    height: 10px;
+    display: block;
+    border-radius: 2px;
+    box-shadow: inset 0 0 2px rgba(0, 0, 0, .25);
+    position: relative;
+    background-color: #eee;
+    margin: 3px;
+}
+.tool_courserating-reviews-popup .course-rating-bar .course-rating-bar-rating {
+    background-color: #b4690e;
+    display: block;
+    height: 10px;
+}
+.tool_courserating-reviews-popup .user-review {
+    border-top: 1px solid #dee2e6;
+}

@@ -25,4 +25,15 @@
 
 defined('MOODLE_INTERNAL') || die();
 
+$string['addrating'] = 'Rate this course';
+$string['coursereviews'] = 'Course reviews';
+$string['deleterating'] = 'Permanently delete';
+$string['deletereason'] = 'Reason for deletion';
+$string['flagrating'] = 'Flag';
 $string['pluginname'] = 'Course ratings';
+$string['rating'] = 'Rating';
+$string['ratinglabel'] = 'Course rating';
+$string['review'] = 'Review (optional)';
+$string['revokeratingflag'] = 'Revoke';
+$string['usersflagged'] = '{$a} user(s) have marked this review as inappropriate/offensive.';
+$string['youflagged'] = 'You have flagged this review as inappropriate/offensive.';

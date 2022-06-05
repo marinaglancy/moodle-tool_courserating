@@ -1,0 +1,169 @@
+<?php
+// This file is part of Moodle - https://moodle.org/
+//
+// Moodle is free software: you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+//
+// Moodle is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU General Public License for more details.
+//
+// You should have received a copy of the GNU General Public License
+// along with Moodle.  If not, see <https://www.gnu.org/licenses/>.
+
+/**
+ * Plugin callbacks
+ *
+ * @package     tool_courserating
+ * @copyright   2022 Marina Glancy <marina.glancy@gmail.com>
+ * @license     https://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ */
+
+function tool_courserating_before_http_headers() {
+    global $PAGE;
+    // Can add js to $PAGE->requires
+    if (\tool_courserating\helper::is_course_page() || \tool_courserating\helper::is_course_listing_page()) {
+        $PAGE->requires->js_call_amd('tool_courserating/view', 'init');
+    }
+    return null;
+}
+
+function tool_courserating_before_footer() {
+    // Added inside the region-main, in the very end
+    global $PAGE;
+    if ($courseid = \tool_courserating\helper::is_course_page()) {
+        /** @var tool_courserating\output\renderer $output */
+        $output = $PAGE->get_renderer('tool_courserating');
+        return $output->course_rating_block($courseid);
+    }
+    return '';
+}
+
+function tool_courserating_render_navbar_output() {
+    // Added to the top navbar after messaging icon before the user picture/menu.
+    return '';
+}
+
+function tool_courserating_add_htmlattributes() {
+    // <html {{{ output.htmlattributes }}}>
+    return [];
+}
+
+function tool_courserating_standard_after_main_region_html() {
+    // Added in the very end of the page, must be floating element or otherwise it messes up layout
+    return '';
+}
+
+function tool_courserating_standard_footer_html() {
+    // Added after the "Reset user tour on this page" link in the popup footer
+    return '';
+}
+
+function tool_courserating_before_standard_top_of_body_html() {
+    // added before the <nav> element (top navbar)
+    return '';
+}
+
+function tool_courserating_before_standard_html_head() {
+    // Can add meta tags here
+    return '';
+}
+
+function tool_courserating_after_config() {
+    return null;
+}
+
+function tool_courserating_after_require_login() {
+
+}
+
+function tool_courserating_extend_navigation_user($usernode, $user, $usercontext, $course, $coursecontext) {
+
+}
+
+function tool_courserating_extend_navigation_course($coursenode, $course, $coursecontext) {
+
+}
+
+function tool_courserating_extend_navigation_user_settings($usersetting, $user, $usercontext, $course, $coursecontext) {
+
+}
+
+function tool_courserating_extend_navigation_category_settings($categorynode, $catcontext) {
+
+}
+
+function tool_courserating_extend_navigation_frontpage($frontpage, $course, $coursecontext) {
+
+}
+
+function tool_courserating_user_preferences() {
+
+}
+
+function tool_courserating_get_course_category_contents($coursecat) {
+    // To display what this category contains (on category deletion)
+    return '';
+}
+
+function tool_courserating_output_fragment_reviews($args) {
+    global $PAGE;
+    $courseid = $args['context']->instanceid; // TODO user does not have to have access to course
+    /** @var tool_courserating\output\renderer $output */
+    $output = $PAGE->get_renderer('tool_courserating');
+    return $output->course_reviews($courseid);
+}
+
+function tool_courserating_output_fragment_cfield($args) {
+    global $PAGE;
+    $courseid = $args['context']->instanceid; // TODO user does not have to have access to course
+    /** @var tool_courserating\output\renderer $output */
+    $output = $PAGE->get_renderer('tool_courserating');
+    return $output->cfield($courseid);
+}
+
+function tool_courserating_output_fragment_review_flag($args) {
+    global $PAGE;
+    /** @var tool_courserating\output\renderer $output */
+    $output = $PAGE->get_renderer('tool_courserating');
+
+    // TODO check access etc
+    $review = new \tool_courserating\local\models\rating($args['id']);
+    $data = (array)(new \tool_courserating\external\rating_exporter($review))->export($output);
+    return $output->render_from_template('tool_courserating/review_flag', $data['reviewflag']);
+}
+
+/**
+ * Map icons for font-awesome themes.
+ */
+function tool_courserating_get_fontawesome_icon_map() {
+    return [
+        'tool_courserating:star' => 'fa-star',
+        'tool_courserating:star-o' => 'fa-star-o',
+        'tool_courserating:star-half' => 'fa-star-half-full',
+    ];
+}
+
+/**
+ * Implements callback inplace_editable() allowing to edit values in-place
+ *
+ * @param string $itemtype
+ * @param int $itemid
+ * @param mixed $newvalue
+ * @return \core\output\inplace_editable
+ */
+function tool_courserating_inplace_editable($itemtype, $itemid, $newvalue) {
+    \external_api::validate_context(context_system::instance());
+    // TODO check permisions
+    if ($itemtype === 'flag') {
+        if ($newvalue) {
+            \tool_courserating\api::flag_review($itemid);
+        } else {
+            \tool_courserating\api::revoke_review_flag($itemid);
+        }
+        return \tool_courserating\api::get_flag_inplace_editable($itemid);
+    }
+}
