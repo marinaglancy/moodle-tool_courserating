@@ -11,7 +11,9 @@
         {{/user}}
     </div>
     <div class="user-rating">
-        {{{reviewstars}}}
+        {{#reviewstars}}
+            {{> tool_courserating/stars }}
+        {{/reviewstars}}
         <span class="dimmed_text review-date">
             {{{reviewdate}}}
         </span>

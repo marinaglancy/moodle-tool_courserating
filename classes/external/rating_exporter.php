@@ -22,6 +22,7 @@ use tool_courserating\api;
 use tool_courserating\local\models\flag;
 use tool_courserating\local\models\rating;
 use tool_courserating\output\renderer;
+use tool_courserating\permission;
 use tool_dataprivacy\category;
 use tool_dataprivacy\context_instance;
 
@@ -75,7 +76,7 @@ class rating_exporter extends persistent_exporter {
     protected static function define_other_properties(): array {
         return [
             'user' => ['type' => user_summary_exporter::read_properties_definition(), 'optional' => true],
-            'reviewstars' => ['type' => PARAM_RAW],
+            'reviewstars' => ['type' => stars_exporter::read_properties_definition()],
             'reviewdate' => ['type' => PARAM_RAW],
             'reviewflag' => [
                 'type' => 'array',
@@ -91,7 +92,7 @@ class rating_exporter extends persistent_exporter {
      * @return array
      */
     protected function get_other_values(\renderer_base $output): array {
-        global $PAGE, $USER;
+        global $USER;
         $result = [];
 
         if ($user = \core_user::get_user($this->data->userid)) {
@@ -101,16 +102,16 @@ class rating_exporter extends persistent_exporter {
             $result['user'] = [];
         }
 
-        /** @var renderer $renderer */
-        $renderer = ($output instanceof renderer) ? $output : $PAGE->get_renderer('tool_courserating');
-        $result['reviewstars'] = $renderer->stars($this->data->rating);
+        $result['reviewstars'] = (new stars_exporter($this->data->rating))->export($output);
 
         $result['reviewdate'] = userdate($this->data->timecreated, get_string('strftimedatetimeshort', 'core_langconfig'));
-        //$result['contextid'] = \context_course::instance($this->data->courseid)->id;
 
-        // TODO premissions to see flagged, candelete
+        if (permission::can_delete_rating($this->data->id, $this->data->courseid)) {
+            $flags = flag::count_records(['ratingid' => $this->data->id]);
+        } else {
+            $flags = [];
+        }
         $flagged = flag::get_records(['ratingid' => $this->data->id, 'userid' => $USER->id]) ? true : false;
-        $flags = flag::count_records(['ratingid' => $this->data->id]);
 
         $result['reviewflag'] = (object)[
             'flagged' => $flagged,

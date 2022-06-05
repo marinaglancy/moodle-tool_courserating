@@ -139,7 +139,7 @@ function tool_courserating_output_fragment_course_ratings_summary($args) {
     \tool_courserating\permission::require_can_view_ratings($courseid);
     /** @var tool_courserating\output\renderer $output */
     $output = $PAGE->get_renderer('tool_courserating');
-    $data = (new \tool_courserating\external\course_ratings_summary($courseid))->export($output);
+    $data = (new \tool_courserating\external\summary_exporter($courseid))->export($output);
     return $output->render_from_template('tool_courserating/course_ratings_summary', $data);
 }
 

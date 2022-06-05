@@ -5,17 +5,28 @@ namespace tool_courserating\external;
 use core\external\exporter;
 use renderer_base;
 use tool_courserating\local\models\summary;
-use tool_courserating\output\renderer;
 
-class course_ratings_summary extends exporter {
+class summary_exporter extends exporter {
+
+    /** @var summary */
+    protected $summary;
 
     /**
      * Constructor.
      *
      * @param array $related - related objects.
      */
-    public function __construct(int $courseid) {
-        parent::__construct([], ['courseid' => $courseid]);
+    public function __construct(int $courseid, ?summary $summary = null) {
+        if (!$summary) {
+            $records = summary::get_records(['courseid' => $courseid]);
+            if (count($records)) {
+                $summary = reset($records);
+            } else {
+                $summary = new summary(0, (object)['courseid' => $courseid]);
+            }
+        }
+        $this->summary = $summary;
+        parent::__construct([], []);
     }
 
     /**
@@ -24,9 +35,7 @@ class course_ratings_summary extends exporter {
      * @return array
      */
     protected static function define_related() {
-        return [
-            'courseid' => PARAM_INT,
-        ];
+        return [];
     }
 
     /**
@@ -37,15 +46,16 @@ class course_ratings_summary extends exporter {
     protected static function define_other_properties() {
         return [
             'avgrating' => ['type' => PARAM_RAW],
-            'stars' => ['type' => PARAM_RAW],
+            'stars' => ['type' => stars_exporter::read_properties_definition()],
             'lines' => [
                 'type' => [
-                    'star' => ['type' => PARAM_RAW],
+                    'star' => ['type' => stars_exporter::read_properties_definition()],
                     'percent' => ['type' => PARAM_RAW],
                 ],
                 'multiple' => true,
             ],
             'courseid' => ['type' => PARAM_INT],
+            'cntall' => ['type' => PARAM_INT],
         ];
     }
 
@@ -56,19 +66,21 @@ class course_ratings_summary extends exporter {
      * @return array Keys are the property names, values are their values.
      */
     protected function get_other_values(renderer_base $output) {
-        global $PAGE;
-        $renderer = ($output instanceof renderer) ? $output : $PAGE->get_renderer('tool_courserating');
-        $courseid = $this->related['courseid'];
-        $summary = summary::get_record(['courseid' => $courseid]);
+        $summary = $this->summary;
+        $courseid = $summary->get('courseid');
         $data = [
             'avgrating' => $summary->get('cntall') ? sprintf("%.1f", $summary->get('avgrating')) : '-',
-            'stars' => $renderer->stars($summary->get('avgrating')),
+            'cntall' => $summary->get('cntall'),
+            'stars' => (new stars_exporter($summary->get('avgrating')))->export($output),
             'lines' => [],
             'courseid' => $courseid,
         ];
         foreach ([5,4,3,2,1] as $line) {
             $percent = $summary->get('cntall') ? round(100 * $summary->get('cnt0' . $line) / $summary->get('cntall')) : 0;
-            $data['lines'][] = ['star' => $renderer->stars($line), 'percent' =>  $percent . '%'];
+            $data['lines'][] = [
+                'star' => (new stars_exporter($line))->export($output),
+                'percent' =>  $percent . '%',
+            ];
         }
 
         return $data;

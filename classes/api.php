@@ -5,6 +5,7 @@ namespace tool_courserating;
 use core\output\inplace_editable;
 use core_customfield\field_controller;
 use tool_courserating\external\rating_exporter;
+use tool_courserating\external\summary_exporter;
 use tool_courserating\local\models\flag;
 use tool_courserating\local\models\rating;
 use tool_courserating\local\models\summary;
@@ -72,7 +73,9 @@ class api {
         $courseid = $summary->get('courseid');
         /** @var \tool_courserating\output\renderer $output */
         $output = $PAGE->get_renderer('tool_courserating');
-        $ratingstr = $output->rating_summary_for_cfield($summary);
+        $data = (new summary_exporter(0, $summary))->export($output);
+        $ratingstr = $output->render_from_template('tool_courserating/summary_for_cfield', $data);
+
         $f = self::get_course_rating_field();
         $handler = \core_course\customfield\course_handler::create();
         $fields = \core_customfield\api::get_instance_fields_data([$f->get('id') => $f], $courseid);

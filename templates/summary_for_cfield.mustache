@@ -15,7 +15,7 @@
     along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 }}
 {{!
-    @template tool_courserating/rating_summary
+    @template tool_courserating/summary_for_cfield
 
     This template is used to generate content for the custom course profile field that shows course rating.
     Because the content of the custom course profile field is purified, it is not allowed to use any data-
@@ -23,8 +23,16 @@
 
     Example context (json):
     {
-        "avgrating": "3.8",
-        "stars": "* * * * *",
+        "avgrating": "3.6",
+        "stars": {
+            "staricons": [
+                {"key": "star", "component": "tool_courserating", "title": ""},
+                {"key": "star", "component": "tool_courserating", "title": ""},
+                {"key": "star", "component": "tool_courserating", "title": ""},
+                {"key": "star-half", "component": "tool_courserating", "title": ""},
+                {"key": "star-o", "component": "tool_courserating", "title": ""}
+            ]
+        },
         "courseid": "2",
         "cntall": "15"
     }
@@ -34,6 +42,6 @@
 <span class="tool_courserating-cfield"><a
         class="tool_courserating-ratings tool_courserating-ratings-courseid-{{courseid}}"
         href="#"><span
-    class="course-average-value mr-2">{{avgrating}}</span>{{{stars}}}<span
+    class="course-average-value mr-2">{{avgrating}}</span>{{#stars}}{{> tool_courserating/stars }}{{/stars}}<span
     class="ml-2 course-rating-cntall">({{cntall}})</span></a></span>
 {{/cntall}}
