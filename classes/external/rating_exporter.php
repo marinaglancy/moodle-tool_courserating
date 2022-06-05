@@ -81,6 +81,7 @@ class rating_exporter extends persistent_exporter {
                 'type' => 'array',
                 'optional' => true,
             ],
+            'ratingid' => ['type' => PARAM_INT],
         ];
     }
 
@@ -92,7 +93,7 @@ class rating_exporter extends persistent_exporter {
      */
     protected function get_other_values(\renderer_base $output): array {
         global $PAGE, $USER;
-        $result = [];
+        $result = ['ratingid' => $this->data->id];
 
         if ($user = \core_user::get_user($this->data->userid)) {
             $userexporter = new user_summary_exporter($user);
@@ -117,7 +118,7 @@ class rating_exporter extends persistent_exporter {
             'toggleflag' => api::get_flag_inplace_editable($this->data->id, $flagged)->export_for_template($output),
             'flags' => $flags,
             'candelete' => $flags > 0,
-            'id' => $this->data->id,
+            'ratingid' => $this->data->id,
         ];
 
         return $result;

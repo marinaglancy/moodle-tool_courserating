@@ -1,10 +1,10 @@
 <div class="tool_courserating-widget d-flex p-2">
-    <div data-for="tool_courserating-cfield-wrapper" data-id="{{id}}" data-ctxid="{{contextid}}">
+    <div data-for="tool_courserating-cfield-wrapper" data-courseid="{{courseid}}">
         {{{ratingdisplay}}}
     </div>
     {{#rate}}
         <div class="ml-auto">
-            <a href="#" data-action="tool_courserating-addrating" data-ctxid="{{contextid}}">{{#str}}addrating, tool_courserating{{/str}}</a>
+            <a href="#" data-action="tool_courserating-addrating" data-courseid="{{courseid}}">{{#str}}addrating, tool_courserating{{/str}}</a>
         </div>
     {{/rate}}
 </div>

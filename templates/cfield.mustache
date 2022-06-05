@@ -19,20 +19,20 @@
 
     This template is used to generate content for the custom course profile field that shows course rating.
     Because the content of the custom course profile field is purified, it is not allowed to use any data-
-    attributes. The context id is included as a part of a 'class' attribute.
+    attributes. The course id is included as a part of a 'class' attribute.
 
     Example context (json):
     {
         "avgrating": "3.8",
         "stars": "* * * * *",
-        "contextid": "2",
+        "courseid": "2",
         "cntall": "15"
     }
 
 }}
 {{#cntall}}
 <span class="tool_courserating-cfield"><a
-        class="tool_courserating-ratings tool_courserating-ratings-ctx-{{contextid}}"
+        class="tool_courserating-ratings tool_courserating-ratings-courseid-{{courseid}}"
         href="#"><span
     class="course-average-value mr-2">{{avgrating}}</span>{{{stars}}}<span
     class="ml-2 course-rating-cntall">({{cntall}})</span></a></span>

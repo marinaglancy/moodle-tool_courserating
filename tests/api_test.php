@@ -116,9 +116,10 @@ class api_test extends \advanced_testcase {
         $this->assertRatings(['rating' => 2, 'review' => ''], $user2->id, $course->id);
         $expected = ['cntall' => 2, 'avgrating' => 3, 'sumrating' => 6, 'cnt02' => 1, 'cnt03' => 0, 'cnt04' => 1];
         $this->assertSummary($expected, $course->id);
+        $rating = rating::get_record(['userid' => $user->id, 'courseid' => $course->id]);
 
         // Delete rating for the first user.
-        api::delete_rating($user->id, $course->id);
+        api::delete_rating($rating->get('id'));
 
         $this->assertRatings(null, $user->id, $course->id);
         $this->assertRatings(['rating' => 2, 'review' => ''], $user2->id, $course->id);

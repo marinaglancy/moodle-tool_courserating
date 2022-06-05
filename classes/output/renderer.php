@@ -16,7 +16,7 @@ class renderer extends plugin_renderer_base {
         return $this->render_from_template('tool_courserating/cfield', [
             'cntall' => $summary->get('cntall'),
             'avgrating' => sprintf("%.1f", $summary->get('avgrating')),
-            'contextid' => $context->id,
+            'courseid' => $summary->get('courseid'),
             'stars' => $this->stars($summary->get('avgrating')),
         ]);
     }
@@ -62,21 +62,27 @@ class renderer extends plugin_renderer_base {
         return $content;
     }
 
-    public function course_reviews(int $courseid): string {
-        global $DB;
-        // TODO
+    public function data_for_course_ratings_summary(int $courseid): array {
+        // TODO make an exporter.
         $summary = summary::get_record(['courseid' => $courseid]);
         $data = [
             'avgrating' => $summary->get('cntall') ? sprintf("%.1f", $summary->get('avgrating')) : '-',
             'stars' => $this->stars($summary->get('avgrating')),
             'lines' => [],
-            'contextid' => context_course::instance($courseid)->id,
-            'systemcontextid' => \context_system::instance()->id,
+            'courseid' => $courseid,
         ];
         foreach ([5,4,3,2,1] as $line) {
             $percent = $summary->get('cntall') ? round(100 * $summary->get('cnt0' . $line) / $summary->get('cntall')) : 0;
             $data['lines'][] = ['star' => $this->stars($line), 'percent' =>  $percent . '%'];
         }
+
+        return $data;
+    }
+
+    public function course_reviews(int $courseid): string {
+        global $DB;
+        // TODO
+        $data = $this->data_for_course_ratings_summary($courseid);
 
         $data['reviews'] = [];
         // TODO only ratings with reviews, show more than 10 somehow.
@@ -90,8 +96,7 @@ class renderer extends plugin_renderer_base {
     public function course_rating_block(int $courseid): string {
         $data = [
             'ratingdisplay' => $this->cfield($courseid),
-            'contextid' => context_course::instance($courseid)->id,
-            'systemcontextid' => \context_system::instance()->id,
+            'courseid' => $courseid,
             'rate' => true
         ];
         return $this->render_from_template('tool_courserating/course_rating_block', $data);

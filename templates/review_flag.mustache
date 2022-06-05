@@ -1,4 +1,4 @@
-<div class="mdl-right review-flags" data-for="tool_courserating-user-flag" data-id="{{id}}">
+<div class="mdl-right review-flags" data-for="tool_courserating-user-flag" data-ratingid="{{ratingid}}">
     <div class="user-flag">
         {{#flagged}}
             {{#str}}youflagged, tool_courserating{{/str}}
@@ -11,19 +11,8 @@
         <div class="mdl-right user-flags">
             <span class="badge badge-warning">{{#str}}usersflagged, tool_courserating, {{.}}{{/str}}</span>
             {{#candelete}}
-                <a href="#" data-action="tool_courserating-delete-review" data-id="{{id}}">{{#str}}deleterating, tool_courserating{{/str}}</a>
+                <a href="#" data-action="tool_courserating-delete-rating" data-ratingid="{{ratingid}}">{{#str}}deleterating, tool_courserating{{/str}}</a>
             {{/candelete}}
         </div>
     {{/flags}}
 </div>
-{{#js}}
-    require(['jquery', 'core/fragment', 'core/templates'], function($, Fragment, Templates) {
-        var nodelocator = "[data-for='tool_courserating-user-flag'][data-id='{{id}}']";
-        $('body').on('updated', nodelocator + ' [data-inplaceeditable]', function(e) {
-            var contextid = document.querySelector(nodelocator).closest('[data-contextid]').getAttribute('data-contextid');
-            Fragment.loadFragment('tool_courserating', 'review_flag', contextid, {id: '{{id}}'}).done((html, js) => {
-                Templates.replaceNode($(nodelocator)[0], html, js);
-            });
-        });
-    });
-{{/js}}

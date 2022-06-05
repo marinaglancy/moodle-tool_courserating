@@ -6,28 +6,23 @@ use moodle_exception;
 use moodle_url;
 use tool_courserating\api;
 use tool_courserating\helper;
-use tool_courserating\local\models\rating;
 use tool_courserating\permission;
 
 class addrating extends \core_form\dynamic_form {
 
-    protected function get_ctx_id() {
-        $ctxid = $this->optional_param('ctxid', 0, PARAM_INT);
-        if (!$ctxid) {
-            throw new moodle_exception('missingparam', '', '', 'ctxid');
-        }
-        return $ctxid;
-    }
-
     protected function get_course_id() {
-        return \context::instance_by_id($this->get_ctx_id())->get_course_context()->instanceid;
+        $courseid = $this->optional_param('courseid', 0, PARAM_INT);
+        if (!$courseid) {
+            throw new moodle_exception('missingparam', '', '', 'courseid');
+        }
+        return $courseid;
     }
 
     protected function definition() {
         // TODO UI
         $mform = $this->_form;
-        $mform->addElement('hidden', 'ctxid', $this->get_ctx_id());
-        $mform->setType('ctxid', PARAM_INT);
+        $mform->addElement('hidden', 'courseid', $this->get_course_id());
+        $mform->setType('courseid', PARAM_INT);
 
         $radioarray = array();
         $radioarray[] = $mform->createElement('radio', 'rating', '', 1, 1);
@@ -49,7 +44,7 @@ class addrating extends \core_form\dynamic_form {
     }
 
     protected function get_context_for_dynamic_submission(): \context {
-        return \context::instance_by_id($this->get_ctx_id());
+        return \context_course::instance($this->get_course_id());
     }
 
     protected function check_access_for_dynamic_submission(): void {

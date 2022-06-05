@@ -13,13 +13,17 @@ class deleterating extends dynamic_form {
     /** @var rating */
     protected $rating;
 
+    protected function get_rating_id(): int {
+        $id = $this->optional_param('ratingid', 0, PARAM_INT);
+        if ($id <= 0) {
+            throw new \moodle_exception('missingparam', '', '', 'ratingid');
+        }
+        return $id;
+    }
+
     protected function get_rating(): rating {
         if (!$this->rating) {
-            $id = $this->optional_param('id', 0, PARAM_INT);
-            if ($id <= 0) {
-                throw new \moodle_exception('missingparam', '', '', 'id');
-            }
-            $this->rating = new rating($id);
+            $this->rating = new rating($this->get_rating_id());
         }
         return $this->rating;
     }
@@ -29,7 +33,7 @@ class deleterating extends dynamic_form {
     }
 
     protected function check_access_for_dynamic_submission(): void {
-        permission::require_can_delete_rating($this->get_rating()->get('id'), $this->get_rating()->get('courseid'));
+        permission::require_can_delete_rating($this->get_rating_id(), $this->get_rating()->get('courseid'));
     }
 
     /**
@@ -38,23 +42,25 @@ class deleterating extends dynamic_form {
      * @return mixed|void
      */
     public function process_dynamic_submission() {
-        api::delete_rating($this->get_rating()->get('id'), $this->get_data()->reason);
+        $rv = ['ratingid' => $this->get_rating_id(), 'courseid' => $this->get_rating()->get('courseid')];
+        api::delete_rating($this->get_rating_id(), $this->get_data()->reason);
+        return $rv;
     }
 
     public function set_data_for_dynamic_submission(): void {
-        $this->set_data(['id' => $this->get_rating()->get('id')]);
+        $this->set_data(['ratingid' => $this->get_rating_id()]);
     }
 
     protected function get_page_url_for_dynamic_submission(): moodle_url {
         return new moodle_url('/course/view.php',
-            ['id' => $this->get_rating()->get('courseid'), 'deleterating' => $this->get_rating()->get('id')]);
+            ['id' => $this->get_rating()->get('courseid'), 'deleterating' => $this->get_rating_id()]);
     }
 
     protected function definition() {
         $mform = $this->_form;
 
-        $mform->addElement('hidden', 'id');
-        $mform->setType('id', PARAM_INT);
+        $mform->addElement('hidden', 'ratingid');
+        $mform->setType('ratingid', PARAM_INT);
 
         $mform->addElement('textarea', 'reason', get_string('deletereason', 'tool_courserating'));
         $mform->setType('reason', PARAM_TEXT);

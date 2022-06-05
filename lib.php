@@ -26,7 +26,7 @@ function tool_courserating_before_http_headers() {
     global $PAGE;
     // Can add js to $PAGE->requires
     if (\tool_courserating\helper::is_course_page() || \tool_courserating\helper::is_course_listing_page()) {
-        $PAGE->requires->js_call_amd('tool_courserating/view', 'init');
+        $PAGE->requires->js_call_amd('tool_courserating/view', 'init', [context_system::instance()->id]);
     }
     return null;
 }
@@ -111,7 +111,10 @@ function tool_courserating_get_course_category_contents($coursecat) {
 
 function tool_courserating_output_fragment_reviews($args) {
     global $PAGE;
-    $courseid = $args['context']->instanceid; // TODO user does not have to have access to course
+    if (!$courseid = clean_param($args['courseid'] ?? 0, PARAM_INT)) {
+        throw new moodle_exception('missingparam', '', '', 'courseid');
+    }
+    \tool_courserating\permission::require_can_view_ratings($courseid);
     /** @var tool_courserating\output\renderer $output */
     $output = $PAGE->get_renderer('tool_courserating');
     return $output->course_reviews($courseid);
@@ -119,10 +122,25 @@ function tool_courserating_output_fragment_reviews($args) {
 
 function tool_courserating_output_fragment_cfield($args) {
     global $PAGE;
-    $courseid = $args['context']->instanceid; // TODO user does not have to have access to course
+    if (!$courseid = clean_param($args['courseid'] ?? 0, PARAM_INT)) {
+        throw new moodle_exception('missingparam', '', '', 'courseid');
+    }
+    \tool_courserating\permission::require_can_view_ratings($courseid);
     /** @var tool_courserating\output\renderer $output */
     $output = $PAGE->get_renderer('tool_courserating');
     return $output->cfield($courseid);
+}
+
+function tool_courserating_output_fragment_course_ratings_summary($args) {
+    global $PAGE;
+    if (!$courseid = clean_param($args['courseid'] ?? 0, PARAM_INT)) {
+        throw new moodle_exception('missingparam', '', '', 'courseid');
+    }
+    \tool_courserating\permission::require_can_view_ratings($courseid);
+    /** @var tool_courserating\output\renderer $output */
+    $output = $PAGE->get_renderer('tool_courserating');
+    $data = $output->data_for_course_ratings_summary($courseid);
+    return $output->render_from_template('tool_courserating/course_ratings_summary', $data);
 }
 
 function tool_courserating_output_fragment_review_flag($args) {
@@ -130,9 +148,13 @@ function tool_courserating_output_fragment_review_flag($args) {
     /** @var tool_courserating\output\renderer $output */
     $output = $PAGE->get_renderer('tool_courserating');
 
-    // TODO check access etc
-    $review = new \tool_courserating\local\models\rating($args['id']);
-    $data = (array)(new \tool_courserating\external\rating_exporter($review))->export($output);
+    if (!$ratingid = clean_param($args['ratingid'] ?? 0, PARAM_INT)) {
+        throw new moodle_exception('missingparam', '', '', 'ratingid');
+    }
+
+    $rating = new \tool_courserating\local\models\rating($args['ratingid']);
+    \tool_courserating\permission::require_can_view_ratings($rating->get('courseid'));
+    $data = (array)(new \tool_courserating\external\rating_exporter($rating))->export($output);
     return $output->render_from_template('tool_courserating/review_flag', $data['reviewflag']);
 }
 
