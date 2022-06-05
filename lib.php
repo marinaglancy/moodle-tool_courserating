@@ -109,7 +109,7 @@ function tool_courserating_get_course_category_contents($coursecat) {
     return '';
 }
 
-function tool_courserating_output_fragment_reviews($args) {
+function tool_courserating_output_fragment_course_ratings_popup($args) {
     global $PAGE;
     if (!$courseid = clean_param($args['courseid'] ?? 0, PARAM_INT)) {
         throw new moodle_exception('missingparam', '', '', 'courseid');
@@ -117,7 +117,7 @@ function tool_courserating_output_fragment_reviews($args) {
     \tool_courserating\permission::require_can_view_ratings($courseid);
     /** @var tool_courserating\output\renderer $output */
     $output = $PAGE->get_renderer('tool_courserating');
-    return $output->course_reviews($courseid);
+    return $output->course_ratings_popup($courseid);
 }
 
 function tool_courserating_output_fragment_cfield($args) {
@@ -139,11 +139,11 @@ function tool_courserating_output_fragment_course_ratings_summary($args) {
     \tool_courserating\permission::require_can_view_ratings($courseid);
     /** @var tool_courserating\output\renderer $output */
     $output = $PAGE->get_renderer('tool_courserating');
-    $data = $output->data_for_course_ratings_summary($courseid);
+    $data = (new \tool_courserating\external\course_ratings_summary($courseid))->export($output);
     return $output->render_from_template('tool_courserating/course_ratings_summary', $data);
 }
 
-function tool_courserating_output_fragment_review_flag($args) {
+function tool_courserating_output_fragment_rating_flag($args) {
     global $PAGE;
     /** @var tool_courserating\output\renderer $output */
     $output = $PAGE->get_renderer('tool_courserating');
@@ -155,7 +155,7 @@ function tool_courserating_output_fragment_review_flag($args) {
     $rating = new \tool_courserating\local\models\rating($args['ratingid']);
     \tool_courserating\permission::require_can_view_ratings($rating->get('courseid'));
     $data = (array)(new \tool_courserating\external\rating_exporter($rating))->export($output);
-    return $output->render_from_template('tool_courserating/review_flag', $data['reviewflag']);
+    return $output->render_from_template('tool_courserating/rating_flag', $data['reviewflag']);
 }
 
 /**

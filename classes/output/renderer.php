@@ -5,7 +5,9 @@ namespace tool_courserating\output;
 use context_course;
 use html_writer;
 use plugin_renderer_base;
+use tool_courserating\external\course_ratings_summary;
 use tool_courserating\external\rating_exporter;
+use tool_courserating\external\ratings_list_exporter;
 use tool_courserating\local\models\rating;
 use tool_courserating\local\models\summary;
 
@@ -62,35 +64,11 @@ class renderer extends plugin_renderer_base {
         return $content;
     }
 
-    public function data_for_course_ratings_summary(int $courseid): array {
-        // TODO make an exporter.
-        $summary = summary::get_record(['courseid' => $courseid]);
-        $data = [
-            'avgrating' => $summary->get('cntall') ? sprintf("%.1f", $summary->get('avgrating')) : '-',
-            'stars' => $this->stars($summary->get('avgrating')),
-            'lines' => [],
-            'courseid' => $courseid,
-        ];
-        foreach ([5,4,3,2,1] as $line) {
-            $percent = $summary->get('cntall') ? round(100 * $summary->get('cnt0' . $line) / $summary->get('cntall')) : 0;
-            $data['lines'][] = ['star' => $this->stars($line), 'percent' =>  $percent . '%'];
-        }
-
-        return $data;
-    }
-
-    public function course_reviews(int $courseid): string {
-        global $DB;
-        // TODO
-        $data = $this->data_for_course_ratings_summary($courseid);
-
-        $data['reviews'] = [];
-        // TODO only ratings with reviews, show more than 10 somehow.
-        $reviews = rating::get_records(['courseid' => $courseid], 'timecreated', 'DESC', 0, 10);
-        foreach ($reviews as $review) {
-            $data['reviews'][] = (new rating_exporter($review))->export($this);
-        }
-        return $this->render_from_template('tool_courserating/reviews', $data);
+    public function course_ratings_popup(int $courseid): string {
+        $data1 = (new course_ratings_summary($courseid))->export($this);
+        $data2 = (new ratings_list_exporter(['courseid' => $courseid]))->export($this);
+        $data = (array)$data1 + (array)$data2;
+        return $this->render_from_template('tool_courserating/course_ratings_popup', $data);
     }
 
     public function course_rating_block(int $courseid): string {

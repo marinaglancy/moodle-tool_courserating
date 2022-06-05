@@ -4,6 +4,7 @@ namespace tool_courserating;
 
 use core\output\inplace_editable;
 use core_customfield\field_controller;
+use tool_courserating\external\rating_exporter;
 use tool_courserating\local\models\flag;
 use tool_courserating\local\models\rating;
 use tool_courserating\local\models\summary;

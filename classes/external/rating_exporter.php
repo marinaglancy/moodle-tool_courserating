@@ -81,7 +81,6 @@ class rating_exporter extends persistent_exporter {
                 'type' => 'array',
                 'optional' => true,
             ],
-            'ratingid' => ['type' => PARAM_INT],
         ];
     }
 
@@ -93,7 +92,7 @@ class rating_exporter extends persistent_exporter {
      */
     protected function get_other_values(\renderer_base $output): array {
         global $PAGE, $USER;
-        $result = ['ratingid' => $this->data->id];
+        $result = [];
 
         if ($user = \core_user::get_user($this->data->userid)) {
             $userexporter = new user_summary_exporter($user);

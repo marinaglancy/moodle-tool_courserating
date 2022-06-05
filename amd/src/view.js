@@ -72,7 +72,7 @@ export const init = (systemContextIdParam) => {
             const ratingid = inplaceEditable.dataset.itemid;
             const node = document.querySelector(`[data-for='tool_courserating-user-flag'][data-ratingid='${ratingid}']`);
             if (node) {
-                Fragment.loadFragment('tool_courserating', 'review_flag', systemContextId, {ratingid}).done((html, js) => {
+                Fragment.loadFragment('tool_courserating', 'rating_flag', systemContextId, {ratingid}).done((html, js) => {
                     Templates.replaceNode(node, html, js);
                 });
             }
@@ -122,7 +122,7 @@ const viewRatings = (courseid) => {
     })
         .then(modal => {
             modal.setLarge();
-            Fragment.loadFragment('tool_courserating', 'reviews', systemContextId, {courseid}).done((html, js) => {
+            Fragment.loadFragment('tool_courserating', 'course_ratings_popup', systemContextId, {courseid}).done((html, js) => {
                 modal.setBody(html);
                 Templates.runTemplateJS(js);
             });
