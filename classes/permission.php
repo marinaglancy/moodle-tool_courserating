@@ -19,8 +19,8 @@ class permission {
         if  (!has_capability('tool/courserating:rate', \context_course::instance($courseid))) {
             return false;
         }
-        $courserateby = helper::get_course_rating_mode($courseid);
-        if ($courserateby == constants::RATEBY_NOONE) {
+        $courseratingmode = helper::get_course_rating_mode($courseid);
+        if ($courseratingmode == constants::RATEBY_NOONE) {
             return false;
         }
         // TODO check completion
@@ -35,6 +35,9 @@ class permission {
     }
 
     public static function can_flag_rating(int $ratingid, ?int $courseid = null): bool {
+        if (!$courseid) {
+            $courseid = (new rating($ratingid))->get('courseid');
+        }
         return self::can_view_ratings($courseid);
     }
 

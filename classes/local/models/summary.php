@@ -2,6 +2,9 @@
 
 namespace tool_courserating\local\models;
 
+use tool_courserating\constants;
+use tool_courserating\helper;
+
 class summary extends \core\persistent {
 
     /** @var string Table name */
@@ -33,6 +36,10 @@ class summary extends \core\persistent {
                 'type' => PARAM_INT,
                 'default' => 0,
             ],
+            'ratingmode' => [
+                'type' => PARAM_INT,
+                'default' => 0,
+            ],
         ];
         for ($i = 1; $i <= 10; $i++) {
             $props[self::cntkey($i)] = [
@@ -44,7 +51,16 @@ class summary extends \core\persistent {
     }
 
     public static function get_for_course(int $courseid) {
-        return self::get_record(['courseid' => $courseid]) ?: new static(0, (object)['courseid' => $courseid]);
+        if ($summary = self::get_record(['courseid' => $courseid])) {
+            return $summary;
+        } else {
+            $summary = new static(0, (object)[
+                'courseid' => $courseid,
+                'ratingmode' => helper::get_course_rating_mode($courseid),
+            ]);
+            $summary->save();
+            return $summary;
+        }
     }
 
     protected static function cntkey(int $i) {
@@ -69,7 +85,7 @@ class summary extends \core\persistent {
 
     public static function update_rating(int $courseid, int $rating, bool $hasreview, int $ratingold, bool $hasreviewold): ?self {
         if (!($record = self::get_record(['courseid' => $courseid])) || !$record->get('cntall') || !$record->get(self::cntkey($ratingold))) {
-            return self::recalculate($courseid);
+            return self::get_for_course($courseid)->recalculate();
         }
         if ($rating == $ratingold && $hasreview == $hasreviewold) {
             // Rating did not change.
@@ -88,8 +104,23 @@ class summary extends \core\persistent {
         return $record;
     }
 
-    public static function recalculate(int $courseid): ?self {
+    public function reset_all_counters() {
+        foreach (['cntall', 'avgrating', 'sumrating', 'cntreviews'] as $key) {
+            $this->set($key, 0);
+        }
+        for ($i = 1; $i <= 10; $i++) {
+            $this->set(self::cntkey($i), 0);
+        }
+    }
+
+    public function recalculate(): ?self {
         global $DB;
+        if ($this->get('ratingmode') == constants::RATEBY_NOONE) {
+            $this->reset_all_counters();
+            $this->save();
+            return $this;
+        }
+
         $sqllen = $DB->sql_length('review');
         $sql = 'SELECT COUNT(id) AS cntall,
                SUM(rating) AS sumrating,
@@ -107,25 +138,23 @@ class summary extends \core\persistent {
             FROM {tool_courserating_rating} r
             WHERE r.courseid = :courseid
         ';
-        $params = ['courseid' => $courseid];
+        $params = ['courseid' => $this->get('courseid')];
         $result = $DB->get_record_sql($sql, $params);
-        $summary = self::get_for_course($courseid);
-        $keys = ['cntall', 'sumrating', 'cntreviews', 'cnt01'];
-        for ($i = 1; $i <= 10; $i++) {
-            $key[] = self::cntkey($i);
-        }
-        foreach ($keys as $key) {
-            $summary->set($key, $result->$key ?? 0);
-        }
-        if (!$summary->get('cntall')) {
-            if ($summary->get('id')) {
-                $summary->delete();
-            }
+
+        if (!$result->cntall) {
+            $this->reset_all_counters();
         } else {
-            $summary->set('avgrating', 1.0 * $summary->get('sumrating') / $summary->get('cntall'));
-            $summary->save();
+            $keys = ['cntall', 'sumrating', 'cntreviews'];
+            for ($i = 1; $i <= 10; $i++) {
+                $key[] = self::cntkey($i);
+            }
+            foreach ($keys as $key) {
+                $this->set($key, $result->$key ?? 0);
+            }
+            $this->set('avgrating', 1.0 * $this->get('sumrating') / $this->get('cntall'));
         }
-        return $summary;
+        $this->save();
+        return $this;
     }
 
     public static function delete_rating(int $courseid, int $ratingold, bool $hasreviewold): ?self {

@@ -34,7 +34,7 @@ class api_test extends \advanced_testcase {
         }
     }
 
-    protected function assertSummary(?array $expected, int $courseid) {
+    protected function assertSummary(array $expected, int $courseid) {
         global $DB;
 
         $cfield = $DB->get_field_sql('SELECT d.value FROM {customfield_field} f 
@@ -42,7 +42,7 @@ class api_test extends \advanced_testcase {
             JOIN {customfield_category} c ON f.categoryid = c.id
             WHERE f.shortname = ? AND d.instanceid = ?
                   AND c.component = ? AND c.area = ?',
-            ['tool_courserating', $courseid, 'core_course', 'course']);
+            [constants::CFIELD_RATING, $courseid, 'core_course', 'course']);
 
         $params = ['courseid' => $courseid];
         if (empty($expected)) {
@@ -51,9 +51,12 @@ class api_test extends \advanced_testcase {
         } else {
             $record = (array)$DB->get_record(summary::TABLE, $params, '*', MUST_EXIST);
             $this->assertEquals($expected, array_intersect_key($record, $expected));
+        }
 
+        if ($record['cntall'] ?? 0) {
             $this->assertStringContainsString("({$record['cntall']})", strip_tags($cfield));
-            $this->assertStringContainsString(sprintf("%.1f", $record['avgrating']), $cfield);
+        } else {
+            $this->assertEmpty($cfield);
         }
     }
 
@@ -93,7 +96,7 @@ class api_test extends \advanced_testcase {
         $expected = ['cntall' => 2, 'avgrating' => 2.5, 'sumrating' => 5, 'cnt02' => 1, 'cnt03' => 1, 'cnt04' => 0];
         $this->assertSummary($expected, $course->id);
 
-        summary::recalculate($course->id);
+        summary::get_for_course($course->id)->recalculate();
         $this->assertSummary($expected, $course->id);
 
     }

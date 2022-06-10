@@ -66,15 +66,14 @@ class api {
         return $rating;
     }
 
-    protected static function update_course_rating_in_custom_field(?summary $summary, ?int $courserateby = null) {
+    protected static function update_course_rating_in_custom_field(?summary $summary) {
         global $PAGE;
         if (!$summary || !helper::get_course_rating_field()) {
             return;
         }
         $courseid = $summary->get('courseid');
-        $courserateby = $courserateby ?? helper::get_course_rating_mode($courseid);
 
-        if ($courserateby == constants::RATEBY_NOONE) {
+        if ($summary->get('ratingmode') == constants::RATEBY_NOONE) {
             $ratingstr = '';
         } else {
             /** @var \tool_courserating\output\renderer $output */
@@ -181,13 +180,13 @@ class api {
 
         $percourse = helper::get_setting(constants::SETTING_PERCOURSE);
         $ratingfield = helper::get_course_rating_field();
-        $ratingenabledfield = helper::get_course_rating_enabled_field();
+        $ratingmodefield = helper::get_course_rating_mode_field();
 
         if (!$ratingfield) {
             return;
         }
 
-        $fields = 'c.id as courseid, d.value as cfield, s.cntall as summarycntall,
+        $fields = 'c.id as courseid, d.value as cfield, s.cntall as summarycntall, s.ratingmode as summaryratingmode,
                (select count(1) from {tool_courserating_rating} r where r.courseid=c.id) as actualcntall ';
         $join = 'from mdl_course c
             left join {tool_courserating_summary} s on s.courseid = c.id
@@ -195,15 +194,15 @@ class api {
             left join {customfield_data} d on d.fieldid = f.id and d.instanceid = c.id ';
         $params = [
             'field1' => $ratingfield->get('shortname'),
-            'siteid' => $SITE->id,
+            'siteid' => $SITE->id ?? SITEID,
         ];
 
-        if ($percourse && $ratingenabledfield) {
+        if ($percourse && $ratingmodefield) {
             // Each course may override whether course ratings are enabled.
             $fields .= ', dr.intvalue as rateby';
             $join .= ' left join mdl_customfield_field fr on fr.shortname = :field2
             left join mdl_customfield_data dr on dr.fieldid = fr.id and dr.instanceid = c.id';
-            $params['field2'] = $ratingenabledfield->get('shortname');
+            $params['field2'] = $ratingmodefield->get('shortname');
         }
 
         $sql = "SELECT $fields $join WHERE c.id <> :siteid ";
@@ -216,39 +215,58 @@ class api {
 
         $records = $DB->get_records_sql($sql, $params);
         foreach ($records as $record) {
-            $courserateby = helper::get_setting(constants::SETTING_RATEDCOURSES);
+            $record->actualratingmode = helper::get_setting(constants::SETTING_RATINGMODE);
             if ($percourse && $record->rateby && array_key_exists($record->rateby, constants::rated_courses_options())) {
-                $courserateby = $record->rateby;
+                $record->actualratingmode = $record->rateby;
             }
-            self::reindex_course($courserateby, $record);
+            self::reindex_course($record);
         }
     }
 
     /**
      * Re-index individual course
      *
-     * @param bool $enabled course ratings are enabled for this course
+     * @param int $courseratingmode the actual rating mode for this course
      * @param \stdClass $data contains fields: courseid, cfield, summarycntall, actualcntall
      *     where cfield is the actual value stored in the "course rating" custom course field,
      *     summarycntall - the field tool_courserating_summary.cntall that corresponds to this course,
+     *     summaryratingmode - the field tool_courserating_summary.ratingmode that corresponds to this course,
      *     actualcntall - the actual count of ratings for this course (count(*) from tool_courserating_rating)
+     *     actualratingmode - what actually must be the rating mode of this course
      */
-    protected static function reindex_course(int $courserateby, \stdClass $data) {
-        $mustbeempty = $courserateby == constants::RATEBY_NOONE
+    protected static function reindex_course(\stdClass $data) {
+        $mustbeempty = $data->actualratingmode == constants::RATEBY_NOONE
             || (!$data->actualcntall && !helper::get_setting(constants::SETTING_DISPLAYEMPTY));
+
+        if ($data->summaryratingmode != $data->actualratingmode) {
+            // Rating mode for this course has changed.
+            $summary = summary::get_for_course($data->courseid);
+            $summary->set('ratingmode', $data->actualratingmode);
+            if ($data->actualratingmode == constants::RATEBY_NOONE) {
+                $summary->reset_all_counters();
+            }
+            $summary->save();
+        }
 
         if ($mustbeempty) {
             // Course rating should not be displayed at all.
-            if (!empty($data->summarycntall) && ($summary = summary::get_for_course($data->courseid)) && $summary->get('id')) {
-                $summary->delete();
-            }
             if (!empty($data->cfield)) {
-                self::update_course_rating_in_custom_field($summary ?? summary::get_for_course($data->courseid), $courserateby);
+                $summary = $summary ?? summary::get_for_course($data->courseid);
+                self::update_course_rating_in_custom_field($summary);
             }
         } else {
             // Update summary and cfield with the data.
-            $summary = summary::recalculate($data->courseid);
-            self::update_course_rating_in_custom_field($summary, $courserateby);
+            $summary = $summary ?? summary::get_for_course($data->courseid);
+            $summary->recalculate();
+            self::update_course_rating_in_custom_field($summary);
         }
+    }
+
+    public static function delete_all_data_for_course(int $courseid) {
+        global $DB;
+        $DB->execute('DELETE from {'.flag::TABLE.'} WHERE ratingid IN (SELECT id FROM {'.
+            rating::TABLE.'} WHERE courseid = ?)', [$courseid]);
+        $DB->delete_records(summary::TABLE, ['courseid' => $courseid]);
+        $DB->delete_records(rating::TABLE, ['courseid' => $courseid]);
     }
 }

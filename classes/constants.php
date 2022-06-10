@@ -3,13 +3,15 @@ namespace tool_courserating;
 
 class constants {
     const REVIEWS_PER_PAGE = 10;
-    const FILTER_SHOW_EMPTY = 'showempty';
+
+    const CFIELD_RATING = 'tool_courserating';
+    const CFIELD_RATINGMODE = 'tool_courserating_mode';
 
     const RATEBY_NOONE = 1;
     const RATEBY_ANYTIME = 2;
     const RATEBY_COMPLETED = 3;
 
-    const SETTING_RATEDCOURSES = 'ratedcourses';
+    const SETTING_RATINGMODE = 'ratingmode';
     const SETTING_PERCOURSE = 'percourse';
     const SETTING_STARCOLOR = 'starcolor';
     const SETTING_RATINGCOLOR = 'ratingcolor';

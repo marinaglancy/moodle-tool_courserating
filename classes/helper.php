@@ -60,7 +60,7 @@ class helper {
     }
 
     public static function course_ratings_enabled_anywhere(): bool {
-        if (self::get_setting(constants::SETTING_RATEDCOURSES) == constants::RATEBY_NOONE &&
+        if (self::get_setting(constants::SETTING_RATINGMODE) == constants::RATEBY_NOONE &&
                 !self::get_setting(constants::SETTING_PERCOURSE)) {
             return false;
         }
@@ -91,6 +91,7 @@ class helper {
             constants::SETTING_RATINGCOLOR => constants::SETTING_RATINGCOLOR_DEFAULT,
             constants::SETTING_DISPLAYEMPTY => false,
             constants::SETTING_PERCOURSE => false,
+            constants::SETTING_RATINGMODE => constants::RATEBY_ANYTIME,
         ];
         if (!isset($value) && array_key_exists($name, $defaults)) {
             // Can only happen if there is unfinished upgrade.
@@ -104,7 +105,7 @@ class helper {
             $color = strtolower($value ?? '');
             return (preg_match('/^#[a-f0-9]{6}$/', $color)) ? $color : $defaults[$name];
         }
-        if ($name === constants::SETTING_RATEDCOURSES) {
+        if ($name === constants::SETTING_RATINGMODE) {
             static $available = [constants::RATEBY_NOONE, constants::RATEBY_ANYTIME, constants::RATEBY_COMPLETED];
             return in_array($value, $available) ? $value : $defaults[$name];
         }
@@ -188,7 +189,7 @@ class helper {
     }
 
     public static function get_course_rating_field(): ?field_controller {
-        $shortname = 'tool_courserating';
+        $shortname = constants::CFIELD_RATING;
         $field = self::find_custom_field_by_shortname($shortname);
 
         if (!self::course_ratings_enabled_anywhere()) {
@@ -205,8 +206,8 @@ class helper {
             get_string('cfielddescription', 'tool_courserating'));
     }
 
-    public static function get_course_rating_enabled_field(): ?field_controller {
-        $shortname = 'tool_courserating_'.constants::SETTING_PERCOURSE;
+    public static function get_course_rating_mode_field(): ?field_controller {
+        $shortname = constants::CFIELD_RATINGMODE;
         $field = self::find_custom_field_by_shortname($shortname);
         if (!self::get_setting(constants::SETTING_PERCOURSE)) {
             if ($field) {
@@ -217,10 +218,10 @@ class helper {
 
         $options = constants::rated_courses_options();
         $description = get_string('ratebydefault', 'tool_courserating',
-            $options[self::get_setting(constants::SETTING_RATEDCOURSES)]);
+            $options[self::get_setting(constants::SETTING_RATINGMODE)]);
         $field = $field ?? self::create_custom_field($shortname,
             'select',
-            new \lang_string('ratedcourses', 'tool_courserating'),
+            new \lang_string('ratingmode', 'tool_courserating'),
             [
                 'visibility' => \core_course\customfield\course_handler::NOTVISIBLE,
                 'options' => join("\n", $options),
@@ -231,6 +232,17 @@ class helper {
             $field->save();
         }
         return $field;
+    }
+
+    public static function delete_all_custom_fields() {
+        $shortname = constants::CFIELD_RATINGMODE;
+        if ($field = self::find_custom_field_by_shortname($shortname)) {
+            $field->get_handler()->delete_field_configuration($field);
+        }
+        $shortname = constants::CFIELD_RATING;
+        if ($field = self::find_custom_field_by_shortname($shortname)) {
+            $field->get_handler()->delete_field_configuration($field);
+        }
     }
 
     protected static function get_custom_field_data(int $courseid, string $shortname): ?data_controller {
@@ -247,15 +259,15 @@ class helper {
     }
 
     public static function get_course_rating_data_in_cfield(int $courseid): ?data_controller {
-        return self::get_custom_field_data($courseid, 'tool_courserating');
+        return self::get_custom_field_data($courseid, constants::CFIELD_RATING);
     }
 
-    public static function get_course_rating_enabled_data_in_cfield(int $courseid): ?data_controller {
-        return self::get_custom_field_data($courseid, 'tool_courserating_'.constants::SETTING_PERCOURSE);
+    protected static function get_course_rating_enabled_data_in_cfield(int $courseid): ?data_controller {
+        return self::get_custom_field_data($courseid, constants::CFIELD_RATINGMODE);
     }
 
     public static function get_course_rating_mode(int $courseid): int {
-        $mode = self::get_setting(constants::SETTING_RATEDCOURSES);
+        $mode = self::get_setting(constants::SETTING_RATINGMODE);
         if (self::get_setting(constants::SETTING_PERCOURSE)) {
             if ($data = self::get_course_rating_enabled_data_in_cfield($courseid)) {
                 $modecourse = (int)$data->get('intvalue');

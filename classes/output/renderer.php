@@ -5,19 +5,18 @@ namespace tool_courserating\output;
 use plugin_renderer_base;
 use tool_courserating\external\summary_exporter;
 use tool_courserating\external\ratings_list_exporter;
+use tool_courserating\helper;
 use tool_courserating\permission;
 
 class renderer extends plugin_renderer_base {
 
     public function cfield(int $courseid): string {
         $content = '';
-        $fieldsdata = \core_course\customfield\course_handler::create()->get_instance_data($courseid);
-        foreach ($fieldsdata as $data) {
-            if ($data->get_field()->get('shortname') === 'tool_courserating') {
-                $output = $this->page->get_renderer('core_customfield');
-                $fd = new \core_customfield\output\field_data($data);
-                $content .= $output->render($fd);
-            }
+        $data = helper::get_course_rating_data_in_cfield($courseid);
+        if ($data) {
+            $output = $this->page->get_renderer('core_customfield');
+            $fd = new \core_customfield\output\field_data($data);
+            $content .= $output->render($fd);
         }
         return $content;
     }
