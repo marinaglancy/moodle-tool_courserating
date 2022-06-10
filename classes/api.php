@@ -4,6 +4,7 @@ namespace tool_courserating;
 
 use core\output\inplace_editable;
 use core_customfield\field_controller;
+use tool_brickfield\local\tool\errors;
 use tool_courserating\external\rating_exporter;
 use tool_courserating\external\summary_exporter;
 use tool_courserating\local\models\flag;
@@ -65,27 +66,27 @@ class api {
         return $rating;
     }
 
-    protected static function update_course_rating_in_custom_field(?summary $summary) {
+    protected static function update_course_rating_in_custom_field(?summary $summary, ?int $courserateby = null) {
         global $PAGE;
-        if (!$summary) {
+        if (!$summary || !helper::get_course_rating_field()) {
             return;
         }
         $courseid = $summary->get('courseid');
-        /** @var \tool_courserating\output\renderer $output */
-        $output = $PAGE->get_renderer('tool_courserating');
-        $data = (new summary_exporter(0, $summary))->export($output);
-        $ratingstr = $output->render_from_template('tool_courserating/summary_for_cfield', $data);
+        $courserateby = $courserateby ?? helper::get_course_rating_mode($courseid);
 
-        $f = self::get_course_rating_field();
-        $handler = \core_course\customfield\course_handler::create();
-        $fields = \core_customfield\api::get_instance_fields_data([$f->get('id') => $f], $courseid);
-        foreach ($fields as $data) {
-            if (!$data->get('id')) {
-                $data->set('contextid', $handler->get_instance_context($courseid)->id);
-            }
+        if ($courserateby == constants::RATEBY_NOONE) {
+            $ratingstr = '';
+        } else {
+            /** @var \tool_courserating\output\renderer $output */
+            $output = $PAGE->get_renderer('tool_courserating');
+            $data = (new summary_exporter(0, $summary))->export($output);
+            $ratingstr = $output->render_from_template('tool_courserating/summary_for_cfield', $data);
+        }
+
+        if ($data = helper::get_course_rating_data_in_cfield($courseid)) {
             $data->instance_form_save((object)[
                 'id' => $courseid,
-                'customfield_tool_courserating_editor' => ['text' => $ratingstr, 'format' => FORMAT_HTML],
+                $data->get_form_element_name() => ['text' => $ratingstr, 'format' => FORMAT_HTML],
             ]);
         }
     }
@@ -136,72 +137,6 @@ class api {
         }
     }
 
-    /**
-     * Finds a field by its shortname
-     *
-     * @param string $shortname
-     * @return field_controller|null
-     */
-    public static function find_field_by_shortname(\core_course\customfield\course_handler $handler, string $shortname) : ?field_controller {
-        $categories = $handler->get_categories_with_fields();
-        foreach ($categories as $category) {
-            foreach ($category->get_fields() as $field) {
-                if ($field->get('shortname') === $shortname) {
-                    return $field;
-                }
-            }
-        }
-        return null;
-    }
-
-    /**
-     * Create a field if it does not exist
-     *
-     * @param string $shortname
-     * @param string $type currently only supported 'text' and 'textarea'
-     * @param null|string $displayname
-     * @param bool $visible
-     * @param null|string $previewvalue
-     * @param array $config additional field configuration, for example, for date - includetime
-     * @return field_controller|null
-     */
-    public static function ensure_field_exists(string $shortname, string $type = 'text', string $displayname = '',
-                                        bool $visible = false, ?string $previewvalue = null, array $config = []) : ?field_controller {
-        $handler = \core_course\customfield\course_handler::create();
-        if ($field = self::find_field_by_shortname($handler, $shortname)) {
-            return $field;
-        }
-
-        $categories = $handler->get_categories_with_fields();
-        if (empty($categories)) {
-            $categoryid = $handler->create_category();
-            $category = \core_customfield\category_controller::create($categoryid);
-        } else {
-            $category = reset($categories);
-        }
-
-        if ($type !== 'textarea') {
-            $type = 'text';
-        }
-
-        try {
-            $config = ['visible' => $visible, 'previewvalue' => $previewvalue] + $config;
-            $record = (object)['type' => $type, 'shortname' => $shortname, 'name' => $displayname ?: $shortname,
-                'descriptionformat' => FORMAT_HTML, 'configdata' => json_encode($config)];
-            $field = \core_customfield\field_controller::create(0, $record, $category);
-        } catch (\moodle_exception $e) {
-            return null;
-        }
-
-        $handler->save_field_configuration($field, $record);
-
-        return self::find_field_by_shortname($handler, $shortname);
-    }
-
-    public static function get_course_rating_field() {
-        return self::ensure_field_exists('tool_courserating', 'textarea', get_string('ratinglabel', 'tool_courserating'), true);
-    }
-
     public static function flag_review(int $ratingid): ?flag {
         global $USER;
         $flag = flag::get_records(['ratingid' => $ratingid, 'userid' => $USER->id]);
@@ -241,35 +176,66 @@ class api {
         return $r;
     }
 
-    public static function reindex() {
+    public static function reindex(int $courseid = 0) {
         global $DB, $SITE;
+
         $percourse = helper::get_setting(constants::SETTING_PERCOURSE);
-        $fields = 'c.id as courseid, c.shortname, d.value as cfield, s.cntall as summarycntall,
+        $ratingfield = helper::get_course_rating_field();
+        $ratingenabledfield = helper::get_course_rating_enabled_field();
+
+        if (!$ratingfield) {
+            return;
+        }
+
+        $fields = 'c.id as courseid, d.value as cfield, s.cntall as summarycntall,
                (select count(1) from {tool_courserating_rating} r where r.courseid=c.id) as actualcntall ';
         $join = 'from mdl_course c
             left join {tool_courserating_summary} s on s.courseid = c.id
             left join {customfield_field} f on f.shortname = :field1
             left join {customfield_data} d on d.fieldid = f.id and d.instanceid = c.id ';
-        if ($percourse) {
+        $params = [
+            'field1' => $ratingfield->get('shortname'),
+            'siteid' => $SITE->id,
+        ];
+
+        if ($percourse && $ratingenabledfield) {
+            // Each course may override whether course ratings are enabled.
             $fields .= ', dr.intvalue as rateby';
             $join .= ' left join mdl_customfield_field fr on fr.shortname = :field2
             left join mdl_customfield_data dr on dr.fieldid = fr.id and dr.instanceid = c.id';
+            $params['field2'] = $ratingenabledfield->get('shortname');
         }
-        $params = ['field1' => 'tool_courserating', 'field2' => 'tool_courserating_rateby', 'siteid' => $SITE->id];
-        $sql = "SELECT $fields $join WHERE c.id <> :siteid ORDER BY c.id DESC";
+
+        $sql = "SELECT $fields $join WHERE c.id <> :siteid ";
+        if ($courseid) {
+            $sql .= " AND c.id = :courseid ";
+            $params['courseid'] = $courseid;
+        } else {
+            $sql .= " ORDER BY c.id DESC";
+        }
 
         $records = $DB->get_records_sql($sql, $params);
         foreach ($records as $record) {
-            $ratingenabled = helper::get_setting(constants::SETTING_RATEDCOURSES);
-            if ($percourse && $record->rateby) {
-                $ratingenabled = $record->rateby;
+            $courserateby = helper::get_setting(constants::SETTING_RATEDCOURSES);
+            if ($percourse && $record->rateby && array_key_exists($record->rateby, constants::rated_courses_options())) {
+                $courserateby = $record->rateby;
             }
-            self::reindex_course($ratingenabled != constants::RATEBY_NOONE, $record);
+            self::reindex_course($courserateby, $record);
         }
     }
 
-    protected static function reindex_course(bool $enabled, \stdClass $data) {
-        $mustbeempty = !$enabled || (!$data->actualcntall && !helper::get_setting(constants::SETTING_DISPLAYEMPTY));
+    /**
+     * Re-index individual course
+     *
+     * @param bool $enabled course ratings are enabled for this course
+     * @param \stdClass $data contains fields: courseid, cfield, summarycntall, actualcntall
+     *     where cfield is the actual value stored in the "course rating" custom course field,
+     *     summarycntall - the field tool_courserating_summary.cntall that corresponds to this course,
+     *     actualcntall - the actual count of ratings for this course (count(*) from tool_courserating_rating)
+     */
+    protected static function reindex_course(int $courserateby, \stdClass $data) {
+        $mustbeempty = $courserateby == constants::RATEBY_NOONE
+            || (!$data->actualcntall && !helper::get_setting(constants::SETTING_DISPLAYEMPTY));
 
         if ($mustbeempty) {
             // Course rating should not be displayed at all.
@@ -277,12 +243,12 @@ class api {
                 $summary->delete();
             }
             if (!empty($data->cfield)) {
-                self::update_course_rating_in_custom_field($summary ?? summary::get_for_course($data->courseid));
+                self::update_course_rating_in_custom_field($summary ?? summary::get_for_course($data->courseid), $courserateby);
             }
         } else {
             // Update summary and cfield with the data.
             $summary = summary::recalculate($data->courseid);
-            self::update_course_rating_in_custom_field($summary);
+            self::update_course_rating_in_custom_field($summary, $courserateby);
         }
     }
 }

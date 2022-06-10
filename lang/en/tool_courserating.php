@@ -26,6 +26,7 @@
 defined('MOODLE_INTERNAL') || die();
 
 $string['addrating'] = 'Rate this course';
+$string['cfielddescription'] = 'Do not edit, the content will be populated automatically every time somebody leaves a rating for this course.';
 $string['colorrating'] = 'Colour of the rating';
 $string['colorratingconfig'] = 'This is usually slightly darker than the star colour for the best visual effect';
 $string['colorstar'] = 'Colour of the stars';
@@ -42,6 +43,7 @@ $string['percourseoverrideconfig'] = 'If enabled, a custom course field will be 
 $string['pluginname'] = 'Course ratings';
 $string['ratebyanybody'] = 'Students can rate the course at any time';
 $string['ratebycompleted'] = 'Students can rate only after completing the course';
+$string['ratebydefault'] = 'Default value is: "{$a}"';
 $string['ratebynoone'] = 'Course ratings are disabled';
 $string['ratedcategory'] = 'Category where course ratings are allowed';
 $string['ratedcourses'] = 'When can courses be rated';

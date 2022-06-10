@@ -2,6 +2,9 @@
 
 namespace tool_courserating;
 
+use core_customfield\data_controller;
+use core_customfield\field_controller;
+
 class helper {
     function wordings() {
         // Udemy
@@ -113,5 +116,155 @@ class helper {
             '.tool_courserating-ratingcolor { color: '.self::get_setting(constants::SETTING_RATINGCOLOR).';}'."\n".
             '.tool_courserating-norating .tool_courserating-stars { color: '.constants::COLOR_GRAY.';}'."\n".
             '.tool_courserating-barcolor { background-color: '.self::get_setting(constants::SETTING_STARCOLOR).';}'."\n";
+    }
+
+    /**
+     * Finds a field by its shortname
+     *
+     * @param string $shortname
+     * @return field_controller|null
+     */
+    protected static function find_custom_field_by_shortname(string $shortname) : ?field_controller {
+        $handler = \core_course\customfield\course_handler::create();
+        $categories = $handler->get_categories_with_fields();
+        foreach ($categories as $category) {
+            foreach ($category->get_fields() as $field) {
+                if ($field->get('shortname') === $shortname) {
+                    return $field;
+                }
+            }
+        }
+        return null;
+    }
+
+    /**
+     * Create a custom course field if it does not exist
+     *
+     * @param string $shortname
+     * @param string $type i.e. 'textarea', 'select', 'text
+     * @param null|string $displayname
+     * @param array $config additional field configuration, for example, options for 'select' element
+     * @param string $description
+     * @return field_controller|null
+     */
+    protected static function create_custom_field(string $shortname, string $type = 'text', ?\lang_string $displayname = null,
+                                               array $config = [], string $description = '') : ?field_controller {
+        $handler = \core_course\customfield\course_handler::create();
+        $categories = $handler->get_categories_with_fields();
+        if (empty($categories)) {
+            $categoryid = $handler->create_category();
+            $category = \core_customfield\category_controller::create($categoryid);
+        } else {
+            $category = reset($categories);
+        }
+
+        $config += [
+            'defaultvalue' => '',
+            'defaultvalueformat' => 1,
+            'visibility' => \core_course\customfield\course_handler::VISIBLETOALL,
+            'required' => 0,
+            'uniquevalues' => 0,
+            'locked' => 0,
+        ];
+        $record = (object)[
+            'type' => $type,
+            'shortname' => $shortname,
+            'name' => $displayname ? (string)$displayname : $shortname,
+            'descriptionformat' => FORMAT_HTML,
+            'description' => $description,
+            'configdata' => json_encode($config),
+        ];
+
+        try {
+            $field = \core_customfield\field_controller::create(0, $record, $category);
+        } catch (\moodle_exception $e) {
+            return null;
+        }
+
+        $handler->save_field_configuration($field, $record);
+
+        // Fetch the field again because the categories cache was rebuilt.
+        return self::find_custom_field_by_shortname($shortname);
+    }
+
+    public static function get_course_rating_field(): ?field_controller {
+        $shortname = 'tool_courserating';
+        $field = self::find_custom_field_by_shortname($shortname);
+
+        if (!self::course_ratings_enabled_anywhere()) {
+            if ($field) {
+                $field->get_handler()->delete_field_configuration($field);
+            }
+            return null;
+        }
+
+        return $field ?? self::create_custom_field($shortname,
+            'textarea',
+            new \lang_string('ratinglabel', 'tool_courserating'),
+            ['locked' => 1],
+            get_string('cfielddescription', 'tool_courserating'));
+    }
+
+    public static function get_course_rating_enabled_field(): ?field_controller {
+        $shortname = 'tool_courserating_'.constants::SETTING_PERCOURSE;
+        $field = self::find_custom_field_by_shortname($shortname);
+        if (!self::get_setting(constants::SETTING_PERCOURSE)) {
+            if ($field) {
+                $field->get_handler()->delete_field_configuration($field);
+            }
+            return null;
+        }
+
+        $options = constants::rated_courses_options();
+        $description = get_string('ratebydefault', 'tool_courserating',
+            $options[self::get_setting(constants::SETTING_RATEDCOURSES)]);
+        $field = $field ?? self::create_custom_field($shortname,
+            'select',
+            new \lang_string('ratedcourses', 'tool_courserating'),
+            [
+                'visibility' => \core_course\customfield\course_handler::NOTVISIBLE,
+                'options' => join("\n", $options),
+            ],
+            $description);
+        if ($field && $field->get('description') !== $description) {
+            $field->set('description', $description);
+            $field->save();
+        }
+        return $field;
+    }
+
+    protected static function get_custom_field_data(int $courseid, string $shortname): ?data_controller {
+        if ($f = self::find_custom_field_by_shortname($shortname)) {
+            $fields = \core_customfield\api::get_instance_fields_data([$f->get('id') => $f], $courseid);
+            foreach ($fields as $data) {
+                if (!$data->get('id')) {
+                    $data->set('contextid', \context_course::instance($courseid)->id);
+                }
+                return $data;
+            }
+        }
+        return null;
+    }
+
+    public static function get_course_rating_data_in_cfield(int $courseid): ?data_controller {
+        return self::get_custom_field_data($courseid, 'tool_courserating');
+    }
+
+    public static function get_course_rating_enabled_data_in_cfield(int $courseid): ?data_controller {
+        return self::get_custom_field_data($courseid, 'tool_courserating_'.constants::SETTING_PERCOURSE);
+    }
+
+    public static function get_course_rating_mode(int $courseid): int {
+        $mode = self::get_setting(constants::SETTING_RATEDCOURSES);
+        if (self::get_setting(constants::SETTING_PERCOURSE)) {
+            if ($data = self::get_course_rating_enabled_data_in_cfield($courseid)) {
+                $modecourse = (int)$data->get('intvalue');
+                if (array_key_exists($modecourse, constants::rated_courses_options())) {
+                    // Value is overridden for this course.
+                    return $modecourse;
+                }
+            }
+        }
+        return $mode;
     }
 }

@@ -127,12 +127,4 @@ class api_test extends \advanced_testcase {
         $this->assertSummary($expected, $course->id);
 
     }
-
-    public function test_coursefield() {
-        global $DB;
-        $this->resetAfterTest();
-
-        //print_r(api::get_course_rating_field());
-        $this->assertNotEmpty(api::get_course_rating_field());
-    }
 }

@@ -19,4 +19,12 @@ class constants {
     const SETTING_RATINGCOLOR_DEFAULT = '#b4690e';
 
     const COLOR_GRAY = '#a0a0a0';
+
+    public static function rated_courses_options() {
+        return [
+            self::RATEBY_NOONE => new \lang_string('ratebynoone', 'tool_courserating'),
+            self::RATEBY_ANYTIME => new \lang_string('ratebyanybody', 'tool_courserating'),
+            self::RATEBY_COMPLETED => new \lang_string('ratebycompleted', 'tool_courserating'),
+        ];
+    }
 }

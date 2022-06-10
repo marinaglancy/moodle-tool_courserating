@@ -30,6 +30,9 @@ class renderer extends plugin_renderer_base {
     }
 
     public function course_rating_block(int $courseid): string {
+        if (!permission::can_view_ratings($courseid)) {
+            return '';
+        }
         $data = [
             'ratingdisplay' => $this->cfield($courseid),
             'courseid' => $courseid,

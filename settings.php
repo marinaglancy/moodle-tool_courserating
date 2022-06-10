@@ -27,18 +27,14 @@ defined('MOODLE_INTERNAL') || die();
 
 if ($hassiteconfig) {
 
-    // "courserequests" settingpage.
     $temp = new admin_settingpage('tool_courserating', new lang_string('pluginname', 'tool_courserating'));
-    $options = [
-        \tool_courserating\constants::RATEBY_NOONE => new lang_string('ratebynoone', 'tool_courserating'),
-        \tool_courserating\constants::RATEBY_ANYTIME => new lang_string('ratebyanybody', 'tool_courserating'),
-        \tool_courserating\constants::RATEBY_COMPLETED => new lang_string('ratebycompleted', 'tool_courserating'),
-    ];
-    $temp->add(new admin_setting_configselect('tool_courserating/' . \tool_courserating\constants::SETTING_RATEDCOURSES,
+    $el = new admin_setting_configselect('tool_courserating/' . \tool_courserating\constants::SETTING_RATEDCOURSES,
         new lang_string('ratedcourses', 'tool_courserating'),
         new lang_string('ratedcoursesconfig', 'tool_courserating'),
         \tool_courserating\constants::RATEBY_ANYTIME,
-        $options));
+        \tool_courserating\constants::rated_courses_options());
+    $el->set_updatedcallback('tool_courserating\task\reindex::schedule');
+    $temp->add($el);
 
     $el = new admin_setting_configcheckbox('tool_courserating/' . \tool_courserating\constants::SETTING_PERCOURSE,
         new lang_string('percourseoverride', 'tool_courserating'),

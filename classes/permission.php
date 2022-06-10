@@ -10,12 +10,21 @@ class permission {
         global $USER;
         $course = get_course($courseid);
         $context = \context_course::instance($courseid);
-        return \core_course_category::can_view_course_info($course) ||
-            is_enrolled($context, $USER, '', true);
+        return (\core_course_category::can_view_course_info($course) ||
+            is_enrolled($context, $USER, '', true)) &&
+            helper::get_course_rating_mode($courseid) != constants::RATEBY_NOONE;
     }
 
     public static function can_add_rating(int $courseid): bool {
-        return has_capability('tool/courserating:rate', \context_course::instance($courseid));
+        if  (!has_capability('tool/courserating:rate', \context_course::instance($courseid))) {
+            return false;
+        }
+        $courserateby = helper::get_course_rating_mode($courseid);
+        if ($courserateby == constants::RATEBY_NOONE) {
+            return false;
+        }
+        // TODO check completion
+        return true;
     }
 
     public static function can_delete_rating(int $ratingid, ?int $courseid = null): bool {
@@ -26,7 +35,7 @@ class permission {
     }
 
     public static function can_flag_rating(int $ratingid, ?int $courseid = null): bool {
-        return self::can_delete_rating($ratingid, $courseid);
+        return self::can_view_ratings($courseid);
     }
 
     public static function require_can_view_ratings(int $courseid): void {
