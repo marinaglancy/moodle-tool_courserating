@@ -5,6 +5,7 @@ namespace tool_courserating\output;
 use plugin_renderer_base;
 use tool_courserating\external\summary_exporter;
 use tool_courserating\external\ratings_list_exporter;
+use tool_courserating\permission;
 
 class renderer extends plugin_renderer_base {
 
@@ -32,7 +33,7 @@ class renderer extends plugin_renderer_base {
         $data = [
             'ratingdisplay' => $this->cfield($courseid),
             'courseid' => $courseid,
-            'rate' => true
+            'rate' => permission::can_add_rating($courseid)
         ];
         return $this->render_from_template('tool_courserating/course_rating_block', $data);
     }

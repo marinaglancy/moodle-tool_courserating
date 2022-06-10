@@ -22,24 +22,35 @@
  * @license     https://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
+/**
+ * Callback allowing to add js to $PAGE->requires
+ */
 function tool_courserating_before_http_headers() {
     global $PAGE;
-    // Can add js to $PAGE->requires
-    if (\tool_courserating\helper::is_course_page() || \tool_courserating\helper::is_course_listing_page()) {
-        $PAGE->requires->js_call_amd('tool_courserating/view', 'init', [context_system::instance()->id]);
+    if (\tool_courserating\helper::course_ratings_enabled_anywhere()) {
+        $PAGE->requires->js_call_amd('tool_courserating/rating', 'init', [context_system::instance()->id]);
     }
     return null;
 }
 
+/**
+ * Callback allowing to add contetnt inside the region-main, in the very end
+ *
+ * @return string
+ */
 function tool_courserating_before_footer() {
-    // Added inside the region-main, in the very end
     global $PAGE;
-    if ($courseid = \tool_courserating\helper::is_course_page()) {
+    $res = '';
+    if (\tool_courserating\helper::course_ratings_enabled_anywhere()) {
         /** @var tool_courserating\output\renderer $output */
         $output = $PAGE->get_renderer('tool_courserating');
-        return $output->course_rating_block($courseid);
+        if (($courseid = \tool_courserating\helper::is_course_page()) ||
+            ($courseid = \tool_courserating\helper::is_single_activity_course_page())) {
+            $res .= $output->course_rating_block($courseid);
+        }
+        $res .= '<style>'.\tool_courserating\helper::get_rating_colour_css().'</style>';
     }
-    return '';
+    return $res;
 }
 
 function tool_courserating_render_navbar_output() {
@@ -179,8 +190,8 @@ function tool_courserating_get_fontawesome_icon_map() {
  */
 function tool_courserating_inplace_editable($itemtype, $itemid, $newvalue) {
     \external_api::validate_context(context_system::instance());
-    // TODO check permisions
     if ($itemtype === 'flag') {
+        \tool_courserating\permission::require_can_flag_rating($itemid);
         if ($newvalue) {
             \tool_courserating\api::flag_review($itemid);
         } else {

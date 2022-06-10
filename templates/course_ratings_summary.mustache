@@ -1,10 +1,10 @@
 <div class="row align-items-center">
     <div class="col-4 align-middle text-center">
         <div data-purpose="average-rating"
-             class="course-average-value">{{ avgrating }}
+             class="course-average-value tool_courserating-ratingcolor">{{ avgrating }}
         </div>
         <div class=""><span class="">{{#stars}}{{> tool_courserating/stars }}{{/stars}}</span></div>
-        <p class="course-average-caption">{{#str}}ratinglabel, tool_courserating{{/str}}</p>
+        <p class="course-average-caption tool_courserating-ratingcolor">{{#str}}ratinglabel, tool_courserating{{/str}}</p>
     </div>
     <div class="col-8 align-middle">
         <div class="container">
@@ -12,12 +12,12 @@
                 <div class="row align-items-center">
                     <div class="col-md-7">
                         <div class="course-rating-bar">
-                            <span class="course-rating-bar-rating" style="width: {{percent}} !important"></span>
+                            <span class="course-rating-bar-rating tool_courserating-barcolor" style="width: {{percent}} !important"></span>
                         </div>
                     </div>
                     <div class="col-md-5"><span
                             class="star-rating--star-wrapper--1QyBg star-rating--large--25176">{{#star}}{{> tool_courserating/stars }}{{/star}}</span><span
-                            class="course-rating-percent ml-1"><span>{{{ percent }}}</span></span></div>
+                            class="course-rating-percent tool_courserating-ratingcolor ml-1"><span>{{{ percent }}}</span></span></div>
                 </div>
             {{/lines}}
         </div>

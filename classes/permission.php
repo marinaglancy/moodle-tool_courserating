@@ -2,22 +2,31 @@
 
 namespace tool_courserating;
 
+use tool_courserating\local\models\rating;
+
 class permission {
 
     public static function can_view_ratings(int $courseid): bool {
-        return true; // TODO
+        global $USER;
+        $course = get_course($courseid);
+        $context = \context_course::instance($courseid);
+        return \core_course_category::can_view_course_info($course) ||
+            is_enrolled($context, $USER, '', true);
     }
 
     public static function can_add_rating(int $courseid): bool {
-        return true; // TODO
+        return has_capability('tool/courserating:rate', \context_course::instance($courseid));
     }
 
     public static function can_delete_rating(int $ratingid, ?int $courseid = null): bool {
-        return true; // TODO
+        if (!$courseid) {
+            $courseid = (new rating($ratingid))->get('courseid');
+        }
+        return has_capability('tool/courserating:delete', \context_course::instance($courseid));
     }
 
     public static function can_flag_rating(int $ratingid, ?int $courseid = null): bool {
-        return true; // TODO
+        return self::can_delete_rating($ratingid, $courseid);
     }
 
     public static function require_can_view_ratings(int $courseid): void {

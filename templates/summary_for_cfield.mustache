@@ -42,6 +42,13 @@
 <span class="tool_courserating-cfield"><a
         class="tool_courserating-ratings tool_courserating-ratings-courseid-{{courseid}}"
         href="#"><span
-    class="course-average-value mr-2">{{avgrating}}</span>{{#stars}}{{> tool_courserating/stars }}{{/stars}}<span
+    class="course-average-value tool_courserating-ratingcolor mr-2">{{avgrating}}</span>{{#stars}}{{> tool_courserating/stars }}{{/stars}}<span
     class="ml-2 course-rating-cntall">({{cntall}})</span></a></span>
 {{/cntall}}
+{{#displayempty}}
+    {{^cntall}}
+        <span class="tool_courserating-cfield"><a
+                class="tool_courserating-ratings tool_courserating-ratings-courseid-{{courseid}} tool_courserating-norating"
+                href="#">{{#stars}}{{> tool_courserating/stars }}{{/stars}}</a></span>
+    {{/cntall}}
+{{/displayempty}}

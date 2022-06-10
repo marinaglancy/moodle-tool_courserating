@@ -43,6 +43,10 @@ class summary extends \core\persistent {
         return $props;
     }
 
+    public static function get_for_course(int $courseid) {
+        return self::get_record(['courseid' => $courseid]) ?: new static(0, (object)['courseid' => $courseid]);
+    }
+
     protected static function cntkey(int $i) {
         $i = min(max(1, $i), 10);
         return 'cnt' . str_pad($i, 2, "0", STR_PAD_LEFT);
@@ -77,7 +81,7 @@ class summary extends \core\persistent {
         if ($rating != $ratingold) {
             $record->set('sumrating', $record->get('sumrating') + $rating - $ratingold);
             $record->set(self::cntkey($ratingold), $record->get(self::cntkey($ratingold)) - 1);
-            $record->set(self::cntkey($rating), $record->get(self::cntkey($rating)) + 1);
+            $record->set(self::cntkey($rating), (int)$record->get(self::cntkey($rating)) + 1);
             $record->set('avgrating', 1.0 * $record->get('sumrating') / $record->get('cntall'));
         }
         $record->save();
@@ -105,7 +109,7 @@ class summary extends \core\persistent {
         ';
         $params = ['courseid' => $courseid];
         $result = $DB->get_record_sql($sql, $params);
-        $summary = self::get_record(['courseid' => $courseid]) ?: new static();
+        $summary = self::get_for_course($courseid);
         $keys = ['cntall', 'sumrating', 'cntreviews', 'cnt01'];
         for ($i = 1; $i <= 10; $i++) {
             $key[] = self::cntkey($i);

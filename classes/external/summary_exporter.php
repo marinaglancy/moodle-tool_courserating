@@ -4,6 +4,8 @@ namespace tool_courserating\external;
 
 use core\external\exporter;
 use renderer_base;
+use tool_courserating\constants;
+use tool_courserating\helper;
 use tool_courserating\local\models\summary;
 
 class summary_exporter extends exporter {
@@ -56,6 +58,7 @@ class summary_exporter extends exporter {
             ],
             'courseid' => ['type' => PARAM_INT],
             'cntall' => ['type' => PARAM_INT],
+            'displayempty' => ['type' => PARAM_INT],
         ];
     }
 
@@ -68,12 +71,14 @@ class summary_exporter extends exporter {
     protected function get_other_values(renderer_base $output) {
         $summary = $this->summary;
         $courseid = $summary->get('courseid');
+        $avgrating = $summary->get('cntall') ? $summary->get('avgrating') : 0;
         $data = [
             'avgrating' => $summary->get('cntall') ? sprintf("%.1f", $summary->get('avgrating')) : '-',
             'cntall' => $summary->get('cntall'),
-            'stars' => (new stars_exporter($summary->get('avgrating')))->export($output),
+            'stars' => (new stars_exporter($avgrating))->export($output),
             'lines' => [],
             'courseid' => $courseid,
+            'displayempty' => helper::get_setting(constants::SETTING_DISPLAYEMPTY),
         ];
         foreach ([5,4,3,2,1] as $line) {
             $percent = $summary->get('cntall') ? round(100 * $summary->get('cnt0' . $line) / $summary->get('cntall')) : 0;

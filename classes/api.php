@@ -240,4 +240,49 @@ class api {
         $r->set_type_toggle(array(0, 1));
         return $r;
     }
+
+    public static function reindex() {
+        global $DB, $SITE;
+        $percourse = helper::get_setting(constants::SETTING_PERCOURSE);
+        $fields = 'c.id as courseid, c.shortname, d.value as cfield, s.cntall as summarycntall,
+               (select count(1) from {tool_courserating_rating} r where r.courseid=c.id) as actualcntall ';
+        $join = 'from mdl_course c
+            left join {tool_courserating_summary} s on s.courseid = c.id
+            left join {customfield_field} f on f.shortname = :field1
+            left join {customfield_data} d on d.fieldid = f.id and d.instanceid = c.id ';
+        if ($percourse) {
+            $fields .= ', dr.intvalue as rateby';
+            $join .= ' left join mdl_customfield_field fr on fr.shortname = :field2
+            left join mdl_customfield_data dr on dr.fieldid = fr.id and dr.instanceid = c.id';
+        }
+        $params = ['field1' => 'tool_courserating', 'field2' => 'tool_courserating_rateby', 'siteid' => $SITE->id];
+        $sql = "SELECT $fields $join WHERE c.id <> :siteid ORDER BY c.id DESC";
+
+        $records = $DB->get_records_sql($sql, $params);
+        foreach ($records as $record) {
+            $ratingenabled = helper::get_setting(constants::SETTING_RATEDCOURSES);
+            if ($percourse && $record->rateby) {
+                $ratingenabled = $record->rateby;
+            }
+            self::reindex_course($ratingenabled != constants::RATEBY_NOONE, $record);
+        }
+    }
+
+    protected static function reindex_course(bool $enabled, \stdClass $data) {
+        $mustbeempty = !$enabled || (!$data->actualcntall && !helper::get_setting(constants::SETTING_DISPLAYEMPTY));
+
+        if ($mustbeempty) {
+            // Course rating should not be displayed at all.
+            if (!empty($data->summarycntall) && ($summary = summary::get_for_course($data->courseid)) && $summary->get('id')) {
+                $summary->delete();
+            }
+            if (!empty($data->cfield)) {
+                self::update_course_rating_in_custom_field($summary ?? summary::get_for_course($data->courseid));
+            }
+        } else {
+            // Update summary and cfield with the data.
+            $summary = summary::recalculate($data->courseid);
+            self::update_course_rating_in_custom_field($summary);
+        }
+    }
 }
