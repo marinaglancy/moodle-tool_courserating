@@ -68,40 +68,41 @@ class summary extends \core\persistent {
         return 'cnt' . str_pad($i, 2, "0", STR_PAD_LEFT);
     }
 
-    public static function add_rating(int $courseid, int $rating, bool $hasreview): self {
+    public static function add_rating(int $courseid, rating $rating): self {
         if (!$record = self::get_record(['courseid' => $courseid])) {
             $record = new self(0, (object)['courseid' => $courseid]);
         }
         $record->set('cntall', $record->get('cntall') + 1);
-        $record->set('sumrating', $record->get('sumrating') + $rating);
+        $record->set('sumrating', $record->get('sumrating') + $rating->get('rating'));
         $record->set('avgrating', 1.0 * $record->get('sumrating') / $record->get('cntall'));
-        if ($hasreview) {
+        if ($rating->get('hasreview')) {
             $record->set('cntreviews', $record->get('cntreviews') + 1);
         }
-        $record->set(self::cntkey($rating), $record->get(self::cntkey($rating)) + 1);
+        $record->set(self::cntkey($rating->get('rating')), $record->get(self::cntkey($rating->get('rating'))) + 1);
         $record->save();
         return $record;
     }
 
-    public static function update_rating(int $courseid, int $rating, bool $hasreview, int $ratingold, bool $hasreviewold): ?self {
-        if (!($record = self::get_record(['courseid' => $courseid])) || !$record->get('cntall') || !$record->get(self::cntkey($ratingold))) {
-            return self::get_for_course($courseid)->recalculate();
+    public static function update_rating(int $courseid, rating $rating, \stdClass $oldrecord): ?self {
+        $ratingold = $oldrecord->rating;
+        $summary = self::get_for_course($courseid);
+        if (!$summary->get('cntall') || !$summary->get(self::cntkey($ratingold))) {
+            // Sanity check, did not pass, recalculate all.
+            return $summary->recalculate();
         }
-        if ($rating == $ratingold && $hasreview == $hasreviewold) {
+        if ($rating == $ratingold && $rating->get('hasreview') == $oldrecord->hasreview) {
             // Rating did not change.
             return null;
         }
-        if ($hasreview != $hasreviewold) {
-            $record->set('cntreviews', $record->get('cntreviews') + ($hasreview ? 1 : -1));
-        }
+        $summary->set('cntreviews', $summary->get('cntreviews') + $rating->get('hasreview') - $oldrecord->hasreview);
         if ($rating != $ratingold) {
-            $record->set('sumrating', $record->get('sumrating') + $rating - $ratingold);
-            $record->set(self::cntkey($ratingold), $record->get(self::cntkey($ratingold)) - 1);
-            $record->set(self::cntkey($rating), (int)$record->get(self::cntkey($rating)) + 1);
-            $record->set('avgrating', 1.0 * $record->get('sumrating') / $record->get('cntall'));
+            $summary->set('sumrating', $summary->get('sumrating') + $rating->get('rating') - $ratingold);
+            $summary->set(self::cntkey($ratingold), $summary->get(self::cntkey($ratingold)) - 1);
+            $summary->set(self::cntkey($rating->get('rating')), (int)$summary->get(self::cntkey($rating->get('rating'))) + 1);
+            $summary->set('avgrating', 1.0 * $summary->get('sumrating') / $summary->get('cntall'));
         }
-        $record->save();
-        return $record;
+        $summary->save();
+        return $summary;
     }
 
     public function reset_all_counters() {
@@ -157,9 +158,19 @@ class summary extends \core\persistent {
         return $this;
     }
 
-    public static function delete_rating(int $courseid, int $ratingold, bool $hasreviewold): ?self {
-        if (!($record = self::get_record(['courseid' => $courseid])) || !$record->get('cntall') || !$record->get(self::cntkey($ratingold))) {
-            return null;
+    /**
+     * Recalculate summary after an individual rating was deleted
+     *
+     * @param \stdClass $rating snapshot of the rating record before it was deleted
+     * @return static|null
+     */
+    public static function delete_rating(\stdClass $rating): ?self {
+        $ratingold = $rating->rating;
+        $hasreviewold = $rating->hasreview;
+        $record = self::get_for_course($rating->courseid);
+        if (!$record->get('cntall') || !$record->get(self::cntkey($ratingold))) {
+            // Sanity check did not pass, recalculate all.
+            return $record->recalculate();
         }
         if ($hasreviewold && $record->get('cntreviews') > 0) {
             $record->set('cntreviews', $record->get('cntreviews') - 1);

@@ -18,13 +18,12 @@ class api {
         // TODO validate rating is within limits, trim/crop review.
         $rating = $data->rating;
         if ($r = rating::get_record(['userid' => $USER->id, 'courseid' => $courseid])) {
+            $oldrecord = $r->to_record();
             $review = self::prepare_review($r, $data);
-            $ratingold = $r->get('rating');
-            $hasreviewold = self::review_is_empty($r->get('review'));
             $r->set('rating', $rating);
             $r->set('review', $review);
             $r->save();
-            $summary = summary::update_rating($courseid, $rating, self::review_is_empty($review), $ratingold, $hasreviewold);
+            $summary = summary::update_rating($courseid, $r, $oldrecord);
         } else {
             $r = new rating(0, (object)[
                 'userid' => $USER->id,
@@ -38,7 +37,7 @@ class api {
                 $r->set('review', $review);
                 $r->save();
             }
-            $summary = summary::add_rating($courseid, $rating, self::review_is_empty($review));
+            $summary = summary::add_rating($courseid, $r);
         }
         self::update_course_rating_in_custom_field($summary);
         // TODO trigger event.
@@ -58,7 +57,7 @@ class api {
             get_file_storage()->delete_area_files($context->id, 'tool_courserating', 'review', $record->id);
         }
         $DB->delete_records(flag::TABLE, ['ratingid' => $record->id]);
-        $summary = summary::delete_rating($rating->get('courseid'), $record->rating, !self::review_is_empty($record->review));
+        $summary = summary::delete_rating($record);
         self::update_course_rating_in_custom_field($summary);
 
         // TODO trigger event, record reason. Send notification
@@ -90,17 +89,8 @@ class api {
         }
     }
 
-    protected static function review_is_empty(string $review): bool {
-        $review = clean_text($review);
-        $tagstostrip = ['p', 'span', 'font', 'br', 'div'];
-        foreach ($tagstostrip as $tag) {
-            $review = preg_replace("/<\\/?" . $tag . "\b(.|\\s)*?>/", '', $review);
-        }
-        return strlen(trim($review)) == 0;
-    }
-
     protected static function prepare_review(?rating $rating, \stdClass $data): string {
-        if ($rating && !self::review_is_empty($data->review_editor['text'] ?? '')) {
+        if ($rating && !rating::review_is_empty($data->review_editor['text'] ?? '')) {
             $context = \context_course::instance($rating->get('courseid'));
             $data = file_postupdate_standard_editor($data, 'review', helper::review_editor_options($context), $context,
                 'tool_courserating', 'review', $rating->get('id'));
@@ -110,7 +100,7 @@ class api {
                 return format_text($data->review, $data->reviewformat, ['filter' => false, 'context' => $context]);
             }
             return $data->review;
-        } else if (!self::review_is_empty($data->review ?? '')) {
+        } else if (!rating::review_is_empty($data->review ?? '')) {
             return $data->review;
         } else {
             return '';

@@ -64,7 +64,7 @@ class ratings_list_exporter extends exporter {
         $limit = $this->related['limit'] ?: constants::REVIEWS_PER_PAGE;
 
         $reviews = rating::get_records_select(
-            'courseid = :courseid',
+            'courseid = :courseid AND hasreview = 1',
             ['courseid' => $courseid],
             'timecreated DESC, id DESC', '*', $offset, $limit + 1);
 

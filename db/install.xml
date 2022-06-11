@@ -11,6 +11,7 @@
         <FIELD NAME="userid" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false" COMMENT="User who left the rating"/>
         <FIELD NAME="rating" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false"/>
         <FIELD NAME="review" TYPE="text" NOTNULL="true" SEQUENCE="false"/>
+        <FIELD NAME="hasreview" TYPE="int" LENGTH="1" NOTNULL="true" DEFAULT="0" SEQUENCE="false"/>
         <FIELD NAME="timecreated" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false"/>
         <FIELD NAME="timemodified" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false"/>
       </FIELDS>
@@ -20,6 +21,7 @@
       </KEYS>
       <INDEXES>
         <INDEX NAME="courseuser" UNIQUE="true" FIELDS="courseid, userid"/>
+        <INDEX NAME="coursehasreview" UNIQUE="false" FIELDS="courseid, hasreview, timemodified"/>
       </INDEXES>
     </TABLE>
     <TABLE NAME="tool_courserating_flag" COMMENT="Flagged reviews">

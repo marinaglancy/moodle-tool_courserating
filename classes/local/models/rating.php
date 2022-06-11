@@ -27,6 +27,10 @@ class rating extends \core\persistent {
                 'type' => PARAM_RAW,
                 'default' => '',
             ],
+            'hasreview' => [
+                'type' => PARAM_INT,
+                'default' => 0,
+            ],
         ];
     }
 
@@ -37,5 +41,24 @@ class rating extends \core\persistent {
      */
     public function get_context(): \context_course {
         return \context_course::instance($this->get('courseid'));
+    }
+
+    public static function review_is_empty(string $review): bool {
+        $review = clean_text($review);
+        $tagstostrip = ['p', 'span', 'font', 'br', 'div'];
+        foreach ($tagstostrip as $tag) {
+            $review = preg_replace("/<\\/?" . $tag . "\b(.|\\s)*?>/", '', $review);
+        }
+        return strlen(trim($review)) == 0;
+    }
+
+    /**
+     * Magic method to set review
+     *
+     * @param string $value
+     */
+    protected function set_review($value) {
+        $this->raw_set('review', $value);
+        $this->raw_set('hasreview', (int)(!self::review_is_empty(($value))));
     }
 }
