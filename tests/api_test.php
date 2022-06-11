@@ -120,7 +120,7 @@ class api_test extends \advanced_testcase {
 
         $this->assert_rating([], $user->id, $course->id);
         $this->assert_rating([], $user2->id, $course->id);
-        $this->assert_summary([], $course->id);
+        $this->assert_summary(['cntall' => 0], $course->id);
 
         // Set rating as the first user.
         $this->setUser($user);
@@ -221,5 +221,33 @@ class api_test extends \advanced_testcase {
         api::delete_rating($rating->get('id'), 'spam');
         $this->assert_event($sink, rating_deleted::class, $course->id, 'Course rating deleted',
             '%ahas deleted course rating%a. Reason provided: spam');
+    }
+
+    public function test_reindex() {
+        $this->resetAfterTest();
+        $user = $this->getDataGenerator()->create_user();
+        $user2 = $this->getDataGenerator()->create_user();
+        $course = $this->getDataGenerator()->create_course();
+
+        $this->assert_rating([], $user->id, $course->id);
+        $this->assert_rating([], $user2->id, $course->id);
+        $this->assert_summary(['cntall' => 0], $course->id);
+
+        // Set rating as the first user.
+        $this->setUser($user);
+        $sink = $this->redirectEvents();
+        api::set_rating($course->id, (object)['rating' => 4]);
+        $this->assert_event($sink, rating_created::class, $course->id, 'Course rating created',
+            '%ahas rated the course with 4 stars');
+
+        $this->assert_rating(['rating' => 4, 'review' => ''], $user->id, $course->id);
+        $expected = ['cntall' => 1, 'avgrating' => 4, 'sumrating' => 4, 'cnt02' => 0, 'cnt03' => 0, 'cnt04' => 1];
+        $this->assert_summary($expected, $course->id);
+
+        api::reindex();
+
+        $this->assert_rating(['rating' => 4, 'review' => ''], $user->id, $course->id);
+        $expected = ['cntall' => 1, 'avgrating' => 4, 'sumrating' => 4, 'cnt02' => 0, 'cnt03' => 0, 'cnt04' => 1];
+        $this->assert_summary($expected, $course->id);
     }
 }

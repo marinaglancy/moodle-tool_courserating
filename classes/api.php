@@ -273,7 +273,7 @@ class api {
 
         $fields = 'c.id as courseid, d.value as cfield, s.cntall as summarycntall, s.ratingmode as summaryratingmode,
                (select count(1) from {tool_courserating_rating} r where r.courseid=c.id) as actualcntall ';
-        $join = 'from mdl_course c
+        $join = 'from {course} c
             left join {tool_courserating_summary} s on s.courseid = c.id
             left join {customfield_field} f on f.shortname = :field1
             left join {customfield_data} d on d.fieldid = f.id and d.instanceid = c.id ';
@@ -285,8 +285,8 @@ class api {
         if ($percourse && $ratingmodefield) {
             // Each course may override whether course ratings are enabled.
             $fields .= ', dr.intvalue as rateby';
-            $join .= ' left join mdl_customfield_field fr on fr.shortname = :field2
-            left join mdl_customfield_data dr on dr.fieldid = fr.id and dr.instanceid = c.id';
+            $join .= ' left join {customfield_field} fr on fr.shortname = :field2
+            left join {customfield_data} dr on dr.fieldid = fr.id and dr.instanceid = c.id';
             $params['field2'] = $ratingmodefield->get('shortname');
         }
 
@@ -356,7 +356,7 @@ class api {
         global $DB;
         $DB->execute('DELETE from {'.flag::TABLE.'} WHERE ratingid IN (SELECT id FROM {'.
             rating::TABLE.'} WHERE courseid = ?)', [$courseid]);
-        $DB->delete_records(summary::TABLE, ['courseid' => $courseid]);
         $DB->delete_records(rating::TABLE, ['courseid' => $courseid]);
+        $DB->delete_records(summary::TABLE, ['courseid' => $courseid]);
     }
 }

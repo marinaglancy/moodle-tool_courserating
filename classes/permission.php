@@ -56,6 +56,7 @@ class permission {
      * @throws \coding_exception
      */
     public static function can_add_rating(int $courseid): bool {
+        global $CFG, $USER;
         if (!has_capability('tool/courserating:rate', \context_course::instance($courseid))) {
             return false;
         }
@@ -63,7 +64,12 @@ class permission {
         if ($courseratingmode == constants::RATEBY_NOONE) {
             return false;
         }
-        // TODO check completion.
+        if ($courseratingmode == constants::RATEBY_COMPLETED) {
+            require_once($CFG->dirroot.'/completion/completion_completion.php');
+            // The course is supposed to be marked as completed at $timeend.
+            $ccompletion = new \completion_completion(['userid' => $USER->id, 'course' => $courseid]);
+            return $ccompletion->is_complete();
+        }
         return true;
     }
 

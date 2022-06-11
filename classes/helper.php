@@ -343,7 +343,7 @@ class helper {
      * @param int $courseid
      * @return data_controller|null
      */
-    protected static function get_course_rating_enabled_data_in_cfield(int $courseid): ?data_controller {
+    public static function get_course_rating_enabled_data_in_cfield(int $courseid): ?data_controller {
         return self::get_custom_field_data($courseid, constants::CFIELD_RATINGMODE);
     }
 

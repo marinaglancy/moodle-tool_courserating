@@ -16,6 +16,7 @@
 
 namespace tool_courserating;
 
+use core\event\course_created;
 use core\event\course_deleted;
 use core\event\course_updated;
 use tool_courserating\local\models\summary;
@@ -51,5 +52,14 @@ class observer {
      */
     public static function course_deleted(course_deleted $event) {
         api::delete_all_data_for_course($event->courseid);
+    }
+
+    /**
+     * Observer for course_created event
+     *
+     * @param course_created $event
+     */
+    public static function course_created(course_created $event) {
+        api::reindex($event->courseid);
     }
 }

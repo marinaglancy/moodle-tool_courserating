@@ -13,28 +13,42 @@
 //
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
+use tool_courserating\api;
+use tool_courserating\helper;
 
 /**
- * Event handler definition.
+ * Generator
  *
  * @package     tool_courserating
  * @copyright   2022 Marina Glancy <marina.glancy@gmail.com>
  * @license     https://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
+class tool_courserating_generator extends testing_module_generator {
 
-defined('MOODLE_INTERNAL') || die();
+    /**
+     * Set course rating mode
+     *
+     * @param int $courseid
+     * @param int $mode
+     */
+    public function set_course_rating_mode(int $courseid, int $mode) {
+        if ($data = helper::get_course_rating_enabled_data_in_cfield($courseid)) {
+            $data->instance_form_save((object)[
+                'id' => $courseid,
+                $data->get_form_element_name() => $mode,
+            ]);
+            api::reindex($courseid);
+        }
+    }
 
-$observers = array(
-    [
-        'eventname'   => '\core\event\course_updated',
-        'callback'    => '\tool_courserating\observer::course_updated',
-    ],
-    [
-        'eventname'   => '\core\event\course_created',
-        'callback'    => '\tool_courserating\observer::course_created',
-    ],
-    [
-        'eventname'   => '\core\event\course_deleted',
-        'callback'    => '\tool_courserating\observer::course_deleted',
-    ],
-);
+    /**
+     * Set courserating config and reindex
+     *
+     * @param string $name
+     * @param mixed $value
+     */
+    public function set_config(string $name, $value) {
+        set_config($name, $value, 'tool_courserating');
+        api::reindex();
+    }
+}
