@@ -42,17 +42,25 @@ class reindex extends \core\task\adhoc_task {
      * @return void
      */
     public function execute() {
-        api::reindex();
+        $courseid = $this->get_custom_data()->courseid ?? 0;
+        try {
+            api::reindex($courseid);
+        } catch (\Throwable $t) {
+            debugging($t->getMessage()."\n\n".$t->getTraceAsString());
+        }
     }
 
     /**
      * Schedule the task to run on the next cron
+     *
+     * @param int $courseid
      */
-    public static function schedule() {
+    public static function schedule(int $courseid = 0) {
         global $USER;
 
         $task = new static();
         $task->set_userid($USER->id);
+        $task->set_custom_data(['courseid' => $courseid]);
 
         \core\task\manager::queue_adhoc_task($task, true);
     }
