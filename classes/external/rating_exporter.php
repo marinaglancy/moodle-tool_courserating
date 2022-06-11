@@ -30,7 +30,7 @@ use tool_dataprivacy\context_instance;
  * Class for exporting field data.
  *
  * @package    tool_courserating
- * @copyright  2022 Marina Glancy
+ * @copyright  2022 Marina Glancy <marina.glancy@gmail.com>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class rating_exporter extends persistent_exporter {

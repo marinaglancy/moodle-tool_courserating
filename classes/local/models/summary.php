@@ -1,10 +1,31 @@
 <?php
+// This file is part of Moodle - http://moodle.org/
+//
+// Moodle is free software: you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+//
+// Moodle is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU General Public License for more details.
+//
+// You should have received a copy of the GNU General Public License
+// along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 namespace tool_courserating\local\models;
 
 use tool_courserating\constants;
 use tool_courserating\helper;
 
+/**
+ * Model for summary table
+ *
+ * @package     tool_courserating
+ * @copyright   2022 Marina Glancy <marina.glancy@gmail.com>
+ * @license     https://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ */
 class summary extends \core\persistent {
 
     /** @var string Table name */
@@ -50,7 +71,13 @@ class summary extends \core\persistent {
         return $props;
     }
 
-    public static function get_for_course(int $courseid) {
+    /**
+     * Retrieve summary for the specified course, insert in DB if does not exist
+     *
+     * @param int $courseid
+     * @return summary
+     */
+    public static function get_for_course(int $courseid): summary {
         if ($summary = self::get_record(['courseid' => $courseid])) {
             return $summary;
         } else {
@@ -63,11 +90,24 @@ class summary extends \core\persistent {
         }
     }
 
+    /**
+     * Field name for the counter of rating $i
+     *
+     * @param int $i
+     * @return string
+     */
     protected static function cntkey(int $i) {
         $i = min(max(1, $i), 10);
         return 'cnt' . str_pad($i, 2, "0", STR_PAD_LEFT);
     }
 
+    /**
+     * Update summary after a rating was added
+     *
+     * @param int $courseid
+     * @param rating $rating
+     * @return static
+     */
     public static function add_rating(int $courseid, rating $rating): self {
         if (!$record = self::get_record(['courseid' => $courseid])) {
             $record = new self(0, (object)['courseid' => $courseid]);
@@ -83,6 +123,14 @@ class summary extends \core\persistent {
         return $record;
     }
 
+    /**
+     * Update summary after a rating was updated
+     *
+     * @param int $courseid
+     * @param rating $rating
+     * @param \stdClass $oldrecord
+     * @return static|null
+     */
     public static function update_rating(int $courseid, rating $rating, \stdClass $oldrecord): ?self {
         $ratingold = $oldrecord->rating;
         $summary = self::get_for_course($courseid);
@@ -105,6 +153,12 @@ class summary extends \core\persistent {
         return $summary;
     }
 
+    /**
+     * Update summary when it has to be empty - reset all counter fields
+     *
+     * @return void
+     * @throws \coding_exception
+     */
     public function reset_all_counters() {
         foreach (['cntall', 'avgrating', 'sumrating', 'cntreviews'] as $key) {
             $this->set($key, 0);
@@ -114,6 +168,11 @@ class summary extends \core\persistent {
         }
     }
 
+    /**
+     * Recalculate summary for the specific course
+     *
+     * @return $this|null
+     */
     public function recalculate(): ?self {
         global $DB;
         if ($this->get('ratingmode') == constants::RATEBY_NOONE) {

@@ -17,7 +17,7 @@
  * Manage the courses view for the overview block.
  *
  * @module     tool_courserating/rating
- * @copyright  2022 Marina Glancy
+ * @copyright  2022 Marina Glancy <marina.glancy@gmail.com>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 

@@ -17,9 +17,9 @@
 /**
  * Capability definitions for this plugin.
  *
- * @package   tool_courserating
- * @copyright 2022 Marina Glancy
- * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ * @package    tool_courserating
+ * @copyright  2022 Marina Glancy <marina.glancy@gmail.com>
+ * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
 defined('MOODLE_INTERNAL') || die();

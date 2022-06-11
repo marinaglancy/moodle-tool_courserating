@@ -26,6 +26,8 @@
 defined('MOODLE_INTERNAL') || die();
 
 $string['addrating'] = 'Rate this course';
+$string['cannotrate'] = 'You don\'t have permission to leave rating to this course';
+$string['cannotview'] = 'You don\'t have permission to view ratings for this course';
 $string['cfielddescription'] = 'Do not edit, the content will be populated automatically every time somebody leaves a rating for this course.';
 $string['colorrating'] = 'Colour of the rating';
 $string['colorratingconfig'] = 'This is usually slightly darker than the star colour for the best visual effect';

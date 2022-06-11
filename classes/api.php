@@ -1,4 +1,18 @@
 <?php
+// This file is part of Moodle - http://moodle.org/
+//
+// Moodle is free software: you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+//
+// Moodle is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU General Public License for more details.
+//
+// You should have received a copy of the GNU General Public License
+// along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 namespace tool_courserating;
 
@@ -11,8 +25,22 @@ use tool_courserating\local\models\flag;
 use tool_courserating\local\models\rating;
 use tool_courserating\local\models\summary;
 
+/**
+ * Methods to add/remove ratings
+ *
+ * @package     tool_courserating
+ * @copyright   2022 Marina Glancy <marina.glancy@gmail.com>
+ * @license     https://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ */
 class api {
 
+    /**
+     * Add or update user rating
+     *
+     * @param int $courseid
+     * @param \stdClass $data
+     * @return rating
+     */
     public static function set_rating(int $courseid, \stdClass $data): rating {
         global $USER;
         // TODO validate rating is within limits, trim/crop review.
@@ -45,6 +73,13 @@ class api {
         return $r;
     }
 
+    /**
+     * Delete rating and review made by somebody else
+     *
+     * @param int $ratingid
+     * @param string|null $reason
+     * @return rating|null
+     */
     public static function delete_rating(int $ratingid, ?string $reason = null): ?rating {
         global $DB;
         if (!$rating = rating::get_record(['id' => $ratingid])) {
@@ -60,11 +95,17 @@ class api {
         $summary = summary::delete_rating($record);
         self::update_course_rating_in_custom_field($summary);
 
-        // TODO trigger event, record reason. Send notification
+        // TODO trigger event, record reason. Send notification.
 
         return $rating;
     }
 
+    /**
+     * Update content of the course custom field that displays the rating
+     *
+     * @param summary|null $summary
+     * @return void
+     */
     protected static function update_course_rating_in_custom_field(?summary $summary) {
         global $PAGE;
         if (!$summary || !helper::get_course_rating_field()) {
@@ -89,6 +130,13 @@ class api {
         }
     }
 
+    /**
+     * Prepare review for storing (store files, convert to html)
+     *
+     * @param rating|null $rating
+     * @param \stdClass $data
+     * @return string
+     */
     protected static function prepare_review(?rating $rating, \stdClass $data): string {
         if ($rating && !rating::review_is_empty($data->review_editor['text'] ?? '')) {
             $context = \context_course::instance($rating->get('courseid'));
@@ -107,6 +155,12 @@ class api {
         }
     }
 
+    /**
+     * Prepare review to be displayed in a form (copy files to draft area)
+     *
+     * @param int $courseid
+     * @return array|array[]
+     */
     public static function prepare_rating_for_form(int $courseid): array {
         global $USER;
         if ($rating = rating::get_record(['userid' => $USER->id, 'courseid' => $courseid])) {
@@ -126,6 +180,12 @@ class api {
         }
     }
 
+    /**
+     * Flag somebody else's review
+     *
+     * @param int $ratingid
+     * @return flag|null
+     */
     public static function flag_review(int $ratingid): ?flag {
         global $USER;
         $flag = flag::get_records(['ratingid' => $ratingid, 'userid' => $USER->id]);
@@ -138,6 +198,12 @@ class api {
         return $flag;
     }
 
+    /**
+     * Revoke a flag on somebody else's review
+     *
+     * @param int $ratingid
+     * @return flag|null
+     */
     public static function revoke_review_flag(int $ratingid): ?flag {
         global $USER;
         $flags = flag::get_records(['ratingid' => $ratingid, 'userid' => $USER->id]);
@@ -150,6 +216,13 @@ class api {
         return $flag;
     }
 
+    /**
+     * Get the flag
+     *
+     * @param int $ratingid
+     * @param bool|null $hasflag
+     * @return inplace_editable
+     */
     public static function get_flag_inplace_editable(int $ratingid, ?bool $hasflag = null): inplace_editable {
         global $USER;
 
@@ -165,6 +238,12 @@ class api {
         return $r;
     }
 
+    /**
+     * Re-index all courses, update ratings in the summary table and custom fields
+     *
+     * @param int $courseid
+     * @return void
+     */
     public static function reindex(int $courseid = 0) {
         global $DB, $SITE;
 
@@ -216,7 +295,6 @@ class api {
     /**
      * Re-index individual course
      *
-     * @param int $courseratingmode the actual rating mode for this course
      * @param \stdClass $data contains fields: courseid, cfield, summarycntall, actualcntall
      *     where cfield is the actual value stored in the "course rating" custom course field,
      *     summarycntall - the field tool_courserating_summary.cntall that corresponds to this course,
@@ -252,6 +330,12 @@ class api {
         }
     }
 
+    /**
+     * Completely delete all data related to a course (i.e. when course is deleted)
+     *
+     * @param int $courseid
+     * @return void
+     */
     public static function delete_all_data_for_course(int $courseid) {
         global $DB;
         $DB->execute('DELETE from {'.flag::TABLE.'} WHERE ratingid IN (SELECT id FROM {'.

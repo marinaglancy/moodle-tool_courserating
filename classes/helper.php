@@ -1,13 +1,40 @@
 <?php
+// This file is part of Moodle - http://moodle.org/
+//
+// Moodle is free software: you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+//
+// Moodle is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU General Public License for more details.
+//
+// You should have received a copy of the GNU General Public License
+// along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 namespace tool_courserating;
 
 use core_customfield\data_controller;
 use core_customfield\field_controller;
 
+/**
+ * Additional helper functions
+ *
+ * @package     tool_courserating
+ * @copyright   2022 Marina Glancy <marina.glancy@gmail.com>
+ * @license     https://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ */
 class helper {
-    function wordings() {
-        // Udemy
+    /**
+     * Temporary function
+     *
+     * @return void
+     */
+    private function wordings() {
+        // @codingStandardsIgnoreStart
+        // Udemy.
         'You\'ve finished the last lesson in this course! Would you like to leave a review?';
         [
             1 => 'Awful, not what I was expecting at all',
@@ -33,8 +60,14 @@ class helper {
             'Other',
         ];
         'Issue details';
+        // @codingStandardsIgnoreEnd
     }
 
+    /**
+     * Checks if we are on a main course page
+     *
+     * @return int
+     */
     public static function is_course_page(): int {
         global $PAGE, $CFG;
         if ($PAGE->course && $PAGE->url->out_omit_querystring() === $CFG->wwwroot . '/course/view.php') {
@@ -43,6 +76,11 @@ class helper {
         return 0;
     }
 
+    /**
+     * Checks if we are on a main page of single-activity course
+     *
+     * @return int
+     */
     public static function is_single_activity_course_page(): int {
         global $PAGE, $CFG;
         if ($PAGE->context->contextlevel == CONTEXT_MODULE && $PAGE->course->format === 'singleactivity' &&
@@ -52,13 +90,11 @@ class helper {
         return 0;
     }
 
-    public static function is_course_listing_page(): bool {
-        global $PAGE, $CFG;
-        return $PAGE->url->out_omit_querystring() === $CFG->wwwroot . '/course/index.php' ||
-            $PAGE->url->out_omit_querystring() === $CFG->wwwroot . '/course/search.php' ||
-            $PAGE->url->out_omit_querystring() === $CFG->wwwroot . '/search/index.php';
-    }
-
+    /**
+     * Are course ratings enabled (or could be enabled) in any courses? Do we need to have a course rating field
+     *
+     * @return bool
+     */
     public static function course_ratings_enabled_anywhere(): bool {
         if (self::get_setting(constants::SETTING_RATINGMODE) == constants::RATEBY_NOONE &&
                 !self::get_setting(constants::SETTING_PERCOURSE)) {
@@ -67,12 +103,12 @@ class helper {
         return true;
     }
 
-    public static function can_add_rating(int $courseid): bool {
-        global $DB, $USER;
-        $lastaccess = $DB->get_field('user_lastaccess', 'timeaccess', ['userid' => $USER->id, 'courseid' => $courseid]);
-        return (bool)$lastaccess;
-    }
-
+    /**
+     * Options for the review editor form element
+     *
+     * @param \context $context
+     * @return array
+     */
     public static function review_editor_options(\context $context) {
         global $CFG;
         return [
@@ -84,6 +120,12 @@ class helper {
         ];
     }
 
+    /**
+     * Retrieve and clean plugin setting
+     *
+     * @param string $name
+     * @return bool|mixed|object|string
+     */
     public static function get_setting(string $name) {
         $value = get_config('tool_courserating', $name);
         static $defaults = [
@@ -112,6 +154,11 @@ class helper {
         return $value;
     }
 
+    /**
+     * CSS for the stars colors to be added to the page
+     *
+     * @return string
+     */
     public static function get_rating_colour_css() {
         return '.tool_courserating-stars { color: '.self::get_setting(constants::SETTING_STARCOLOR).'; }'."\n".
             '.tool_courserating-ratingcolor { color: '.self::get_setting(constants::SETTING_RATINGCOLOR).';}'."\n".
@@ -143,7 +190,7 @@ class helper {
      *
      * @param string $shortname
      * @param string $type i.e. 'textarea', 'select', 'text
-     * @param null|string $displayname
+     * @param null|lang_string $displayname
      * @param array $config additional field configuration, for example, options for 'select' element
      * @param string $description
      * @return field_controller|null
@@ -188,6 +235,11 @@ class helper {
         return self::find_custom_field_by_shortname($shortname);
     }
 
+    /**
+     * Retrieve course custom field responsible for storing course ratings, create if not found
+     *
+     * @return field_controller|null
+     */
     public static function get_course_rating_field(): ?field_controller {
         $shortname = constants::CFIELD_RATING;
         $field = self::find_custom_field_by_shortname($shortname);
@@ -206,6 +258,11 @@ class helper {
             get_string('cfielddescription', 'tool_courserating'));
     }
 
+    /**
+     * Retrieve course custom field responsible for configuring per-course course rating mode, create if needed
+     *
+     * @return field_controller|null
+     */
     public static function get_course_rating_mode_field(): ?field_controller {
         $shortname = constants::CFIELD_RATINGMODE;
         $field = self::find_custom_field_by_shortname($shortname);
@@ -234,6 +291,11 @@ class helper {
         return $field;
     }
 
+    /**
+     * Delete all course custom fields created by this plugin (on uninstall)
+     *
+     * @return void
+     */
     public static function delete_all_custom_fields() {
         $shortname = constants::CFIELD_RATINGMODE;
         if ($field = self::find_custom_field_by_shortname($shortname)) {
@@ -245,6 +307,13 @@ class helper {
         }
     }
 
+    /**
+     * Retireve data stored in a course custom field
+     *
+     * @param int $courseid
+     * @param string $shortname
+     * @return data_controller|null
+     */
     protected static function get_custom_field_data(int $courseid, string $shortname): ?data_controller {
         if ($f = self::find_custom_field_by_shortname($shortname)) {
             $fields = \core_customfield\api::get_instance_fields_data([$f->get('id') => $f], $courseid);
@@ -258,14 +327,32 @@ class helper {
         return null;
     }
 
+    /**
+     * Retrieve data stored in a course rating course custom field
+     *
+     * @param int $courseid
+     * @return data_controller|null
+     */
     public static function get_course_rating_data_in_cfield(int $courseid): ?data_controller {
         return self::get_custom_field_data($courseid, constants::CFIELD_RATING);
     }
 
+    /**
+     * Retireve data stored in a rating mode custom course field
+     *
+     * @param int $courseid
+     * @return data_controller|null
+     */
     protected static function get_course_rating_enabled_data_in_cfield(int $courseid): ?data_controller {
         return self::get_custom_field_data($courseid, constants::CFIELD_RATINGMODE);
     }
 
+    /**
+     * Calculate the rating mode for a specific course
+     *
+     * @param int $courseid
+     * @return int
+     */
     public static function get_course_rating_mode(int $courseid): int {
         $mode = self::get_setting(constants::SETTING_RATINGMODE);
         if (self::get_setting(constants::SETTING_PERCOURSE)) {

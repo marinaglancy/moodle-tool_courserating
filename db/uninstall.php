@@ -23,6 +23,11 @@
  * @license     https://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
+/**
+ * Executed on uninstall
+ *
+ * @return bool
+ */
 function xmldb_tool_courserating_uninstall() {
 
     \tool_courserating\helper::delete_all_custom_fields();

@@ -15,11 +15,11 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Format weeks event handler definition.
+ * Event handler definition.
  *
- * @package format_weeks
- * @copyright 2017 Mark Nelson <markn@moodle.com>
- * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ * @package     tool_courserating
+ * @copyright   2022 Marina Glancy <marina.glancy@gmail.com>
+ * @license     https://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
 defined('MOODLE_INTERNAL') || die();

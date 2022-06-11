@@ -16,13 +16,19 @@
 
 namespace tool_courserating;
 
+/**
+ * Tests for helper class
+ *
+ * @package     tool_courserating
+ * @covers      \tool_courserating\helper
+ * @copyright   2022 Marina Glancy <marina.glancy@gmail.com>
+ * @license     https://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ */
 class helper_test extends \advanced_testcase {
 
     public function test_coursefield() {
         $this->resetAfterTest();
 
-        //print_r(api::get_course_rating_field());
         $this->assertNotEmpty(helper::get_course_rating_field());
     }
-
 }

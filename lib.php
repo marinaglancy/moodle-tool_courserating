@@ -28,6 +28,7 @@
 function tool_courserating_before_http_headers() {
     global $PAGE;
     if (\tool_courserating\helper::course_ratings_enabled_anywhere()) {
+        // Add JS to all pages, the course ratings can be displayed on any page (for example course listings).
         $PAGE->requires->js_call_amd('tool_courserating/rating', 'init', [context_system::instance()->id]);
     }
     return null;
@@ -48,10 +49,14 @@ function tool_courserating_before_footer() {
             ($courseid = \tool_courserating\helper::is_single_activity_course_page())) {
             $res .= $output->course_rating_block($courseid);
         }
+        // Add CSS to all pages, the course ratings can be displayed on any page (for example course listings).
         $res .= '<style>'.\tool_courserating\helper::get_rating_colour_css().'</style>';
     }
     return $res;
 }
+
+// @codingStandardsIgnoreStart
+/* More callbacks that can be implemented
 
 function tool_courserating_render_navbar_output() {
     // Added to the top navbar after messaging icon before the user picture/menu.
@@ -119,7 +124,15 @@ function tool_courserating_get_course_category_contents($coursecat) {
     // To display what this category contains (on category deletion)
     return '';
 }
+*/
+// @codingStandardsIgnoreEnd
 
+/**
+ * Fragment API callback
+ *
+ * @param array $args
+ * @return string
+ */
 function tool_courserating_output_fragment_course_ratings_popup($args) {
     global $PAGE;
     if (!$courseid = clean_param($args['courseid'] ?? 0, PARAM_INT)) {
@@ -131,6 +144,12 @@ function tool_courserating_output_fragment_course_ratings_popup($args) {
     return $output->course_ratings_popup($courseid);
 }
 
+/**
+ * Fragment API callback
+ *
+ * @param array $args
+ * @return string
+ */
 function tool_courserating_output_fragment_cfield($args) {
     global $PAGE;
     if (!$courseid = clean_param($args['courseid'] ?? 0, PARAM_INT)) {
@@ -142,6 +161,12 @@ function tool_courserating_output_fragment_cfield($args) {
     return $output->cfield($courseid);
 }
 
+/**
+ * Fragment API callback
+ *
+ * @param array $args
+ * @return string
+ */
 function tool_courserating_output_fragment_course_ratings_summary($args) {
     global $PAGE;
     if (!$courseid = clean_param($args['courseid'] ?? 0, PARAM_INT)) {
@@ -154,6 +179,12 @@ function tool_courserating_output_fragment_course_ratings_summary($args) {
     return $output->render_from_template('tool_courserating/course_ratings_summary', $data);
 }
 
+/**
+ * Fragment API callback
+ *
+ * @param array $args
+ * @return string
+ */
 function tool_courserating_output_fragment_rating_flag($args) {
     global $PAGE;
     /** @var tool_courserating\output\renderer $output */
