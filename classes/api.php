@@ -17,9 +17,11 @@
 namespace tool_courserating;
 
 use core\output\inplace_editable;
-use core_customfield\field_controller;
-use tool_brickfield\local\tool\errors;
-use tool_courserating\external\rating_exporter;
+use tool_courserating\event\flag_created;
+use tool_courserating\event\flag_deleted;
+use tool_courserating\event\rating_created;
+use tool_courserating\event\rating_deleted;
+use tool_courserating\event\rating_updated;
 use tool_courserating\external\summary_exporter;
 use tool_courserating\local\models\flag;
 use tool_courserating\local\models\rating;
@@ -45,8 +47,10 @@ class api {
         global $USER;
         // TODO validate rating is within limits, trim/crop review.
         $rating = $data->rating;
-        if ($r = rating::get_record(['userid' => $USER->id, 'courseid' => $courseid])) {
-            $oldrecord = $r->to_record();
+        $ratingold = rating::get_record(['userid' => $USER->id, 'courseid' => $courseid]);
+        if ($ratingold) {
+            $oldrecord = $ratingold->to_record();
+            $r = $ratingold;
             $review = self::prepare_review($r, $data);
             $r->set('rating', $rating);
             $r->set('review', $review);
@@ -68,7 +72,12 @@ class api {
             $summary = summary::add_rating($courseid, $r);
         }
         self::update_course_rating_in_custom_field($summary);
-        // TODO trigger event.
+
+        if ($ratingold) {
+            rating_updated::create_from_rating($r, $oldrecord)->trigger();
+        } else {
+            rating_created::create_from_rating($r)->trigger();
+        }
 
         return $r;
     }
@@ -80,22 +89,25 @@ class api {
      * @param string|null $reason
      * @return rating|null
      */
-    public static function delete_rating(int $ratingid, ?string $reason = null): ?rating {
+    public static function delete_rating(int $ratingid, string $reason = ''): ?rating {
         global $DB;
         if (!$rating = rating::get_record(['id' => $ratingid])) {
             return null;
         }
+        $flagcount = $DB->count_records(flag::TABLE, ['ratingid' => $ratingid]);
         $record = $rating->to_record();
         $rating->delete();
         if ($context = \context_course::instance($record->courseid, IGNORE_MISSING)) {
             // Sometimes it might be called after course is deleted.
             get_file_storage()->delete_area_files($context->id, 'tool_courserating', 'review', $record->id);
         }
-        $DB->delete_records(flag::TABLE, ['ratingid' => $record->id]);
+        if ($flagcount) {
+            $DB->delete_records(flag::TABLE, ['ratingid' => $record->id]);
+        }
         $summary = summary::delete_rating($record);
         self::update_course_rating_in_custom_field($summary);
 
-        // TODO trigger event, record reason. Send notification.
+        rating_deleted::create_from_rating($record, $flagcount, $reason)->trigger();
 
         return $rating;
     }
@@ -192,9 +204,11 @@ class api {
         if ($flag) {
             return null;
         }
+        $rating = new rating($ratingid);
         $flag = new flag(0, (object)['userid' => $USER->id, 'ratingid' => $ratingid]);
         $flag->save();
-        // TODO event.
+
+        flag_created::create_from_flag($flag, $rating)->trigger();
         return $flag;
     }
 
@@ -211,8 +225,10 @@ class api {
         if (!$flag) {
             return null;
         }
+        $rating = new rating($ratingid);
+        $oldrecord = $flag->to_record();
         $flag->delete();
-        // TODO event.
+        flag_deleted::create_from_flag($oldrecord, $rating)->trigger();
         return $flag;
     }
 

@@ -227,8 +227,8 @@ class summary extends \core\persistent {
         $ratingold = $rating->rating;
         $hasreviewold = $rating->hasreview;
         $record = self::get_for_course($rating->courseid);
-        if (!$record->get('cntall') || !$record->get(self::cntkey($ratingold))) {
-            // Sanity check did not pass, recalculate all.
+        if ($record->get('cntall') <= 1 || !$record->get(self::cntkey($ratingold))) {
+            // Sanity check did not pass or no more ratings left, recalculate all.
             return $record->recalculate();
         }
         if ($hasreviewold && $record->get('cntreviews') > 0) {
