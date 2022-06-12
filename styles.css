@@ -47,3 +47,35 @@
 .tool_courserating-reviews-popup .user-review {
     border-top: 1px solid #dee2e6;
 }
+
+.tool_courserating-form-stars-group label .icon {
+    font-size: 2rem;
+}
+.tool_courserating-form-stars-group label.form-check-inline {
+    margin-right: 0;
+    padding-right: 1rem;
+}
+
+.tool_courserating-form-stars-group input[type='radio'] {
+    display: none;
+}
+
+.tool_courserating-form-stars-group .stars-1 .star-on,
+.tool_courserating-form-stars-group.s-1 .stars-1 .star-off,
+.tool_courserating-form-stars-group .stars-2 .star-on,
+.tool_courserating-form-stars-group.s-2 .stars-2 .star-off,
+.tool_courserating-form-stars-group .stars-3 .star-on,
+.tool_courserating-form-stars-group.s-3 .stars-3 .star-off,
+.tool_courserating-form-stars-group .stars-4 .star-on,
+.tool_courserating-form-stars-group.s-4 .stars-4 .star-off,
+.tool_courserating-form-stars-group .stars-5 .star-on,
+.tool_courserating-form-stars-group.s-5 .stars-5 .star-off {
+    display: none;
+}
+.tool_courserating-form-stars-group.s-1 .stars-1 .star-on,
+.tool_courserating-form-stars-group.s-2 .stars-2 .star-on,
+.tool_courserating-form-stars-group.s-3 .stars-3 .star-on,
+.tool_courserating-form-stars-group.s-4 .stars-4 .star-on,
+.tool_courserating-form-stars-group.s-5 .stars-5 .star-on {
+    display: inline-block;
+}

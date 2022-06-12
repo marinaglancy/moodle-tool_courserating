@@ -188,3 +188,51 @@ const refreshRating = (courseid) => {
         });
     }
 };
+
+/**
+ * Adds or removes CSS class to/from an element
+ *
+ * @param {Element} ratingFormGroup
+ * @param {String} value
+ */
+const setFormGroupClasses = (ratingFormGroup, value) => {
+    const addRemoveClass = (className, add) => {
+        if (add && !ratingFormGroup.classList.contains(className)) {
+            ratingFormGroup.classList.add(className);
+        } else if (!add && ratingFormGroup.classList.contains(className)) {
+            ratingFormGroup.classList.remove(className);
+        }
+    };
+    for (let i=1; i<=5; i++) {
+        addRemoveClass('s-'+i, i <= parseInt(value));
+    }
+    addRemoveClass('tool_courserating-norating', parseInt(value) === 0);
+};
+
+/**
+ * Sets up listeneres for the addRating modal form
+ *
+ * @param {String} grpId
+ */
+export const setupAddRatingForm = (grpId) => {
+    const ratingFormGroup = document.getElementById(grpId);
+    const curchecked = ratingFormGroup.querySelector('input:checked');
+    setFormGroupClasses(ratingFormGroup, curchecked ? curchecked.value : 0);
+
+    let els = ratingFormGroup.querySelectorAll('input');
+    for (let i = 0; i < els.length; i++) {
+        els[i].addEventListener('change', e => setFormGroupClasses(ratingFormGroup, e.target.value));
+    }
+
+    let labels = ratingFormGroup.querySelectorAll('label');
+    for (let i = 0; i < labels.length; i++) {
+        labels[i].addEventListener("mouseover", e => {
+            const el = e.target.closest('label').querySelector('input');
+            setFormGroupClasses(ratingFormGroup, el.value);
+        });
+        labels[i].addEventListener("mouseleave", () => {
+            const el = ratingFormGroup.querySelector('input:checked');
+            setFormGroupClasses(ratingFormGroup, el ? el.value : 0);
+        });
+    }
+};

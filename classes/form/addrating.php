@@ -48,18 +48,23 @@ class addrating extends \core_form\dynamic_form {
      * Form definition
      */
     protected function definition() {
-        // TODO UI.
+        global $OUTPUT;
         $mform = $this->_form;
         $mform->addElement('hidden', 'courseid', $this->get_course_id());
         $mform->setType('courseid', PARAM_INT);
 
         $radioarray = array();
-        $radioarray[] = $mform->createElement('radio', 'rating', '', 1, 1);
-        $radioarray[] = $mform->createElement('radio', 'rating', '', 2, 2);
-        $radioarray[] = $mform->createElement('radio', 'rating', '', 3, 3);
-        $radioarray[] = $mform->createElement('radio', 'rating', '', 4, 4);
-        $radioarray[] = $mform->createElement('radio', 'rating', '', 5, 5);
-        $mform->addGroup($radioarray, 'ratinggroup', get_string('rating', 'tool_courserating'), array(' ', ' '), false);
+        foreach ([1, 2, 3, 4, 5] as $r) {
+            $label = $OUTPUT->pix_icon('star', $r, 'tool_courserating', ['class' => 'star-on tool_courserating-stars']);
+            $label .= $OUTPUT->pix_icon('star-o', $r, 'tool_courserating', ['class' => 'star-off tool_courserating-stars']);
+            $label = \html_writer::span($label);
+            /** @var \MoodleQuickForm_radio $el */
+            $el = $mform->createElement('radio', 'rating', '', $label, $r);
+            $el->setAttributes($el->getAttributes() + ['class' => ' stars-' . $r]);
+            $radioarray[] = $el;
+        }
+        $el = $mform->addGroup($radioarray, 'ratinggroup', get_string('rating', 'tool_courserating'), array(' ', ' '), false);
+        $el->setAttributes($el->getAttributes() + ['class' => 'tool_courserating-form-stars-group']);
 
         $options = helper::review_editor_options($this->get_context_for_dynamic_submission());
         $mform->addElement('editor', 'review_editor', get_string('review', 'tool_courserating'),
@@ -75,8 +80,22 @@ class addrating extends \core_form\dynamic_form {
      */
     public function validation($data, $files) {
         $errors = [];
-        // TODO check rating is set.
+        if (empty($data['rating'])) {
+            $errors['ratinggroup'] = get_string('required');
+        }
         return $errors;
+    }
+
+    /**
+     * Display the form
+     *
+     * @return void
+     */
+    public function display() {
+        parent::display();
+        global $PAGE;
+        $PAGE->requires->js_call_amd('tool_courserating/rating', 'setupAddRatingForm',
+        [$this->_form->getElement('ratinggroup')->getAttribute('id')]);
     }
 
     /**
