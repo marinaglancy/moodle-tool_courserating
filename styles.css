@@ -11,11 +11,7 @@
 }
 
 .tool_courserating-widget {
-    background-color: #f0f0f0;
-    border: 1px solid #d0d0d0;
-    padding: 0.75rem 1.25rem;
-    margin-bottom: 1rem;
-    border-radius: 0.5rem;
+    padding: 0.75rem 0;
 }
 
 .tool_courserating-reviews-popup .course-average-value {

@@ -22,13 +22,21 @@
     }
 
 }}
-<div class="tool_courserating-widget d-flex p-2">
-    <div data-for="tool_courserating-cfield-wrapper" data-courseid="{{courseid}}">
+<div class="tool_courserating-widget">
+    <div data-for="tool_courserating-cfield-wrapper" data-courseid="{{courseid}}" class="rating-summary">
         {{{ratingdisplay}}}
     </div>
     {{#rate}}
-        <div class="ml-auto">
+        <div class="add-rating-link">
             <a href="#" data-action="tool_courserating-addrating" data-courseid="{{courseid}}">{{#str}}addrating, tool_courserating{{/str}}</a>
         </div>
     {{/rate}}
 </div>
+{{#js}}
+    /* Move the widget to the header area */
+    const widget = document.querySelector(".tool_courserating-widget");
+    const header = document.querySelector("#page-header");
+    if (header) {
+        header.appendChild(widget);
+    }
+{{/js}}
