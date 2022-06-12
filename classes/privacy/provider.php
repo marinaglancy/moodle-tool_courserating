@@ -229,7 +229,7 @@ class provider implements
         $affectedcourses = $DB->get_fieldset_sql($sqlrating, $params);
         foreach ($affectedcourses as $cid) {
             $DB->delete_records(rating::TABLE, ['userid' => $userid, 'courseid' => $cid]);
-            reindex::schedule($cid);
+            reindex::schedule_course($cid);
         }
     }
 

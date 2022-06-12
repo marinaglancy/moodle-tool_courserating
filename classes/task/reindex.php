@@ -52,10 +52,17 @@ class reindex extends \core\task\adhoc_task {
 
     /**
      * Schedule the task to run on the next cron
+     */
+    public static function schedule() {
+        self::schedule_course(0);
+    }
+
+    /**
+     * Schedule the task to run on the next cron, for individual course
      *
      * @param int $courseid
      */
-    public static function schedule(int $courseid = 0) {
+    public static function schedule_course(int $courseid = 0) {
         global $USER;
 
         $task = new static();
