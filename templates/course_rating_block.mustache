@@ -22,7 +22,7 @@
     }
 
 }}
-<div class="tool_courserating-widget">
+<div class="tool_courserating-widget pt-2 pt-0 {{extraclasses}}">
     <div data-for="tool_courserating-cfield-wrapper" data-courseid="{{courseid}}" class="rating-summary">
         {{{ratingdisplay}}}
     </div>
@@ -32,11 +32,13 @@
         </div>
     {{/rate}}
 </div>
-{{#js}}
-    /* Move the widget to the header area */
-    const widget = document.querySelector(".tool_courserating-widget");
-    const header = document.querySelector("#page-header");
-    if (header) {
-        header.appendChild(widget);
-    }
-{{/js}}
+{{#parentelement}}
+    {{#js}}
+        /* Move the widget to the header area */
+        const widget = document.querySelector(".tool_courserating-widget");
+        const header = document.querySelector("{{parentelement}}");
+        if (header) {
+            header.appendChild(widget);
+        }
+    {{/js}}
+{{/parentelement}}

@@ -64,14 +64,21 @@ class renderer extends plugin_renderer_base {
      * @return string
      */
     public function course_rating_block(int $courseid): string {
+        global $CFG;
         if (!permission::can_view_ratings($courseid)) {
             return '';
         }
         $data = [
             'ratingdisplay' => $this->cfield($courseid),
             'courseid' => $courseid,
-            'rate' => permission::can_add_rating($courseid)
+            'rate' => permission::can_add_rating($courseid),
         ];
+        if ("{$CFG->branch}" === '311') {
+            $data['parentelement'] = '#page-header .card-body';
+        } else if ("{$CFG->branch}" >= '400') {
+            $data['parentelement'] = '#page-header';
+            $data['extraclasses'] = 'pb-2';
+        }
         return $this->render_from_template('tool_courserating/course_rating_block', $data);
     }
 }

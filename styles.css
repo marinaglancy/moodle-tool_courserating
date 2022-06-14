@@ -10,10 +10,6 @@
     text-decoration: none;
 }
 
-.tool_courserating-widget {
-    padding: 0.75rem 0;
-}
-
 .tool_courserating-reviews-popup .course-average-value {
     font-weight: 700;
     letter-spacing: -.02rem;
