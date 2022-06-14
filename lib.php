@@ -26,10 +26,11 @@
  * Callback allowing to add js to $PAGE->requires
  */
 function tool_courserating_before_http_headers() {
-    global $PAGE;
+    global $PAGE, $CFG;
     if (\tool_courserating\helper::course_ratings_enabled_anywhere()) {
         // Add JS to all pages, the course ratings can be displayed on any page (for example course listings).
-        $PAGE->requires->js_call_amd('tool_courserating/rating', 'init', [context_system::instance()->id]);
+        $PAGE->requires->js_call_amd('tool_courserating/rating', 'init',
+            [context_system::instance()->id, "{$CFG->branch}" < "400"]);
     }
     return null;
 }

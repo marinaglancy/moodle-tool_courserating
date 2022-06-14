@@ -36,11 +36,18 @@ const SELECTORS = {
     DELETE_RATING: `[data-action='tool_courserating-delete-rating']`,
     USER_RATING: `[data-for='tool_courserating-user-rating']`,
     CFIELD_WRAPPER: `[data-for='tool_courserating-cfield-wrapper'][data-courseid]`,
+    USER_RATING_FLAG: `[data-for='tool_courserating-user-flag']`,
 };
 
 let systemContextId;
 
-export const init = (systemContextIdParam) => {
+/**
+ * Initialise listeners
+ *
+ * @param {Number} systemContextIdParam
+ * @param {Boolean} useJQuery
+ */
+export const init = (systemContextIdParam, useJQuery = false) => {
     systemContextId = systemContextIdParam;
 
     document.addEventListener('click', e => {
@@ -66,18 +73,30 @@ export const init = (systemContextIdParam) => {
         }
     });
 
-    document.addEventListener('core/inplace_editable:updated', e => {
-        const inplaceEditable = e.target;
-        if (inplaceEditable.dataset.component === 'tool_courserating' && inplaceEditable.dataset.itemtype === 'flag') {
-            const ratingid = inplaceEditable.dataset.itemid;
-            const node = document.querySelector(`[data-for='tool_courserating-user-flag'][data-ratingid='${ratingid}']`);
-            if (node) {
-                Fragment.loadFragment('tool_courserating', 'rating_flag', systemContextId, {ratingid}).done((html, js) => {
-                    Templates.replaceNode(node, html, js);
-                });
-            }
+    if (useJQuery) {
+        require(['jquery'], function($) {
+            $('body').on('updated', '[data-inplaceeditable]', e => reloadFlag(e.target));
+        });
+    } else {
+        document.addEventListener('core/inplace_editable:updated', e => reloadFlag(e.target));
+    }
+};
+
+/**
+ * Update the rating flag fragment
+ *
+ * @param {Element} inplaceEditable
+ */
+const reloadFlag = (inplaceEditable) => {
+    if (inplaceEditable.dataset.component === 'tool_courserating' && inplaceEditable.dataset.itemtype === 'flag') {
+        const ratingid = inplaceEditable.dataset.itemid;
+        const node = document.querySelector(`${SELECTORS.USER_RATING_FLAG}[data-ratingid='${ratingid}']`);
+        if (node) {
+            Fragment.loadFragment('tool_courserating', 'rating_flag', systemContextId, {ratingid}).done((html, js) => {
+                Templates.replaceNode(node, html, js);
+            });
         }
-    });
+    }
 };
 
 /**
