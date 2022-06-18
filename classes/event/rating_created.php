@@ -51,7 +51,7 @@ class rating_created extends \core\event\base {
      * @return string
      */
     public function get_description(): string {
-        return "User {$this->userid} has rated the course with ".$this->other['rating']." stars";
+        return "User {$this->relateduserid} has rated the course with ".$this->other['rating']." stars";
     }
 
     /**

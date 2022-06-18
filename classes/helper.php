@@ -111,6 +111,7 @@ class helper {
      */
     public static function review_editor_options(\context $context) {
         global $CFG;
+        require_once($CFG->dirroot.'/lib/formslib.php');
         return [
             'subdirs' => 0,
             'maxbytes' => $CFG->maxbytes,

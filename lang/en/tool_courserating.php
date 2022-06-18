@@ -81,5 +81,5 @@ $string['revokeratingflag'] = 'Revoke';
 $string['settingsdescription'] = 'Changing some of the settings may require re-indexing of all courses and course ratings. This will happen automatically on next cron run.';
 $string['showallratings'] = 'Show all';
 $string['showmorereviews'] = 'Show more';
-$string['usersflagged'] = '{$a} user(s) have marked this review as inappropriate/offensive.';
+$string['usersflagged'] = '{$a} user(s) have flagged this review as inappropriate/offensive.';
 $string['youflagged'] = 'You have flagged this review as inappropriate/offensive.';

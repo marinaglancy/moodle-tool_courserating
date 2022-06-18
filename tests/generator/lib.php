@@ -13,6 +13,7 @@
 //
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
+
 use tool_courserating\api;
 use tool_courserating\helper;
 
@@ -50,5 +51,22 @@ class tool_courserating_generator extends testing_module_generator {
     public function set_config(string $name, $value) {
         set_config($name, $value, 'tool_courserating');
         api::reindex();
+    }
+
+    /**
+     * Create rating
+     *
+     * @param int $userid
+     * @param int $courseid
+     * @param int $rating
+     * @param string $review
+     * @return void
+     */
+    public function create_rating(int $userid, int $courseid, int $rating, string $review = '') {
+        $formdata = (object)[
+            'review_editor' => ['text' => $review ?? '', 'format' => FORMAT_HTML],
+            'rating' => $rating,
+        ];
+        api::set_rating($courseid, $formdata, $userid);
     }
 }

@@ -41,13 +41,16 @@ class api {
      *
      * @param int $courseid
      * @param \stdClass $data
+     * @param int $userid - only for phpunit and behat tests
      * @return rating
      */
-    public static function set_rating(int $courseid, \stdClass $data): rating {
+    public static function set_rating(int $courseid, \stdClass $data, int $userid = 0): rating {
         global $USER;
+        // TODO $userid can only be used in phpunit and behat.
+        $userid = $userid ?: $USER->id;
         // TODO validate rating is within limits, trim/crop review.
         $rating = $data->rating;
-        $ratingold = rating::get_record(['userid' => $USER->id, 'courseid' => $courseid]);
+        $ratingold = rating::get_record(['userid' => $userid, 'courseid' => $courseid]);
         if ($ratingold) {
             $oldrecord = $ratingold->to_record();
             $r = $ratingold;
@@ -58,7 +61,7 @@ class api {
             $summary = summary::update_rating($courseid, $r, $oldrecord);
         } else {
             $r = new rating(0, (object)[
-                'userid' => $USER->id,
+                'userid' => $userid,
                 'courseid' => $courseid,
                 'rating' => $rating,
                 'review' => self::prepare_review(null, $data),

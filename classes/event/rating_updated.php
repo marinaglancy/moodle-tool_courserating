@@ -51,7 +51,7 @@ class rating_updated extends \core\event\base {
      * @return string
      */
     public function get_description(): string {
-        return "User {$this->userid} has changed the rating for the course from ".
+        return "User {$this->relateduserid} has changed the rating for the course from ".
             $this->other['oldrating']." to ".$this->other['rating'];
     }
 

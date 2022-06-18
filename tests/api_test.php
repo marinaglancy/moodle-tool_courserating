@@ -36,6 +36,15 @@ use tool_courserating\local\models\summary;
 class api_test extends \advanced_testcase {
 
     /**
+     * Generator
+     *
+     * @return \tool_courserating_generator
+     */
+    protected function get_generator(): \tool_courserating_generator {
+        return self::getDataGenerator()->get_plugin_generator('tool_courserating');
+    }
+
+    /**
      * Assert rating in the database matches expectations
      *
      * @param array|null $expected
@@ -249,5 +258,13 @@ class api_test extends \advanced_testcase {
         $this->assert_rating(['rating' => 4, 'review' => ''], $user->id, $course->id);
         $expected = ['cntall' => 1, 'avgrating' => 4, 'sumrating' => 4, 'cnt02' => 0, 'cnt03' => 0, 'cnt04' => 1];
         $this->assert_summary($expected, $course->id);
+    }
+
+    public function test_create_rating() {
+        $this->resetAfterTest();
+        $user = $this->getDataGenerator()->create_user();
+        $course = $this->getDataGenerator()->create_course();
+        $this->get_generator()->create_rating($user->id, $course->id, 3);
+        $this->assertEquals(3, summary::get_for_course($course->id)->get('avgrating'));
     }
 }
