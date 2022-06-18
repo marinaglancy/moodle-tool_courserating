@@ -54,6 +54,7 @@ class renderer extends plugin_renderer_base {
         $data1 = (new summary_exporter($courseid))->export($this);
         $data2 = (new ratings_list_exporter(['courseid' => $courseid]))->export($this);
         $data = (array)$data1 + (array)$data2;
+        $this->page->requires->js_call_amd('tool_courserating/rating', 'setupViewRatingsPopup', []);
         return $this->render_from_template('tool_courserating/course_ratings_popup', $data);
     }
 

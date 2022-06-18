@@ -26,6 +26,7 @@
 defined('MOODLE_INTERNAL') || die();
 
 $string['addrating'] = 'Rate this course';
+$string['barwithrating'] = '{$a->rating} star represent {$a->percent} of rating';
 $string['cannotrate'] = 'You don\'t have permission to leave rating to this course';
 $string['cannotview'] = 'You don\'t have permission to view ratings for this course';
 $string['cfielddescription'] = 'Do not edit, the content will be populated automatically every time somebody leaves a rating for this course.';
@@ -42,8 +43,8 @@ $string['displayemptyconfig'] = 'For courses where rating is enabled but there a
 $string['event:flag_created'] = 'Course rating flagged';
 $string['event:flag_deleted'] = 'Course rating flag revoked';
 $string['event:rating_created'] = 'Course rating created';
-$string['event:rating_updated'] = 'Course rating updated';
 $string['event:rating_deleted'] = 'Course rating deleted';
+$string['event:rating_updated'] = 'Course rating updated';
 $string['flagrating'] = 'Flag';
 $string['percourseoverride'] = 'Course overrides';
 $string['percourseoverrideconfig'] = 'If enabled, a custom course field will be created that will allow to set when each individual course can be rated. The value above will be treated as the default';
@@ -78,5 +79,7 @@ $string['reindextask'] = 'Re-index course ratings';
 $string['review'] = 'Review (optional)';
 $string['revokeratingflag'] = 'Revoke';
 $string['settingsdescription'] = 'Changing some of the settings may require re-indexing of all courses and course ratings. This will happen automatically on next cron run.';
+$string['showallratings'] = 'Show all';
+$string['showmorereviews'] = 'Show more';
 $string['usersflagged'] = '{$a} user(s) have marked this review as inappropriate/offensive.';
 $string['youflagged'] = 'You have flagged this review as inappropriate/offensive.';

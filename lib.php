@@ -22,6 +22,8 @@
  * @license     https://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
+use tool_courserating\external\ratings_list_exporter;
+
 /**
  * Callback allowing to add js to $PAGE->requires
  */
@@ -231,4 +233,27 @@ function tool_courserating_inplace_editable($itemtype, $itemid, $newvalue) {
         }
         return \tool_courserating\api::get_flag_inplace_editable($itemid);
     }
+}
+
+/**
+ * Fragment API callback
+ *
+ * @param array $args
+ * @return string
+ */
+function tool_courserating_output_fragment_course_reviews($args) {
+    global $PAGE;
+    $args = [
+        'courseid' => clean_param($args['courseid'] ?? 0, PARAM_INT),
+        'offset' => clean_param($args['offset'] ?? 0, PARAM_INT),
+        'withrating' => clean_param($args['withrating'] ?? 0, PARAM_INT),
+    ];
+    if (!$args['courseid']) {
+        throw new moodle_exception('missingparam', '', '', 'courseid');
+    }
+    \tool_courserating\permission::require_can_view_ratings($args['courseid']);
+    /** @var tool_courserating\output\renderer $output */
+    $output = $PAGE->get_renderer('tool_courserating');
+    $data = (new ratings_list_exporter($args))->export($output);
+    return $output->render_from_template('tool_courserating/course_ratings_popup_reviews', $data);
 }

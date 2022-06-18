@@ -50,6 +50,7 @@ class ratings_list_exporter extends exporter {
             'offset' => PARAM_INT . '?',
             'courseid' => PARAM_INT . '?',
             'showempty' => PARAM_BOOL . '?',
+            'withrating' => PARAM_INT . '?',
         ];
     }
 
@@ -64,10 +65,22 @@ class ratings_list_exporter extends exporter {
                 'type' => rating_exporter::read_properties_definition(),
                 'multiple' => true,
             ],
+            'offset' => [
+                'type' => PARAM_INT
+            ],
             'hasmore' => [
                 'type' => PARAM_BOOL
             ],
             'nextoffset' => [
+                'type' => PARAM_INT
+            ],
+            'courseid' => [
+                'type' => PARAM_INT
+            ],
+            'systemcontextid' => [
+                'type' => PARAM_INT
+            ],
+            'withrating' => [
                 'type' => PARAM_INT
             ],
         ];
@@ -83,16 +96,23 @@ class ratings_list_exporter extends exporter {
         $courseid = $this->related['courseid'];
         $offset = $this->related['offset'] ?: 0;
         $limit = $this->related['limit'] ?: constants::REVIEWS_PER_PAGE;
+        $withrating = $this->related['withrating'] ?: 0;
 
         $reviews = rating::get_records_select(
-            'courseid = :courseid AND hasreview = 1',
-            ['courseid' => $courseid],
+            'courseid = :courseid'.
+            (empty($this->related['showempty']) ? ' AND hasreview = 1' : '').
+            ($withrating ? ' AND rating = :rating' : ''),
+            ['courseid' => $courseid, 'rating' => $withrating],
             'timecreated DESC, id DESC', '*', $offset, $limit + 1);
 
         $data = [
             'ratings' => [],
-            'nextoffset' => $offset + $limit,
+            'offset' => $offset,
             'hasmore' => count($reviews) > $limit,
+            'nextoffset' => $offset + $limit,
+            'courseid' => $courseid,
+            'systemcontextid' => \context_system::instance()->id,
+            'withrating' => $withrating,
         ];
 
         $reviews = array_slice(array_values($reviews), 0, $limit);

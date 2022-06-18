@@ -37,6 +37,17 @@ const SELECTORS = {
     USER_RATING: `[data-for='tool_courserating-user-rating']`,
     CFIELD_WRAPPER: `[data-for='tool_courserating-cfield-wrapper'][data-courseid]`,
     USER_RATING_FLAG: `[data-for='tool_courserating-user-flag']`,
+    RATING_POPUP: `.tool_courserating-reviews-popup`,
+    REVIEWS_LIST: `.tool_courserating-reviews-popup [data-for="tool_courserating-reviews"]`,
+    SHOWMORE_WRAPPER: `.tool_courserating-reviews-popup [data-for="tool_courserating-reviews"] `+
+        `[data-for="tool_courserating-showmore"]`,
+    SHOWMORE_BUTTON: `.tool_courserating-reviews-popup [data-for="tool_courserating-reviews"] `+
+        `[data-for="tool_courserating-showmore"] [data-action="showmore"]`,
+    RESET_WITHRATINGS: `.tool_courserating-reviews-popup [data-for="tool_courserating-reviews"] `+
+        `[data-for="tool_courserating-resetwithrating"]`,
+    POPUP_SUMMARY: `.tool_courserating-reviews-popup [data-for="tool_courserating-summary"]`,
+    SET_WITHRATINGS: `.tool_courserating-reviews-popup [data-for="tool_courserating-summary"] `+
+        `[data-for="tool_courserating_setwithrating"]`,
 };
 
 let systemContextId;
@@ -254,4 +265,44 @@ export const setupAddRatingForm = (grpId) => {
             setFormGroupClasses(ratingFormGroup, el ? el.value : 0);
         });
     }
+};
+
+/**
+ * Sets up the "View course ratings" popup
+ */
+export const setupViewRatingsPopup = () => {
+    const el = document.querySelector(SELECTORS.REVIEWS_LIST);
+    const reloadReviews = (offset = 0) => {
+        const params = {
+            courseid: el.dataset.courseid,
+            offset,
+            withrating: el.dataset.withrating
+        };
+        return Fragment.loadFragment('tool_courserating', 'course_reviews', el.dataset.systemcontextid, params);
+    };
+
+    el.addEventListener('click', e => {
+        const button = e.target.closest(SELECTORS.SHOWMORE_BUTTON);
+        if (button) {
+            const wrapper = button.closest(SELECTORS.SHOWMORE_WRAPPER);
+            e.preventDefault();
+            reloadReviews(button.dataset.nextoffset).done((html, js) => Templates.replaceNode(wrapper, html, js));
+        }
+        const resetLink = e.target.closest(SELECTORS.RESET_WITHRATINGS);
+        if (resetLink) {
+            e.preventDefault();
+            el.dataset.withrating = 0;
+            reloadReviews(0).done((html, js) => Templates.replaceNodeContents(el, html, js));
+        }
+    });
+
+    const elSummary = document.querySelector(SELECTORS.POPUP_SUMMARY);
+    elSummary.addEventListener('click', e => {
+        const withRatingButton = e.target.closest(SELECTORS.SET_WITHRATINGS);
+        if (withRatingButton) {
+            el.dataset.withrating = (el.dataset.withrating === withRatingButton.dataset.withrating) ?
+                0 : withRatingButton.dataset.withrating;
+            reloadReviews(0).done((html, js) => Templates.replaceNodeContents(el, html, js));
+        }
+    });
 };

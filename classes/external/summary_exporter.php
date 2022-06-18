@@ -73,6 +73,7 @@ class summary_exporter extends exporter {
             'stars' => ['type' => stars_exporter::read_properties_definition()],
             'lines' => [
                 'type' => [
+                    'rating' => ['type' => PARAM_INT],
                     'star' => ['type' => stars_exporter::read_properties_definition()],
                     'percent' => ['type' => PARAM_RAW],
                 ],
@@ -105,6 +106,7 @@ class summary_exporter extends exporter {
         foreach ([5, 4, 3, 2, 1] as $line) {
             $percent = $summary->get('cntall') ? round(100 * $summary->get('cnt0' . $line) / $summary->get('cntall')) : 0;
             $data['lines'][] = [
+                'rating' => $line,
                 'star' => (new stars_exporter($line))->export($output),
                 'percent' => $percent . '%',
             ];

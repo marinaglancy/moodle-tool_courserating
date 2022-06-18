@@ -15,7 +15,7 @@
     along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 }}
 {{!
-    @template tool_courserating/course_ratings_popup
+    @template tool_courserating/course_ratings_popup_reviews
 
     Example context (json):
     {
@@ -23,14 +23,18 @@
     }
 
 }}
-<div class="tool_courserating-reviews-popup">
-    <div class="container course-rating-summary" data-courseid="{{courseid}}" data-for="tool_courserating-summary">
-        {{>tool_courserating/course_ratings_summary}}
+{{^offset}}
+    {{#withrating}}
+        <p class="mdl-align">Showing reviews with rating {{withrating}}.
+            <a href="#" data-for="tool_courserating-resetwithrating">{{#str}}showallratings, tool_courserating{{/str}}</a></p>
+    {{/withrating}}
+{{/offset}}
+{{#ratings}}
+    {{> tool_courserating/rating}}
+{{/ratings}}
+{{#hasmore}}
+    <div class="mdl-align reviews-showmore-wrapper" data-for="tool_courserating-showmore">
+        <button type="button" class="btn btn-secondary" data-action="showmore"
+                data-nextoffset="{{nextoffset}}">{{#str}}showmorereviews, tool_courserating{{/str}}</button>
     </div>
-
-    <div class="course-reviews" data-for="tool_courserating-reviews"
-         data-systemcontextid="{{systemcontextid}}" data-courseid="{{courseid}}"
-         data-withrating="0">
-        {{>tool_courserating/course_ratings_popup_reviews}}
-    </div>
-</div>
+{{/hasmore}}

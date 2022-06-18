@@ -206,7 +206,7 @@ class summary extends \core\persistent {
         } else {
             $keys = ['cntall', 'sumrating', 'cntreviews'];
             for ($i = 1; $i <= 10; $i++) {
-                $key[] = self::cntkey($i);
+                $keys[] = self::cntkey($i);
             }
             foreach ($keys as $key) {
                 $this->set($key, $result->$key ?? 0);
