@@ -153,7 +153,8 @@ class api {
      * @return string
      */
     protected static function prepare_review(?rating $rating, \stdClass $data): string {
-        if ($rating && !rating::review_is_empty($data->review_editor['text'] ?? '')) {
+        $usehtml = helper::get_setting(constants::SETTING_USEHTML);
+        if ($rating && $usehtml && !rating::review_is_empty($data->review_editor['text'] ?? '')) {
             $context = \context_course::instance($rating->get('courseid'));
             $data = file_postupdate_standard_editor($data, 'review', helper::review_editor_options($context), $context,
                 'tool_courserating', 'review', $rating->get('id'));
@@ -163,7 +164,7 @@ class api {
                 return format_text($data->review, $data->reviewformat, ['filter' => false, 'context' => $context]);
             }
             return $data->review;
-        } else if (!rating::review_is_empty($data->review ?? '')) {
+        } else if (!$usehtml && !rating::review_is_empty($data->review ?? '')) {
             return $data->review;
         } else {
             return '';
@@ -178,21 +179,25 @@ class api {
      */
     public static function prepare_rating_for_form(int $courseid): array {
         global $USER;
+        $rv = [
+            'review_editor' => ['text' => '', 'format' => FORMAT_HTML],
+            'review' => '',
+        ];
         if ($rating = rating::get_record(['userid' => $USER->id, 'courseid' => $courseid])) {
             $data = $rating->to_record();
-            $data->reviewformat = FORMAT_HTML;
-            $context = \context_course::instance($courseid);
-            $data = file_prepare_standard_editor($data, 'review', helper::review_editor_options($context), $context,
-                'tool_courserating', 'review', $data->id);
-            return [
-                'rating' => $data->rating,
-                'review_editor' => $data->review_editor,
-            ];
-        } else {
-            return [
-                'review' => ['text' => '', 'format' => FORMAT_HTML],
-            ];
+            $rv['rating'] = $data->rating;
+            if (helper::get_setting(constants::SETTING_USEHTML)) {
+                $data->reviewformat = FORMAT_HTML;
+                $context = \context_course::instance($courseid);
+                $data = file_prepare_standard_editor($data, 'review', helper::review_editor_options($context), $context,
+                    'tool_courserating', 'review', $data->id);
+                $rv['review_editor'] = $data->review_editor;
+            } else {
+                $rv['review'] = clean_param($data->review, PARAM_TEXT);
+            }
+            return $rv;
         }
+        return $rv;
     }
 
     /**

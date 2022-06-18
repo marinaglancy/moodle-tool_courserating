@@ -49,6 +49,8 @@ class constants {
     const SETTING_RATINGCOLOR = 'ratingcolor';
     /** @var string */
     const SETTING_DISPLAYEMPTY = 'displayempty';
+    /** @var string */
+    const SETTING_USEHTML = 'usehtml';
 
     /** @var string */
     const SETTING_STARCOLOR_DEFAULT = '#e59819';

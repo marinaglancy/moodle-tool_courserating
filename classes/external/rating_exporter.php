@@ -19,6 +19,8 @@ namespace tool_courserating\external;
 use core\external\persistent_exporter;
 use core_user\external\user_summary_exporter;
 use tool_courserating\api;
+use tool_courserating\constants;
+use tool_courserating\helper;
 use tool_courserating\local\models\flag;
 use tool_courserating\local\models\rating;
 use tool_courserating\output\renderer;
@@ -64,7 +66,8 @@ class rating_exporter extends persistent_exporter {
         return [
             'component' => 'tool_courserating',
             'filearea' => 'review',
-            'itemid' => $this->data->id
+            'itemid' => $this->data->id,
+            'context' => \context_course::instance($this->data->courseid),
         ];
     }
 
@@ -76,6 +79,7 @@ class rating_exporter extends persistent_exporter {
     protected static function define_other_properties(): array {
         return [
             'user' => ['type' => user_summary_exporter::read_properties_definition(), 'optional' => true],
+            'reviewtext' => ['type' => PARAM_RAW],
             'reviewstars' => ['type' => stars_exporter::read_properties_definition()],
             'reviewdate' => ['type' => PARAM_RAW],
             'ratingflag' => [
@@ -100,6 +104,15 @@ class rating_exporter extends persistent_exporter {
             $result['user'] = $userexporter->export($output);
         } else {
             $result['user'] = [];
+        }
+
+        $formatparams = $this->get_format_parameters('review');
+        if (helper::get_setting(constants::SETTING_USEHTML)) {
+            list($text, $format) = external_format_text($this->data->review, FORMAT_HTML, $formatparams['context'],
+                $formatparams['component'], $formatparams['filearea'], $formatparams['itemid'], $formatparams['options']);
+            $result['reviewtext'] = $text;
+        } else {
+            $result['reviewtext'] = format_text(clean_param($this->data->review, PARAM_TEXT), FORMAT_MOODLE, $formatparams);
         }
 
         $result['reviewstars'] = (new stars_exporter($this->data->rating))->export($output);

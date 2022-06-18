@@ -135,13 +135,15 @@ class helper {
             constants::SETTING_DISPLAYEMPTY => false,
             constants::SETTING_PERCOURSE => false,
             constants::SETTING_RATINGMODE => constants::RATEBY_ANYTIME,
+            constants::SETTING_USEHTML => false,
         ];
         if (!isset($value) && array_key_exists($name, $defaults)) {
             // Can only happen if there is unfinished upgrade.
             return $defaults[$name];
         }
 
-        if ($name === constants::SETTING_DISPLAYEMPTY || $name === constants::SETTING_PERCOURSE) {
+        if ($name === constants::SETTING_DISPLAYEMPTY || $name === constants::SETTING_PERCOURSE
+                || $name === constants::SETTING_USEHTML) {
             return !empty($value);
         }
         if ($name === constants::SETTING_STARCOLOR || $name === constants::SETTING_RATINGCOLOR) {
@@ -191,7 +193,7 @@ class helper {
      *
      * @param string $shortname
      * @param string $type i.e. 'textarea', 'select', 'text
-     * @param null|lang_string $displayname
+     * @param null|\lang_string $displayname
      * @param array $config additional field configuration, for example, options for 'select' element
      * @param string $description
      * @return field_controller|null

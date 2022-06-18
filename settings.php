@@ -61,6 +61,11 @@ if ($hassiteconfig) {
     $el->set_updatedcallback('tool_courserating\task\reindex::schedule');
     $temp->add($el);
 
+    $el = new admin_setting_configcheckbox('tool_courserating/' . \tool_courserating\constants::SETTING_USEHTML,
+        new lang_string('usehtml', 'tool_courserating'),
+        new lang_string('usehtmlconfig', 'tool_courserating'), 0);
+    $temp->add($el);
+
     $temp->add(new admin_setting_description('tool_courserating/description',
         '',
         new lang_string('settingsdescription', 'tool_courserating')));

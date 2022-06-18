@@ -257,3 +257,50 @@ function tool_courserating_output_fragment_course_reviews($args) {
     $data = (new ratings_list_exporter($args))->export($output);
     return $output->render_from_template('tool_courserating/course_ratings_popup_reviews', $data);
 }
+
+/**
+ * Serves the files.
+ *
+ * @param stdClass $course course object
+ * @param stdClass $cm course module
+ * @param context $context context object
+ * @param string $filearea file area
+ * @param array $args extra arguments
+ * @param bool $forcedownload whether or not force download
+ * @param array $options additional options affecting the file serving
+ * @return bool false if file not found, does not return if found - just send the file
+ */
+function tool_courserating_pluginfile($course, $cm, $context, $filearea, $args, $forcedownload, array $options = []) {
+    if (!\tool_courserating\helper::get_setting(\tool_courserating\constants::SETTING_USEHTML)) {
+        return false;
+    }
+    if ($context->contextlevel != CONTEXT_COURSE) {
+        return false;
+    }
+    \tool_courserating\permission::require_can_view_ratings($context->instanceid);
+
+    if ($filearea !== 'review') {
+        return false;
+    }
+    $itemid = array_shift($args);
+
+    $rating = \tool_courserating\local\models\rating::get_record(['courseid' => $context->instanceid, 'id' => $itemid]);
+    if (!$rating) {
+        return false;
+    }
+
+    $fs = get_file_storage();
+    $relativepath = implode('/', $args);
+    $fullpath = "/$context->id/tool_courserating/$filearea/$itemid/$relativepath";
+    if (!$file = $fs->get_file_by_hash(sha1($fullpath)) or $file->is_directory()) {
+        return false;
+    }
+
+    // Set security posture for in-browser display.
+    if (!$forcedownload) {
+        header("Content-Security-Policy: default-src 'none'; img-src 'self'");
+    }
+
+    // Finally send the file.
+    send_stored_file($file, 0, 0, $forcedownload, $options);
+}
