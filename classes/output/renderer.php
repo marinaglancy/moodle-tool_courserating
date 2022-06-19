@@ -80,9 +80,10 @@ class renderer extends plugin_renderer_base {
         $data->canrate = $canrate;
         $data->hasrating = $canrate && rating::get_record(['userid' => $USER->id, 'courseid' => $courseid]);
 
-        if ("{$CFG->branch}" === '311') {
+        $branch = $CFG->branch ?? '';
+        if ("{$branch}" === '311') {
             $data->parentelement = '#page-header .card-body';
-        } else if ("{$CFG->branch}" >= '400') {
+        } else if ("{$branch}" >= '400') {
             $data->parentelement = '#page-header';
             $data->extraclasses = 'pb-2';
         }
