@@ -24,13 +24,20 @@
 }}
 <div class="tool_courserating-widget pt-2 pt-0 {{extraclasses}}">
     <div data-for="tool_courserating-cfield-wrapper" data-courseid="{{courseid}}" class="rating-summary">
-        {{{ratingdisplay}}}
+        {{>tool_courserating/summary_for_cfield}}
     </div>
-    {{#rate}}
+    {{#canrate}}
         <div class="add-rating-link">
-            <a href="#" data-action="tool_courserating-addrating" data-courseid="{{courseid}}">{{#str}}addrating, tool_courserating{{/str}}</a>
+            <a href="#" data-action="tool_courserating-addrating" data-courseid="{{courseid}}">
+                {{#hasrating}}
+                    {{#str}}editrating, tool_courserating{{/str}}
+                {{/hasrating}}
+                {{^hasrating}}
+                    {{#str}}addrating, tool_courserating{{/str}}
+                {{/hasrating}}
+            </a>
         </div>
-    {{/rate}}
+    {{/canrate}}
 </div>
 {{#parentelement}}
     {{#js}}

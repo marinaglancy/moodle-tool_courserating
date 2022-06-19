@@ -64,8 +64,8 @@ class api {
                 'userid' => $userid,
                 'courseid' => $courseid,
                 'rating' => $rating,
-                'review' => self::prepare_review(null, $data),
             ]);
+            $r->set('review', self::prepare_review(null, $data));
             $r->save();
             $review = self::prepare_review($r, $data);
             if ($review !== $r->get('review')) {

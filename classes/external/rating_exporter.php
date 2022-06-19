@@ -117,7 +117,7 @@ class rating_exporter extends persistent_exporter {
 
         $result['reviewstars'] = (new stars_exporter($this->data->rating))->export($output);
 
-        $result['reviewdate'] = userdate($this->data->timecreated, get_string('strftimedatetimeshort', 'core_langconfig'));
+        $result['reviewdate'] = userdate($this->data->timemodified, get_string('strftimedatetimeshort', 'core_langconfig'));
 
         if (permission::can_delete_rating($this->data->id, $this->data->courseid)) {
             $flags = flag::count_records(['ratingid' => $this->data->id]);

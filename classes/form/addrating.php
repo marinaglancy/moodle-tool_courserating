@@ -21,6 +21,7 @@ use moodle_url;
 use tool_courserating\api;
 use tool_courserating\constants;
 use tool_courserating\helper;
+use tool_courserating\local\models\summary;
 use tool_courserating\permission;
 
 /**
@@ -53,6 +54,16 @@ class addrating extends \core_form\dynamic_form {
         $mform = $this->_form;
         $mform->addElement('hidden', 'courseid', $this->get_course_id());
         $mform->setType('courseid', PARAM_INT);
+
+        $summary = summary::get_for_course($this->get_course_id());
+        if ($summary->get('cntall')) {
+            $courseid = $this->get_course_id();
+            $str = get_string('viewallreviews', 'tool_courserating');
+            $mform->addElement('html', <<<EOF
+<p class="mdl-align"><a href="#" data-action="tool_courserating-viewratings" data-courseid="$courseid">$str</a></p>
+EOF
+            );
+        }
 
         $radioarray = array();
         foreach ([1, 2, 3, 4, 5] as $r) {

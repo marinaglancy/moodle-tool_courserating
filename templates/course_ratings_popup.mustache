@@ -24,6 +24,19 @@
 
 }}
 <div class="tool_courserating-reviews-popup">
+    {{#canrate}}
+        <p class="mdl-align">
+            <a href="#" data-action="tool_courserating-addrating" data-courseid="{{courseid}}">
+                {{#hasrating}}
+                    {{#str}}editrating, tool_courserating{{/str}}
+                {{/hasrating}}
+                {{^hasrating}}
+                    {{#str}}addrating, tool_courserating{{/str}}
+                {{/hasrating}}
+            </a>
+        </p>
+    {{/canrate}}
+
     <div class="container course-rating-summary" data-courseid="{{courseid}}" data-for="tool_courserating-summary">
         {{>tool_courserating/course_ratings_summary}}
     </div>

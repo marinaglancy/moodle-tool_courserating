@@ -25,7 +25,7 @@
 
 defined('MOODLE_INTERNAL') || die();
 
-$string['addrating'] = 'Rate this course';
+$string['addrating'] = 'Leave a rating';
 $string['barwithrating'] = '{$a->rating} star represent {$a->percent} of rating';
 $string['cannotrate'] = 'You don\'t have permission to leave rating to this course';
 $string['cannotview'] = 'You don\'t have permission to view ratings for this course';
@@ -40,6 +40,7 @@ $string['deleterating'] = 'Permanently delete';
 $string['deletereason'] = 'Reason for deletion';
 $string['displayempty'] = 'Display no rating with gray stars';
 $string['displayemptyconfig'] = 'For courses where rating is enabled but there are no ratings yet display gray stars. If not selected, such courses will have no rating displayed at all';
+$string['editrating'] = 'Edit your rating';
 $string['event:flag_created'] = 'Course rating flagged';
 $string['event:flag_deleted'] = 'Course rating flag revoked';
 $string['event:rating_created'] = 'Course rating created';
@@ -84,4 +85,5 @@ $string['showmorereviews'] = 'Show more';
 $string['usehtml'] = 'Use rich text editor for reviews';
 $string['usehtmlconfig'] = 'Allow students to use rich text editor for the reviews, include links and attach files.';
 $string['usersflagged'] = '{$a} user(s) have flagged this review as inappropriate/offensive.';
+$string['viewallreviews'] = 'View all reviews';
 $string['youflagged'] = 'You have flagged this review as inappropriate/offensive.';

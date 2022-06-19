@@ -103,7 +103,7 @@ class ratings_list_exporter extends exporter {
             (empty($this->related['showempty']) ? ' AND hasreview = 1' : '').
             ($withrating ? ' AND rating = :rating' : ''),
             ['courseid' => $courseid, 'rating' => $withrating],
-            'timecreated DESC, id DESC', '*', $offset, $limit + 1);
+            'timemodified DESC, id DESC', '*', $offset, $limit + 1);
 
         $data = [
             'ratings' => [],

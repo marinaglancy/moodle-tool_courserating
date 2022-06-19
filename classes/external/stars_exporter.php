@@ -80,7 +80,7 @@ class stars_exporter extends exporter {
         } else {
             $icon = 'star-half';
         }
-        return (new \pix_icon($icon, 'rating' /* TODO */, 'tool_courserating', []))
+        return (new \pix_icon($icon, '', 'tool_courserating', []))
             ->export_for_pix();
     }
 

@@ -65,6 +65,7 @@ class tool_courserating_generator extends testing_module_generator {
     public function create_rating(int $userid, int $courseid, int $rating, string $review = '') {
         $formdata = (object)[
             'review_editor' => ['text' => $review ?? '', 'format' => FORMAT_HTML],
+            'review' => $review ?? '',
             'rating' => $rating,
         ];
         api::set_rating($courseid, $formdata, $userid);

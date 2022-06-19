@@ -30,8 +30,10 @@ import Templates from "core/templates";
 
 const SELECTORS = {
     COURSERATING: '.customfield_tool_courserating',
+    COURSEWIDGET: '.tool_courserating-widget',
     ADD_RATING: '[data-action=tool_courserating-addrating][data-courseid]',
-    VIEW_RATINGS: '.tool_courserating-cfield .tool_courserating-ratings',
+    VIEW_RATINGS_CFIELD: '.tool_courserating-cfield .tool_courserating-ratings',
+    VIEW_RATINGS_LINK: '[data-action="tool_courserating-viewratings"]',
     FLAG_RATING: '[data-action=tool_courserating-toggleflag]',
     DELETE_RATING: `[data-action='tool_courserating-delete-rating']`,
     USER_RATING: `[data-for='tool_courserating-user-rating']`,
@@ -51,6 +53,8 @@ const SELECTORS = {
 };
 
 let systemContextId;
+let viewRatingsModal;
+let addRatingModal;
 
 /**
  * Initialise listeners
@@ -63,19 +67,27 @@ export const init = (systemContextIdParam, useJQuery = false) => {
 
     document.addEventListener('click', e => {
         const addRatingElement = e.target.closest(SELECTORS.ADD_RATING),
-            viewRatingsElement = e.target.closest(SELECTORS.VIEW_RATINGS),
+            viewRatingsElement = e.target.closest(SELECTORS.VIEW_RATINGS_CFIELD),
             deleteRatingElement = e.target.closest(SELECTORS.DELETE_RATING);
 
         if (addRatingElement) {
             e.preventDefault();
             const courseid = addRatingElement.getAttribute('data-courseid');
+            if (viewRatingsModal) {
+                viewRatingsModal.destroy();
+            }
             addRating(courseid);
         } else if (viewRatingsElement) {
             e.preventDefault();
             const classes = (' ' + viewRatingsElement.getAttribute('class') + ' '),
                 matches = classes.match(/ tool_courserating-ratings-courseid-(\d+) /);
             if (matches) {
-                viewRatings(matches[1]);
+                const widget = viewRatingsElement.closest(SELECTORS.COURSEWIDGET);
+                if (widget && widget.querySelector(SELECTORS.ADD_RATING)) {
+                    addRating(matches[1]);
+                } else {
+                    viewRatings(matches[1]);
+                }
             }
         } else if (deleteRatingElement) {
             e.preventDefault();
@@ -116,7 +128,7 @@ const reloadFlag = (inplaceEditable) => {
  * @param {Number} courseid
  */
 const addRating = (courseid) => {
-    const form = new ModalForm({
+    addRatingModal = new ModalForm({
         formClass: 'tool_courserating\\form\\addrating',
         args: {courseid},
         modalConfig: {
@@ -125,14 +137,14 @@ const addRating = (courseid) => {
     });
 
     // When form is saved, refresh it to remove validation errors, if any:
-    form.addEventListener(form.events.FORM_SUBMITTED, () => {
+    addRatingModal.addEventListener(addRatingModal.events.FORM_SUBMITTED, () => {
         getString('changessaved')
             .then(addToast)
             .catch(null);
         refreshRating(courseid);
     });
 
-    form.show();
+    addRatingModal.show();
 };
 
 /**
@@ -157,6 +169,7 @@ const viewRatings = (courseid) => {
                 Templates.runTemplateJS(js);
             });
             modal.show();
+            viewRatingsModal = modal;
             return modal;
         })
         .fail(() => null);
@@ -263,6 +276,16 @@ export const setupAddRatingForm = (grpId) => {
         labels[i].addEventListener("mouseleave", () => {
             const el = ratingFormGroup.querySelector('input:checked');
             setFormGroupClasses(ratingFormGroup, el ? el.value : 0);
+        });
+    }
+
+    const form = ratingFormGroup.closest('form');
+    const viewratingsLink = form.querySelector(SELECTORS.VIEW_RATINGS_LINK);
+    if (viewratingsLink) {
+        viewratingsLink.addEventListener('click', e => {
+            e.preventDefault();
+            addRatingModal.modal.destroy();
+            viewRatings(e.target.dataset.courseid);
         });
     }
 };

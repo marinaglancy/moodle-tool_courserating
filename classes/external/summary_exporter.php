@@ -21,6 +21,7 @@ use renderer_base;
 use tool_courserating\constants;
 use tool_courserating\helper;
 use tool_courserating\local\models\summary;
+use tool_courserating\permission;
 
 /**
  * Exporter for rating summary (how many people gave 5 stars, etc)
@@ -39,8 +40,9 @@ class summary_exporter extends exporter {
      *
      * @param int $courseid
      * @param summary|null $summary
+     * @param bool $overridedisplayempty
      */
-    public function __construct(int $courseid, ?summary $summary = null) {
+    public function __construct(int $courseid, ?summary $summary = null, bool $overridedisplayempty = false) {
         if (!$summary) {
             $records = summary::get_records(['courseid' => $courseid]);
             if (count($records)) {
@@ -50,7 +52,7 @@ class summary_exporter extends exporter {
             }
         }
         $this->summary = $summary;
-        parent::__construct([], []);
+        parent::__construct([], ['overridedisplayempty' => $overridedisplayempty]);
     }
 
     /**
@@ -59,7 +61,9 @@ class summary_exporter extends exporter {
      * @return array
      */
     protected static function define_related() {
-        return [];
+        return [
+            'overridedisplayempty' => 'bool',
+        ];
     }
 
     /**
@@ -101,7 +105,8 @@ class summary_exporter extends exporter {
             'stars' => (new stars_exporter($avgrating))->export($output),
             'lines' => [],
             'courseid' => $courseid,
-            'displayempty' => helper::get_setting(constants::SETTING_DISPLAYEMPTY),
+            'displayempty' => !empty($this->related['overridedisplayempty'])
+                || helper::get_setting(constants::SETTING_DISPLAYEMPTY),
         ];
         foreach ([5, 4, 3, 2, 1] as $line) {
             $percent = $summary->get('cntall') ? round(100 * $summary->get('cnt0' . $line) / $summary->get('cntall')) : 0;

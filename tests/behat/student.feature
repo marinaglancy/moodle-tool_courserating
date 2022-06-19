@@ -25,7 +25,7 @@ Feature: Viewing and adding course ratings as a student
   Scenario: Rating a course as a student
     When I log in as "student1"
     And I am on "Course 1" course homepage
-    And I follow "Rate this course"
+    And I follow "Leave a rating"
     And I click on ".tool_courserating-form-stars-group .stars-3" "css_element"
     And I press "Save changes"
     And I should see "3.0" in the ".tool_courserating-widget" "css_element"
@@ -35,11 +35,12 @@ Feature: Viewing and adding course ratings as a student
     And I am on "Course 1" course homepage
     And I should see "3.0" in the ".tool_courserating-widget" "css_element"
     And I should see "(1)" in the ".tool_courserating-widget" "css_element"
-    And I follow "Rate this course"
+    And I follow "Leave a rating"
     And I click on ".tool_courserating-form-stars-group .stars-4" "css_element"
     And I press "Save changes"
     And I should see "3.5" in the ".tool_courserating-widget" "css_element"
     And I click on "(2)" "text" in the ".tool_courserating-widget" "css_element"
+    And I follow "View all reviews"
     And I should see "3.5" in the "Course reviews" "dialogue"
 
   Scenario: Flagging course ratings as a student
@@ -52,6 +53,7 @@ Feature: Viewing and adding course ratings as a student
     And I should see "3.5" in the ".tool_courserating-widget" "css_element"
     And I should see "(2)" in the ".tool_courserating-widget" "css_element"
     And I click on ".tool_courserating-ratings" "css_element"
+    And I follow "View all reviews"
     And I should see "abcdef" in the "Student 1" "tool_courserating > Review"
     And I click on "Flag" "link" in the "Student 1" "tool_courserating > Review"
     And I should see "You have flagged this review as inappropriate/offensive." in the "Student 1" "tool_courserating > Review"

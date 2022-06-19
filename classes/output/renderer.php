@@ -17,9 +17,11 @@
 namespace tool_courserating\output;
 
 use plugin_renderer_base;
+use tool_courserating\api;
 use tool_courserating\external\summary_exporter;
 use tool_courserating\external\ratings_list_exporter;
 use tool_courserating\helper;
+use tool_courserating\local\models\rating;
 use tool_courserating\local\models\summary;
 use tool_courserating\permission;
 
@@ -51,9 +53,12 @@ class renderer extends plugin_renderer_base {
      * @return string
      */
     public function course_ratings_popup(int $courseid): string {
+        global $USER;
         $data1 = (new summary_exporter($courseid))->export($this);
         $data2 = (new ratings_list_exporter(['courseid' => $courseid]))->export($this);
         $data = (array)$data1 + (array)$data2;
+        $data['canrate'] = permission::can_add_rating($courseid);
+        $data['hasrating'] = $data['canrate'] && rating::get_record(['userid' => $USER->id, 'courseid' => $courseid]);
         $this->page->requires->js_call_amd('tool_courserating/rating', 'setupViewRatingsPopup', []);
         return $this->render_from_template('tool_courserating/course_ratings_popup', $data);
     }
@@ -65,20 +70,21 @@ class renderer extends plugin_renderer_base {
      * @return string
      */
     public function course_rating_block(int $courseid): string {
-        global $CFG;
+        global $CFG, $USER;
         if (!permission::can_view_ratings($courseid)) {
             return '';
         }
-        $data = [
-            'ratingdisplay' => $this->cfield($courseid),
-            'courseid' => $courseid,
-            'rate' => permission::can_add_rating($courseid),
-        ];
+        $summary = summary::get_for_course($courseid);
+        $canrate = permission::can_add_rating($courseid);
+        $data = (new summary_exporter(0, $summary, $canrate))->export($this);
+        $data->canrate = $canrate;
+        $data->hasrating = $canrate && rating::get_record(['userid' => $USER->id, 'courseid' => $courseid]);
+
         if ("{$CFG->branch}" === '311') {
-            $data['parentelement'] = '#page-header .card-body';
+            $data->parentelement = '#page-header .card-body';
         } else if ("{$CFG->branch}" >= '400') {
-            $data['parentelement'] = '#page-header';
-            $data['extraclasses'] = 'pb-2';
+            $data->parentelement = '#page-header';
+            $data->extraclasses = 'pb-2';
         }
         return $this->render_from_template('tool_courserating/course_rating_block', $data);
     }
