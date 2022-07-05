@@ -23,7 +23,6 @@ use core_privacy\local\request\contextlist;
 use core_privacy\local\request\transform;
 use core_privacy\local\request\userlist;
 use core_privacy\local\request\writer;
-use PHP_CodeSniffer\Standards\Generic\Tests\NamingConventions\ConstructorNameUnitTest;
 use tool_courserating\api;
 use tool_courserating\local\models\rating;
 use tool_courserating\task\reindex;

@@ -66,6 +66,11 @@ if ($hassiteconfig) {
         new lang_string('usehtmlconfig', 'tool_courserating'), 0);
     $temp->add($el);
 
+    $el = new admin_setting_configtext('tool_courserating/' . \tool_courserating\constants::SETTING_PARENTCSS,
+        new lang_string('parentcss', 'tool_courserating'),
+        new lang_string('parentcssconfig', 'tool_courserating'), '');
+    $temp->add($el);
+
     $temp->add(new admin_setting_description('tool_courserating/description',
         '',
         new lang_string('settingsdescription', 'tool_courserating')));
