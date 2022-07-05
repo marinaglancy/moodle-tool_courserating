@@ -43,9 +43,13 @@
     {{#js}}
         /* Move the widget to the header area */
         const widget = document.querySelector(".tool_courserating-widget");
-        const header = document.querySelector("{{parentelement}}");
-        if (header) {
-            header.appendChild(widget);
+        const parents = "{{parentelement}}".split(',');
+        for (let i in parents) {
+            const header = document.querySelector(parents[i]);
+            if (header) {
+                header.appendChild(widget);
+                break;
+            }
         }
     {{/js}}
 {{/parentelement}}
