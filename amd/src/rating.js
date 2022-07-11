@@ -66,6 +66,10 @@ export const init = (systemContextIdParam, useJQuery = false) => {
     systemContextId = systemContextIdParam;
 
     document.addEventListener('click', e => {
+        if (!e || !e.target || (typeof e.target.closest === "undefined")) {
+            return;
+        }
+
         const addRatingElement = e.target.closest(SELECTORS.ADD_RATING),
             viewRatingsElement = e.target.closest(SELECTORS.VIEW_RATINGS_CFIELD),
             deleteRatingElement = e.target.closest(SELECTORS.DELETE_RATING);

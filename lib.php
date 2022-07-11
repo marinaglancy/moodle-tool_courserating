@@ -29,7 +29,8 @@ use tool_courserating\external\ratings_list_exporter;
  */
 function tool_courserating_before_http_headers() {
     global $PAGE, $CFG;
-    if (\tool_courserating\helper::course_ratings_enabled_anywhere()) {
+    if (\tool_courserating\helper::course_ratings_enabled_anywhere() &&
+            !in_array($PAGE->pagelayout, ['redirect', 'embedded'])) {
         // Add JS to all pages, the course ratings can be displayed on any page (for example course listings).
         $branch = $CFG->branch ?? '';
         $PAGE->requires->js_call_amd('tool_courserating/rating', 'init',
@@ -53,8 +54,20 @@ function tool_courserating_before_footer() {
             ($courseid = \tool_courserating\helper::is_single_activity_course_page())) {
             $res .= $output->course_rating_block($courseid);
         }
+    }
+    return $res;
+}
+
+/**
+ * Callback allowing to add to <head> of the page
+ *
+ * @return string
+ */
+function tool_courserating_before_standard_html_head() {
+    $res = '';
+    if (\tool_courserating\helper::course_ratings_enabled_anywhere()) {
         // Add CSS to all pages, the course ratings can be displayed on any page (for example course listings).
-        $res .= '<style>'.\tool_courserating\helper::get_rating_colour_css().'</style>';
+        $res .= '<style>' . \tool_courserating\helper::get_rating_colour_css() . '</style>';
     }
     return $res;
 }
@@ -87,10 +100,6 @@ function tool_courserating_before_standard_top_of_body_html() {
     return '';
 }
 
-function tool_courserating_before_standard_html_head() {
-    // Can add meta tags here
-    return '';
-}
 
 function tool_courserating_after_config() {
     return null;

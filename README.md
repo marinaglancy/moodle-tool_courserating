@@ -1,10 +1,10 @@
 # Course ratings #
 
-"Course ratings" plugins allows students to add ratings and reviews to the courses,
+"Course ratings" plugin allows students to add ratings and reviews to the courses,
 and teachers and other users to read them.
 
 The custom course field that stores the average course rating is created automatically.
-The course ratings will be displayed in any course listing that displays custom profile
+The course ratings will be displayed in any course listing that displays custom course
 fields, for example, "All courses" page and site home.
 
 The current course rating is also automatically added to each course home page.
