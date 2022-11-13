@@ -27,6 +27,7 @@ import ModalForm from "core_form/modalform";
 import ModalFactory from "core/modal_factory";
 import Fragment from "core/fragment";
 import Templates from "core/templates";
+import ModalEvents from 'core/modal_events';
 
 const SELECTORS = {
     COURSERATING: '.customfield_tool_courserating',
@@ -50,6 +51,7 @@ const SELECTORS = {
     POPUP_SUMMARY: `.tool_courserating-reviews-popup [data-for="tool_courserating-summary"]`,
     SET_WITHRATINGS: `.tool_courserating-reviews-popup [data-for="tool_courserating-summary"] `+
         `[data-for="tool_courserating_setwithrating"]`,
+    RBCELL: `[data-for="tool_courserating-rbcell"][data-ratingid]`,
 };
 
 let systemContextId;
@@ -172,6 +174,11 @@ const viewRatings = (courseid) => {
                 modal.setBody(html);
                 Templates.runTemplateJS(js);
             });
+            // Handle hidden event.
+            modal.getRoot().on(ModalEvents.hidden, function() {
+                // Destroy when hidden.
+                modal.destroy();
+            });
             modal.show();
             viewRatingsModal = modal;
             return modal;
@@ -200,6 +207,15 @@ const deleteRating = (ratingid) => {
             el.remove();
         }
         refreshRating(e.detail.courseid);
+        if (!el) {
+            const rbcell = document.querySelector(SELECTORS.RBCELL + `[data-ratingid='${e.detail.ratingid}'`);
+            if (rbcell) {
+                getString('ratingdeleted', 'tool_courserating').
+                    then((s) => {
+                       rbcell.innerHTML = s;
+                    });
+            }
+        }
     });
 
     form.show();
@@ -332,4 +348,21 @@ export const setupViewRatingsPopup = () => {
             reloadReviews(0).done((html, js) => Templates.replaceNodeContents(el, html, js));
         }
     });
+};
+
+/**
+ * Hide the custom field editor on the course edit page
+ *
+ * @param {String} fieldname
+ */
+export const hideEditField = (fieldname) => {
+    const s = '#fitem_id_customfield_' + fieldname;
+    let el = document.querySelector(s + '_editor');
+    if (el) {
+        el.style.display = 'none';
+        el = document.querySelector(s + '_static');
+        if (el) {
+            el.style.display = 'none';
+        }
+    }
 };

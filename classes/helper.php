@@ -18,6 +18,7 @@ namespace tool_courserating;
 
 use core_customfield\data_controller;
 use core_customfield\field_controller;
+use tool_courserating\external\stars_exporter;
 
 /**
  * Additional helper functions
@@ -85,6 +86,19 @@ class helper {
         global $PAGE, $CFG;
         if ($PAGE->context->contextlevel == CONTEXT_MODULE && $PAGE->course->format === 'singleactivity' &&
             $PAGE->url->out_omit_querystring() === $CFG->wwwroot . '/mod/' . $PAGE->cm->modname . '/view.php') {
+            return $PAGE->course->id;
+        }
+        return 0;
+    }
+
+    /**
+     * Checks if we are on a course edit page
+     *
+     * @return int
+     */
+    public static function is_course_edit_page(): int {
+        global $PAGE, $CFG;
+        if ($PAGE->course && $PAGE->url->out_omit_querystring() === $CFG->wwwroot . '/course/edit.php') {
             return $PAGE->course->id;
         }
         return 0;
@@ -368,5 +382,114 @@ class helper {
             }
         }
         return $mode;
+    }
+
+    /**
+     * Formatter for average rating
+     *
+     * @param float|null $avgrating
+     * @param string $default
+     * @return string
+     */
+    public static function format_avgrating(?float $avgrating, string $default = ''): string {
+        return $avgrating ? sprintf("%.1f", $avgrating) : $default;
+    }
+
+    /**
+     * Formatter for stars
+     *
+     * @param float|null $avgrating
+     * @param \renderer_base|null $output
+     * @return string
+     */
+    public static function stars(?float $avgrating, ?\renderer_base $output = null): string {
+        global $PAGE;
+        if (!$avgrating) {
+            return '';
+        }
+        $output = $output ?? $PAGE->get_renderer('tool_courserating');
+        return $output->render_from_template('tool_courserating/stars',
+            (new stars_exporter($avgrating))->export($output));
+    }
+
+    /**
+     * Formatter for date
+     * @param int $value
+     * @return string
+     */
+    public static function format_date($value): string {
+        return $value ? userdate($value, get_string('strftimedatetimeshort', 'core_langconfig')) : '';
+    }
+
+    /**
+     * Formatter for review
+     *
+     * @param string $value
+     * @param \stdClass $row
+     * @return string
+     */
+    public static function format_review($value, \stdClass $row): string {
+        if (empty($row->id) || !strlen($row->review ?? '')) {
+            return '';
+        }
+        $formatparams = [
+            'options' => [],
+            'striplinks' => true,
+            'component' => 'tool_courserating',
+            'filearea' => 'review',
+            'itemid' => $row->id,
+            'context' => !empty($row->courseid) ? \context_course::instance($row->courseid) : \context_system::instance(),
+        ];
+        if (self::get_setting(constants::SETTING_USEHTML)) {
+            list($text, $format) = external_format_text($row->review, FORMAT_HTML, $formatparams['context'],
+                $formatparams['component'], $formatparams['filearea'], $formatparams['itemid'], $formatparams['options']);
+            return $text;
+        } else {
+            return format_text(clean_param($row->review, PARAM_TEXT), FORMAT_MOODLE, $formatparams);
+        }
+    }
+
+    /**
+     * Actions column
+     *
+     * @param int $id
+     * @param \stdClass $row
+     * @return string
+     */
+    public static function format_actions($id, $row): string {
+        if (!$id || !permission::can_delete_rating($id, $row->courseid)) {
+            return '';
+        }
+        return "<span data-for=\"tool_courserating-rbcell\" data-ratingid=\"$id\">".
+            "<a href=\"#\" data-action=\"tool_courserating-delete-rating\" data-ratingid=\"$id\">".
+            get_string('deleterating', 'tool_courserating')."</a></span>";
+    }
+
+    /**
+     * Format individual student rating in the course report
+     *
+     * @param int $rating
+     * @param \stdClass $row
+     * @return string
+     */
+    public static function format_rating_in_course_report($rating, $row): string {
+        if (!$rating) {
+            return '';
+        }
+        return \html_writer::span(
+            self::stars((float)$rating).
+            \html_writer::span($rating, 'tool_courserating-ratingcolor ml-2'),
+            'tool_courserating-reportrating');
+    }
+
+    /**
+     * Format flags count in course report
+     *
+     * @param int|null $nofflags
+     * @param \stdClass $row
+     * @return string
+     */
+    public static function format_flags_in_course_report(?int $nofflags, \stdClass $row): string {
+        return $nofflags ? "<span class=\"badge badge-warning\">$nofflags</span>" : '';
     }
 }

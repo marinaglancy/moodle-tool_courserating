@@ -33,7 +33,7 @@ class stars_exporter extends exporter {
      *
      * @param float $rating
      */
-    public function __construct(float $rating) {
+    public function __construct(?float $rating) {
         parent::__construct([], ['rating' => $rating]);
     }
 

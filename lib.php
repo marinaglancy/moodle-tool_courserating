@@ -35,6 +35,11 @@ function tool_courserating_before_http_headers() {
         $branch = $CFG->branch ?? '';
         $PAGE->requires->js_call_amd('tool_courserating/rating', 'init',
             [context_system::instance()->id, "{$branch}" < "400"]);
+        if (\tool_courserating\helper::is_course_edit_page()) {
+            $field = \tool_courserating\helper::get_course_rating_field();
+            $PAGE->requires->js_call_amd('tool_courserating/rating', 'hideEditField',
+                [$field->get('shortname')]);
+        }
     }
     return null;
 }
@@ -302,7 +307,7 @@ function tool_courserating_pluginfile($course, $cm, $context, $filearea, $args, 
     $fs = get_file_storage();
     $relativepath = implode('/', $args);
     $fullpath = "/$context->id/tool_courserating/$filearea/$itemid/$relativepath";
-    if (!$file = $fs->get_file_by_hash(sha1($fullpath)) or $file->is_directory()) {
+    if (!($file = $fs->get_file_by_hash(sha1($fullpath))) || $file->is_directory()) {
         return false;
     }
 
@@ -313,4 +318,26 @@ function tool_courserating_pluginfile($course, $cm, $context, $filearea, $args, 
 
     // Finally send the file.
     send_stored_file($file, 0, 0, $forcedownload, $options);
+}
+
+/**
+ * Add 'Course ratings' to the course administration menu
+ *
+ * @param navigation_node $navigation The navigation node to extend
+ * @param stdClass $course The course to object for the report
+ * @param context $context The context of the course
+ */
+function tool_courserating_extend_navigation_course(\navigation_node $navigation, \stdClass $course, \context $context) {
+    if (!\tool_courserating\permission::can_view_report($course->id)) {
+        return;
+    }
+    $url = new moodle_url('/admin/tool/courserating/index.php', ['id' => $course->id]);
+    $navigation->add(
+        get_string('pluginname', 'tool_courserating'),
+        $url,
+        navigation_node::TYPE_SETTING,
+        null,
+        null,
+        new pix_icon('i/report', '')
+    );
 }

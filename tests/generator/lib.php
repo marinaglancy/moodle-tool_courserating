@@ -16,6 +16,7 @@
 
 use tool_courserating\api;
 use tool_courserating\helper;
+use tool_courserating\local\models\rating;
 
 /**
  * Generator
@@ -54,20 +55,35 @@ class tool_courserating_generator extends testing_module_generator {
     }
 
     /**
+     * Clear custom field cache
+     *
+     * Unfortunately we can not call the proper method from behat:
+     * \core_course\customfield\course_handler::reset_caches()
+     *
+     * @return void
+     */
+    public function clear_course_custom_field_cache() {
+        $reflection = new \ReflectionProperty(\core_course\customfield\course_handler::class, 'singleton');
+        $reflection->setAccessible(true);
+        $reflection->setValue(null, null);
+    }
+
+    /**
      * Create rating
      *
      * @param int $userid
      * @param int $courseid
      * @param int $rating
      * @param string $review
-     * @return void
+     * @return rating
      */
     public function create_rating(int $userid, int $courseid, int $rating, string $review = '') {
+        $this->clear_course_custom_field_cache();
         $formdata = (object)[
             'review_editor' => ['text' => $review ?? '', 'format' => FORMAT_HTML],
             'review' => $review ?? '',
             'rating' => $rating,
         ];
-        api::set_rating($courseid, $formdata, $userid);
+        return api::set_rating($courseid, $formdata, $userid);
     }
 }

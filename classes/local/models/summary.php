@@ -47,7 +47,8 @@ class summary extends \core\persistent {
             ],
             'avgrating' => [
                 'type' => PARAM_FLOAT,
-                'default' => 0,
+                'null' => NULL_ALLOWED,
+                'default' => null,
             ],
             'sumrating' => [
                 'type' => PARAM_INT,
@@ -160,9 +161,10 @@ class summary extends \core\persistent {
      * @throws \coding_exception
      */
     public function reset_all_counters() {
-        foreach (['cntall', 'avgrating', 'sumrating', 'cntreviews'] as $key) {
+        foreach (['cntall', 'sumrating', 'cntreviews'] as $key) {
             $this->set($key, 0);
         }
+        $this->set('avgrating', null);
         for ($i = 1; $i <= 10; $i++) {
             $this->set(self::cntkey($i), 0);
         }
@@ -181,10 +183,10 @@ class summary extends \core\persistent {
             return $this;
         }
 
-        $sqllen = $DB->sql_length('review');
+        $isempty = $DB->sql_isempty('', 'review', false, true);
         $sql = 'SELECT COUNT(id) AS cntall,
                SUM(rating) AS sumrating,
-               SUM(CASE WHEN ('.$sqllen.') > 0 THEN 1 ELSE 0 END) as cntreviews,
+               SUM(CASE WHEN '.$isempty.' THEN 0 ELSE 1 END) as cntreviews,
                SUM(CASE WHEN rating = 1 THEN 1 ELSE 0 END) as cnt01,
                SUM(CASE WHEN rating = 2 THEN 1 ELSE 0 END) as cnt02,
                SUM(CASE WHEN rating = 3 THEN 1 ELSE 0 END) as cnt03,
