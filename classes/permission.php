@@ -102,6 +102,20 @@ class permission {
     }
 
     /**
+     * User can view the 'Course ratings' item in the course administration
+     *
+     * @param int $courseid
+     * @return bool
+     */
+    public static function can_view_report(int $courseid): bool {
+        if (!helper::course_ratings_enabled_anywhere()) {
+            return false;
+        }
+        $context = \context_course::instance($courseid);
+        return has_capability('tool/courserating:reports', $context);
+    }
+
+    /**
      * Check that user can view rating or throw exception
      *
      * @param int $courseid
@@ -152,6 +166,23 @@ class permission {
     public static function require_can_flag_rating(int $ratingid, ?int $courseid = null): void {
         if (!self::can_flag_rating($ratingid, $courseid)) {
             throw new \moodle_exception('cannotview', 'tool_courserating');
+        }
+    }
+
+    /**
+     * Check that user can view rating or throw exception
+     *
+     * @param int $courseid
+     * @throws \moodle_exception
+     */
+    public static function require_can_view_reports(int $courseid): void {
+        if (!\tool_courserating\helper::course_ratings_enabled_anywhere()) {
+            // TODO create a new string, maybe link to settings for admins?
+            throw new \moodle_exception('ratebynoone', 'tool_courserating');
+        }
+        if (!self::can_view_report($courseid)) {
+            throw new required_capability_exception(\context_course::instance($courseid),
+                'tool/courserating:reports', 'nopermissions', '');
         }
     }
 }

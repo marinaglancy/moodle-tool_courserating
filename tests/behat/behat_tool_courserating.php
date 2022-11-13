@@ -49,4 +49,18 @@ XPATH
             ], true),
         ];
     }
+
+    /**
+     * Checks if given plugin is installed, and skips the current scenario if not.
+     *
+     * @Given reportbuilder is available for tool_courserating
+     * @throws \Moodle\BehatExtension\Exception\SkippedException
+     */
+    public function reportbuilder_is_available(): void {
+        $path = core_component::get_component_directory('core_reportbuilder');
+        if (!$path) {
+            throw new \Moodle\BehatExtension\Exception\SkippedException(
+                'Skipping this scenario because the reportbuilder is not avialable.');
+        }
+    }
 }

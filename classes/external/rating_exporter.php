@@ -106,18 +106,11 @@ class rating_exporter extends persistent_exporter {
             $result['user'] = [];
         }
 
-        $formatparams = $this->get_format_parameters('review');
-        if (helper::get_setting(constants::SETTING_USEHTML)) {
-            list($text, $format) = external_format_text($this->data->review, FORMAT_HTML, $formatparams['context'],
-                $formatparams['component'], $formatparams['filearea'], $formatparams['itemid'], $formatparams['options']);
-            $result['reviewtext'] = $text;
-        } else {
-            $result['reviewtext'] = format_text(clean_param($this->data->review, PARAM_TEXT), FORMAT_MOODLE, $formatparams);
-        }
+        $result['reviewtext'] = helper::format_review($this->data->review, $this->data);
 
         $result['reviewstars'] = (new stars_exporter($this->data->rating))->export($output);
 
-        $result['reviewdate'] = userdate($this->data->timemodified, get_string('strftimedatetimeshort', 'core_langconfig'));
+        $result['reviewdate'] = helper::format_date($this->data->timemodified);
 
         if (permission::can_delete_rating($this->data->id, $this->data->courseid)) {
             $flags = flag::count_records(['ratingid' => $this->data->id]);

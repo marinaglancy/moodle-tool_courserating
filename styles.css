@@ -1,5 +1,8 @@
 /* Styles for course ratings */
 
+.tool_courserating-stars {
+    white-space: nowrap;
+}
 .tool_courserating-stars .icon {
     margin-right: 1px;
 }
@@ -8,6 +11,10 @@
 }
 .tool_courserating-cfield .tool_courserating-ratings:hover {
     text-decoration: none;
+}
+.tool_courserating-reportrating {
+    font-weight: 700;
+    white-space: nowrap;
 }
 
 .tool_courserating-reviews-popup .course-average-value {
