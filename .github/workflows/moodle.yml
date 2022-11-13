@@ -4,11 +4,11 @@ on: [push, pull_request]
 
 jobs:
   test:
-    runs-on: ubuntu-18.04
+    runs-on: ubuntu-22.04
 
     services:
       postgres:
-        image: postgres:10
+        image: postgres:12
         env:
           POSTGRES_USER: 'postgres'
           POSTGRES_HOST_AUTH_METHOD: 'trust'
@@ -30,9 +30,23 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        php: ['7.3', '8.0']
-        moodle-branch: ['MOODLE_311_STABLE', 'MOODLE_400_STABLE']
-        database: [pgsql, mariadb]
+        include:
+          - php: '7.3'
+            moodle-branch: 'MOODLE_311_STABLE'
+            database: pgsql
+            extensions:
+          - php: '7.4'
+            moodle-branch: 'MOODLE_400_STABLE'
+            database: pgsql
+            extensions: xmlrpc-beta
+          - php: '8.0'
+            moodle-branch: 'MOODLE_400_STABLE'
+            database: mariadb
+            extensions: xmlrpc-beta
+          - php: '7.4'
+            moodle-branch: 'master' # TODO replace with MOODLE_401_STABLE
+            database: pgsql
+            extensions: xmlrpc-beta
 
     steps:
       - name: Check out repository code

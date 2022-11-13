@@ -44,7 +44,7 @@ class report311_test extends \advanced_testcase {
         /** @var \tool_courserating_generator $generator */
         $generator = self::getDataGenerator()->get_plugin_generator('tool_courserating');
         $rating1 = $generator->create_rating($user1->id, $course->id, 3, 'hello <b>unclosed tag');
-        usleep(1500); // Make sure timestamp is different on the ratings.
+        sleep(1); // Make sure timestamp is different on the ratings.
         $rating2 = $generator->create_rating($user2->id, $course->id, 2);
 
         $this->setUser($user2);
@@ -71,10 +71,10 @@ class report311_test extends \advanced_testcase {
         $content = $report->rawdata;
         $this->assertCount(2, $content);
 
-        $this->assertEquals([3, 2], array_column($content, 'rating'));
-        $this->assertEquals(['User1', 'User2'], array_column($content, 'firstname'));
-        $this->assertEquals(['hello <b>unclosed tag', ''], array_column($content, 'review'));
-        $this->assertEquals([1, 0], array_column($content, 'flags'));
+        $this->assertEquals([2, 3], array_column($content, 'rating'));
+        $this->assertEquals(['User2', 'User1'], array_column($content, 'firstname'));
+        $this->assertEquals(['', 'hello <b>unclosed tag'], array_column($content, 'review'));
+        $this->assertEquals([0, 1], array_column($content, 'flags'));
 
         // Analyse formatted output.
         ob_start();
