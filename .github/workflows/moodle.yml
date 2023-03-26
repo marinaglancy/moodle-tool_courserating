@@ -125,5 +125,5 @@ jobs:
         
       - name: phpunit
         if: ${{ always() }}
-        run: vendor/bin/phpunit --colors --no-coverage
+        run: vendor/bin/phpunit --no-coverage
         working-directory: moodle
