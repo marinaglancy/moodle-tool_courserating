@@ -122,3 +122,8 @@ jobs:
       - name: Behat features
         if: ${{ always() }}
         run: moodle-plugin-ci behat --profile chrome
+        
+      - name: phpunit
+        if: ${{ always() }}
+        run: vendor/bin/phpunit --colors --no-coverage
+        working-directory: moodle
