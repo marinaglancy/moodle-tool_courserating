@@ -114,7 +114,7 @@ jobs:
         run: moodle-plugin-ci savepoints
 
       - name: Mustache Lint
-        if: "${MOODLE_BRANCH}" == 'MOODLE_402_STABLE'
+        if: $MOODLE_BRANCH == 'MOODLE_402_STABLE'
         run: moodle-plugin-ci mustache
 
       - name: Grunt
