@@ -42,14 +42,14 @@ const SELECTORS = {
     USER_RATING_FLAG: `[data-for='tool_courserating-user-flag']`,
     RATING_POPUP: `.tool_courserating-reviews-popup`,
     REVIEWS_LIST: `.tool_courserating-reviews-popup [data-for="tool_courserating-reviews"]`,
-    SHOWMORE_WRAPPER: `.tool_courserating-reviews-popup [data-for="tool_courserating-reviews"] `+
+    SHOWMORE_WRAPPER: `.tool_courserating-reviews-popup [data-for="tool_courserating-reviews"] ` +
         `[data-for="tool_courserating-showmore"]`,
-    SHOWMORE_BUTTON: `.tool_courserating-reviews-popup [data-for="tool_courserating-reviews"] `+
+    SHOWMORE_BUTTON: `.tool_courserating-reviews-popup [data-for="tool_courserating-reviews"] ` +
         `[data-for="tool_courserating-showmore"] [data-action="showmore"]`,
-    RESET_WITHRATINGS: `.tool_courserating-reviews-popup [data-for="tool_courserating-reviews"] `+
+    RESET_WITHRATINGS: `.tool_courserating-reviews-popup [data-for="tool_courserating-reviews"] ` +
         `[data-for="tool_courserating-resetwithrating"]`,
     POPUP_SUMMARY: `.tool_courserating-reviews-popup [data-for="tool_courserating-summary"]`,
-    SET_WITHRATINGS: `.tool_courserating-reviews-popup [data-for="tool_courserating-summary"] `+
+    SET_WITHRATINGS: `.tool_courserating-reviews-popup [data-for="tool_courserating-summary"] ` +
         `[data-for="tool_courserating_setwithrating"]`,
     RBCELL: `[data-for="tool_courserating-rbcell"][data-ratingid]`,
 };
@@ -201,7 +201,7 @@ const deleteRating = (ratingid) => {
     });
 
     // When form is saved, rating should be deleted.
-    form.addEventListener(form.events.FORM_SUBMITTED, (e) => {
+    form.addEventListener(form.events.FORM_SUBMITTED, async e => {
         const el = document.querySelector(SELECTORS.USER_RATING + `[data-ratingid='${e.detail.ratingid}'`);
         if (el) {
             el.remove();
@@ -210,10 +210,7 @@ const deleteRating = (ratingid) => {
         if (!el) {
             const rbcell = document.querySelector(SELECTORS.RBCELL + `[data-ratingid='${e.detail.ratingid}'`);
             if (rbcell) {
-                getString('ratingdeleted', 'tool_courserating').
-                    then((s) => {
-                       rbcell.innerHTML = s;
-                    });
+                rbcell.innerHTML = await getString('ratingdeleted', 'tool_courserating');
             }
         }
     });
@@ -266,8 +263,8 @@ const setFormGroupClasses = (ratingFormGroup, value) => {
             ratingFormGroup.classList.remove(className);
         }
     };
-    for (let i=1; i<=5; i++) {
-        addRemoveClass('s-'+i, i <= parseInt(value));
+    for (let i = 1; i <= 5; i++) {
+        addRemoveClass('s-' + i, i <= parseInt(value));
     }
     addRemoveClass('tool_courserating-norating', parseInt(value) === 0);
 };

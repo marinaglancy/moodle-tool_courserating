@@ -75,7 +75,7 @@ EOF
             $el->setAttributes($el->getAttributes() + ['class' => ' stars-' . $r]);
             $radioarray[] = $el;
         }
-        $el = $mform->addGroup($radioarray, 'ratinggroup', get_string('rating', 'tool_courserating'), array(' ', ' '), false);
+        $el = $mform->addGroup($radioarray, 'ratinggroup', get_string('rating', 'tool_courserating'), [' ', ' '], false);
         $el->setAttributes($el->getAttributes() + ['class' => 'tool_courserating-form-stars-group']);
 
         if (helper::get_setting(constants::SETTING_USEHTML)) {

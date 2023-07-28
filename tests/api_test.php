@@ -41,7 +41,9 @@ class api_test extends \advanced_testcase {
      * @return \tool_courserating_generator
      */
     protected function get_generator(): \tool_courserating_generator {
-        return self::getDataGenerator()->get_plugin_generator('tool_courserating');
+        /** @var \tool_courserating_generator $generator */
+        $generator = self::getDataGenerator()->get_plugin_generator('tool_courserating');
+        return $generator;
     }
 
     /**

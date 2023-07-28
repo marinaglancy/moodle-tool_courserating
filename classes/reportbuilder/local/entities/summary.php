@@ -136,6 +136,8 @@ class summary extends base {
 
         // Cnt01-Cnt05 columns.
         for ($i = 1; $i <= 5; $i++) {
+            // phpcs:disable Squiz.PHP.CommentedOutCode.Found
+            // Mdlcode assume: $i ['1', '2', '3', '4', '5'].
             $fld = "cnt0{$i}";
             $columns[] = (new column(
                 $fld,
