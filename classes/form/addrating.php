@@ -65,7 +65,7 @@ EOF
             );
         }
 
-        $radioarray = array();
+        $radioarray = [];
         foreach ([1, 2, 3, 4, 5] as $r) {
             $label = $OUTPUT->pix_icon('star', $r, 'tool_courserating', ['class' => 'star-on tool_courserating-stars']);
             $label .= $OUTPUT->pix_icon('star-o', $r, 'tool_courserating', ['class' => 'star-off tool_courserating-stars']);

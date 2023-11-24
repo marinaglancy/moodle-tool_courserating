@@ -163,7 +163,7 @@ class api_test extends \advanced_testcase {
         $this->assert_rating(['rating' => 3, 'review' => 'hello', 'hasreview' => 1], $user->id, $course->id);
         $this->assert_rating(['rating' => 2, 'review' => '', 'hasreview' => 0], $user2->id, $course->id);
         $expected = ['cntall' => 2, 'avgrating' => 2.5, 'sumrating' => 5, 'cnt02' => 1, 'cnt03' => 1, 'cnt04' => 0,
-            'cntreviews' => 1];
+            'cntreviews' => 1, ];
         $this->assert_summary($expected, $course->id);
 
         summary::get_for_course($course->id)->recalculate();

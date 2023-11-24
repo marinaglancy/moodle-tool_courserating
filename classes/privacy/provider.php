@@ -96,7 +96,7 @@ class provider implements
 
         $params = [
             'userid'        => $userid,
-            'coursecontext' => CONTEXT_COURSE
+            'coursecontext' => CONTEXT_COURSE,
         ];
 
         $contextlist->add_from_sql($sql, $params);
@@ -111,7 +111,7 @@ class provider implements
 
         $params = [
             'userid'        => $userid,
-            'coursecontext' => CONTEXT_COURSE
+            'coursecontext' => CONTEXT_COURSE,
         ];
 
         $contextlist->add_from_sql($sql, $params);
@@ -167,7 +167,7 @@ class provider implements
                 'hasreview' => $rating->hasreview,
                 'userid' => transform::user($rating->userid),
                 'timecreated' => transform::datetime($rating->timecreated),
-                'timemodified' => transform::datetime($rating->timemodified)
+                'timemodified' => transform::datetime($rating->timemodified),
             ];
 
             $context = \context_course::instance($rating->courseid);

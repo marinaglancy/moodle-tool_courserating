@@ -30,8 +30,8 @@ $capabilities = [
         'captype' => 'write',
         'contextlevel' => CONTEXT_COURSE,
         'archetypes' => [
-            'student' => CAP_ALLOW
-        ]
+            'student' => CAP_ALLOW,
+        ],
     ],
 
     'tool/courserating:delete' => [
@@ -39,8 +39,8 @@ $capabilities = [
         'captype' => 'write',
         'contextlevel' => CONTEXT_COURSE,
         'archetypes' => [
-            'manager' => CAP_ALLOW
-        ]
+            'manager' => CAP_ALLOW,
+        ],
     ],
 
     'tool/courserating:reports' => [
@@ -51,6 +51,6 @@ $capabilities = [
             'manager' => CAP_ALLOW,
             'teacher' => CAP_ALLOW,
             'editingteacher' => CAP_ALLOW,
-        ]
+        ],
     ],
 ];

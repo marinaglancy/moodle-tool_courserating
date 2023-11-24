@@ -258,7 +258,7 @@ class api {
         $edithint = $displayvalue;
         $r = new inplace_editable('tool_courserating', 'flag', $ratingid, true, $displayvalue,
             $hasflag ? 1 : 0, $edithint);
-        $r->set_type_toggle(array(0, 1));
+        $r->set_type_toggle([0, 1]);
         return $r;
     }
 

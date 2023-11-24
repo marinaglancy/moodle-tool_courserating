@@ -142,7 +142,7 @@ class courseratings extends datasource {
      */
     public function get_default_conditions(): array {
         return [
-            'summary:ratingmode'
+            'summary:ratingmode',
         ];
     }
 

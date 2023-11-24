@@ -52,6 +52,7 @@ jobs:
             moodle-branch: 'MOODLE_402_STABLE'
             database: pgsql
             extensions: xmlrpc-beta
+            islatest: 1
 
     steps:
       - name: Check out repository code
@@ -98,11 +99,11 @@ jobs:
         run: moodle-plugin-ci phpmd
 
       - name: Moodle Code Checker
-        if: matrix.moodle-branch == 'MOODLE_402_STABLE'
+        if: matrix.islatest == 1
         run: moodle-plugin-ci phpcs --max-warnings 0
 
       - name: Moodle PHPDoc Checker
-        if: matrix.moodle-branch == 'MOODLE_402_STABLE'
+        if: matrix.islatest == 1
         run: moodle-plugin-ci phpdoc --max-warnings 0
 
       - name: Validating
@@ -114,11 +115,11 @@ jobs:
         run: moodle-plugin-ci savepoints
 
       - name: Mustache Lint
-        if: matrix.moodle-branch == 'MOODLE_402_STABLE'
+        if: matrix.islatest == 1
         run: moodle-plugin-ci mustache
 
       - name: Grunt
-        if: matrix.moodle-branch == 'MOODLE_402_STABLE'
+        if: matrix.islatest == 1
         run: moodle-plugin-ci grunt --max-lint-warnings 0
 
       - name: PHPUnit tests

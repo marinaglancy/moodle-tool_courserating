@@ -66,22 +66,22 @@ class ratings_list_exporter extends exporter {
                 'multiple' => true,
             ],
             'offset' => [
-                'type' => PARAM_INT
+                'type' => PARAM_INT,
             ],
             'hasmore' => [
-                'type' => PARAM_BOOL
+                'type' => PARAM_BOOL,
             ],
             'nextoffset' => [
-                'type' => PARAM_INT
+                'type' => PARAM_INT,
             ],
             'courseid' => [
-                'type' => PARAM_INT
+                'type' => PARAM_INT,
             ],
             'systemcontextid' => [
-                'type' => PARAM_INT
+                'type' => PARAM_INT,
             ],
             'withrating' => [
-                'type' => PARAM_INT
+                'type' => PARAM_INT,
             ],
         ];
     }
