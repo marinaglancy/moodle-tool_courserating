@@ -141,6 +141,8 @@ class summary extends base {
             $fld = "cnt0{$i}";
             $columns[] = (new column(
                 $fld,
+                // phpcs:disable Squiz.PHP.CommentedOutCode.Found
+                // Mdlcode assume-next-line: $fld ['cnt01', 'cnt02', 'cnt03', 'cnt04', 'cnt05'] .
                 new lang_string('summary_'.$fld, 'tool_courserating'),
                 $this->get_entity_name()
             ))

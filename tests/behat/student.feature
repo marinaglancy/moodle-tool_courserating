@@ -68,3 +68,21 @@ Feature: Viewing and adding course ratings as a student
     And I should see "1 user(s) have flagged this review as inappropriate/offensive." in the "Student 1" "tool_courserating > Review"
     And I should see "Permanently delete" in the "Student 1" "tool_courserating > Review"
     And I should not see "user(s) have flagged this review as inappropriate/offensive." in the "Student 2" "tool_courserating > Review"
+
+  Scenario: Viewing course ratings as a non-logged in user
+    Given the following "tool_courserating > ratings" exist:
+      | user     | course | rating | review |
+      | student1 | C1     | 3      | abcdef |
+      | student2 | C1     | 4      | hello  |
+    And the following config values are set as admin:
+      | frontpage         | 7,6 |                |
+      | frontpageloggedin | 7,6 |                |
+    And I am on site homepage
+    And I should see "3.5" in the "Course 1" "tool_courserating > Coursebox"
+    And I should see "(2)" in the "Course 1" "tool_courserating > Coursebox"
+    And I click on ".tool_courserating-ratings" "css_element" in the "Course 1" "tool_courserating > Coursebox"
+    And I should see "3.5" in the "Course reviews" "dialogue"
+    And I should see "abcdef" in the "Course reviews" "dialogue"
+    And I should see "hello" in the "Course reviews" "dialogue"
+    And I should not see "Flag"
+    And I click on "Close" "button" in the "Course reviews" "dialogue"

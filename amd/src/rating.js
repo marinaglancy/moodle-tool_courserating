@@ -28,6 +28,7 @@ import ModalFactory from "core/modal_factory";
 import Fragment from "core/fragment";
 import Templates from "core/templates";
 import ModalEvents from 'core/modal_events';
+import ajax from 'core/ajax';
 
 const SELECTORS = {
     COURSERATING: '.customfield_tool_courserating',
@@ -170,7 +171,8 @@ const viewRatings = (courseid) => {
     })
         .then(modal => {
             modal.setLarge();
-            Fragment.loadFragment('tool_courserating', 'course_ratings_popup', systemContextId, {courseid}).done((html, js) => {
+            loadCourseRatingPopupContents({courseid})
+            .done(({html, js}) => {
                 modal.setBody(html);
                 Templates.runTemplateJS(js);
             });
@@ -362,4 +364,28 @@ export const hideEditField = (fieldname) => {
             el.style.display = 'none';
         }
     }
+};
+
+
+/**
+ * Loads Course Rating popup contents. Allows both loggedin and nonloggedin requests.
+ *
+ * @param {object} args Parameters for the callback.
+ * @return {Promise} JQuery promise object resolved when the fragment has been loaded.
+ */
+const loadCourseRatingPopupContents = function(args) {
+    const isloggedin = !document.body.classList.contains('notloggedin');
+
+    if (isloggedin) {
+        return Fragment.loadFragment('tool_courserating', 'course_ratings_popup', systemContextId, args)
+            .then((html, js) => ({html, js}));
+    }
+
+    return ajax.call([{
+        methodname: 'tool_courserating_course_rating_popup',
+        args
+    }], undefined, false)[0]
+    .then(function(data) {
+        return {html: data.html, js: Fragment.processCollectedJavascript(data.javascript)};
+    });
 };

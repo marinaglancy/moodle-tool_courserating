@@ -250,6 +250,10 @@ class api {
     public static function get_flag_inplace_editable(int $ratingid, ?bool $hasflag = null): inplace_editable {
         global $USER;
 
+        if (!permission::can_flag_rating($ratingid)) {
+            return new inplace_editable('tool_courserating', 'flag', $ratingid, false, '', 0, '');
+        }
+
         if ($hasflag === null) {
             $hasflag = flag::count_records(['ratingid' => $ratingid, 'userid' => $USER->id]) > 0;
         }
