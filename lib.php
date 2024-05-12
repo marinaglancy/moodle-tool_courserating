@@ -235,9 +235,11 @@ function tool_courserating_get_fontawesome_icon_map() {
  * @param string $itemtype
  * @param int $itemid
  * @param mixed $newvalue
- * @return \core\output\inplace_editable
+ * @return \core\output\inplace_editable|void
  */
 function tool_courserating_inplace_editable($itemtype, $itemid, $newvalue) {
+    global $CFG;
+    require_once($CFG->dirroot . '/lib/externallib.php');
     \external_api::validate_context(context_system::instance());
     if ($itemtype === 'flag') {
         \tool_courserating\permission::require_can_flag_rating($itemid);
@@ -283,7 +285,7 @@ function tool_courserating_output_fragment_course_reviews($args) {
  * @param array $args extra arguments
  * @param bool $forcedownload whether or not force download
  * @param array $options additional options affecting the file serving
- * @return bool false if file not found, does not return if found - just send the file
+ * @return bool|void false if file not found, does not return if found - just send the file
  */
 function tool_courserating_pluginfile($course, $cm, $context, $filearea, $args, $forcedownload, array $options = []) {
     if (!\tool_courserating\helper::get_setting(\tool_courserating\constants::SETTING_USEHTML)) {

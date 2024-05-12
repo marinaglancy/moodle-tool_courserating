@@ -52,9 +52,9 @@ class rating_exporter extends persistent_exporter {
      * @return array
      */
     protected static function define_related() {
-        return array(
+        return [
             'context' => 'context?',
-        );
+        ];
     }
 
     /**

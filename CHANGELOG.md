@@ -1,6 +1,15 @@
 # Changelog
 All notable changes to this project will be documented in this file.
 
+## [1.5] - 2023112400
+### Added
+- Display course ratings details to non-logged in users instead of redirecting to login page
+- Add testing on Moodle 4.3
+
+## [1.4] - 2023072800
+### Added
+- Compatibility with Moodle 4.1 and 4.2
+
 ## [1.3] - 2022111300
 ### Added
 - Course report with all individual ratings and reviews

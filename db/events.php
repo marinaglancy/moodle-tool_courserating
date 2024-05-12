@@ -24,7 +24,7 @@
 
 defined('MOODLE_INTERNAL') || die();
 
-$observers = array(
+$observers = [
     [
         'eventname'   => '\core\event\course_updated',
         'callback'    => '\tool_courserating\observer::course_updated',
@@ -37,4 +37,4 @@ $observers = array(
         'eventname'   => '\core\event\course_deleted',
         'callback'    => '\tool_courserating\observer::course_deleted',
     ],
-);
+];

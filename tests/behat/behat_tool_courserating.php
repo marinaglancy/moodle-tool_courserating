@@ -14,7 +14,7 @@
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
-use \Behat\Gherkin\Node\TableNode,
+use Behat\Gherkin\Node\TableNode,
     Behat\Mink\Exception\ExpectationException as ExpectationException;
 
 require_once(__DIR__ . '/../../../../../lib/behat/behat_base.php');
@@ -40,12 +40,14 @@ class behat_tool_courserating extends behat_base {
                 <<<XPATH
     .//div[@data-for='tool_courserating-user-rating' and contains(string(), %locator%)]
 XPATH
+,
             ], true),
             new behat_component_named_selector('Coursebox', [
                 <<<XPATH
     //div[contains(concat(' ', @class, ' '), ' coursebox ') and
         contains(.//div[contains(concat(' ', @class, ' '), ' info ')]/., %locator%)]
 XPATH
+,
             ], true),
         ];
     }

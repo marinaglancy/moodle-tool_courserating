@@ -95,6 +95,9 @@ class permission {
      * @return bool
      */
     public static function can_flag_rating(int $ratingid, ?int $courseid = null): bool {
+        if (!isloggedin() || isguestuser()) {
+            return false;
+        }
         if (!$courseid) {
             $courseid = (new rating($ratingid))->get('courseid');
         }

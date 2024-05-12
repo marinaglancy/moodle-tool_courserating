@@ -65,7 +65,7 @@ EOF
             );
         }
 
-        $radioarray = array();
+        $radioarray = [];
         foreach ([1, 2, 3, 4, 5] as $r) {
             $label = $OUTPUT->pix_icon('star', $r, 'tool_courserating', ['class' => 'star-on tool_courserating-stars']);
             $label .= $OUTPUT->pix_icon('star-o', $r, 'tool_courserating', ['class' => 'star-off tool_courserating-stars']);
@@ -75,7 +75,7 @@ EOF
             $el->setAttributes($el->getAttributes() + ['class' => ' stars-' . $r]);
             $radioarray[] = $el;
         }
-        $el = $mform->addGroup($radioarray, 'ratinggroup', get_string('rating', 'tool_courserating'), array(' ', ' '), false);
+        $el = $mform->addGroup($radioarray, 'ratinggroup', get_string('rating', 'tool_courserating'), [' ', ' '], false);
         $el->setAttributes($el->getAttributes() + ['class' => 'tool_courserating-form-stars-group']);
 
         if (helper::get_setting(constants::SETTING_USEHTML)) {

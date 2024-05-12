@@ -191,7 +191,7 @@ class rating extends base {
             ->set_is_sortable(true);
         if (in_array($DB->get_dbfamily(), ['mssql', 'oracle'])) {
             $column->set_disabled_aggregation(['avg', 'groupconcat', 'count', 'countdistinct',
-                'groupconcatdistinct', 'max', 'min', 'sum']);
+                'groupconcatdistinct', 'max', 'min', 'sum', ]);
             $column->set_groupby_sql("{$tablealias}.id");
         }
         $columns[] = $column;

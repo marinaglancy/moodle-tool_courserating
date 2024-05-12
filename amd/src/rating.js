@@ -28,6 +28,7 @@ import ModalFactory from "core/modal_factory";
 import Fragment from "core/fragment";
 import Templates from "core/templates";
 import ModalEvents from 'core/modal_events';
+import ajax from 'core/ajax';
 
 const SELECTORS = {
     COURSERATING: '.customfield_tool_courserating',
@@ -42,14 +43,14 @@ const SELECTORS = {
     USER_RATING_FLAG: `[data-for='tool_courserating-user-flag']`,
     RATING_POPUP: `.tool_courserating-reviews-popup`,
     REVIEWS_LIST: `.tool_courserating-reviews-popup [data-for="tool_courserating-reviews"]`,
-    SHOWMORE_WRAPPER: `.tool_courserating-reviews-popup [data-for="tool_courserating-reviews"] `+
+    SHOWMORE_WRAPPER: `.tool_courserating-reviews-popup [data-for="tool_courserating-reviews"] ` +
         `[data-for="tool_courserating-showmore"]`,
-    SHOWMORE_BUTTON: `.tool_courserating-reviews-popup [data-for="tool_courserating-reviews"] `+
+    SHOWMORE_BUTTON: `.tool_courserating-reviews-popup [data-for="tool_courserating-reviews"] ` +
         `[data-for="tool_courserating-showmore"] [data-action="showmore"]`,
-    RESET_WITHRATINGS: `.tool_courserating-reviews-popup [data-for="tool_courserating-reviews"] `+
+    RESET_WITHRATINGS: `.tool_courserating-reviews-popup [data-for="tool_courserating-reviews"] ` +
         `[data-for="tool_courserating-resetwithrating"]`,
     POPUP_SUMMARY: `.tool_courserating-reviews-popup [data-for="tool_courserating-summary"]`,
-    SET_WITHRATINGS: `.tool_courserating-reviews-popup [data-for="tool_courserating-summary"] `+
+    SET_WITHRATINGS: `.tool_courserating-reviews-popup [data-for="tool_courserating-summary"] ` +
         `[data-for="tool_courserating_setwithrating"]`,
     RBCELL: `[data-for="tool_courserating-rbcell"][data-ratingid]`,
 };
@@ -170,7 +171,8 @@ const viewRatings = (courseid) => {
     })
         .then(modal => {
             modal.setLarge();
-            Fragment.loadFragment('tool_courserating', 'course_ratings_popup', systemContextId, {courseid}).done((html, js) => {
+            loadCourseRatingPopupContents({courseid})
+            .done(({html, js}) => {
                 modal.setBody(html);
                 Templates.runTemplateJS(js);
             });
@@ -201,7 +203,7 @@ const deleteRating = (ratingid) => {
     });
 
     // When form is saved, rating should be deleted.
-    form.addEventListener(form.events.FORM_SUBMITTED, (e) => {
+    form.addEventListener(form.events.FORM_SUBMITTED, async e => {
         const el = document.querySelector(SELECTORS.USER_RATING + `[data-ratingid='${e.detail.ratingid}'`);
         if (el) {
             el.remove();
@@ -210,10 +212,7 @@ const deleteRating = (ratingid) => {
         if (!el) {
             const rbcell = document.querySelector(SELECTORS.RBCELL + `[data-ratingid='${e.detail.ratingid}'`);
             if (rbcell) {
-                getString('ratingdeleted', 'tool_courserating').
-                    then((s) => {
-                       rbcell.innerHTML = s;
-                    });
+                rbcell.innerHTML = await getString('ratingdeleted', 'tool_courserating');
             }
         }
     });
@@ -266,8 +265,8 @@ const setFormGroupClasses = (ratingFormGroup, value) => {
             ratingFormGroup.classList.remove(className);
         }
     };
-    for (let i=1; i<=5; i++) {
-        addRemoveClass('s-'+i, i <= parseInt(value));
+    for (let i = 1; i <= 5; i++) {
+        addRemoveClass('s-' + i, i <= parseInt(value));
     }
     addRemoveClass('tool_courserating-norating', parseInt(value) === 0);
 };
@@ -365,4 +364,28 @@ export const hideEditField = (fieldname) => {
             el.style.display = 'none';
         }
     }
+};
+
+
+/**
+ * Loads Course Rating popup contents. Allows both loggedin and nonloggedin requests.
+ *
+ * @param {object} args Parameters for the callback.
+ * @return {Promise} JQuery promise object resolved when the fragment has been loaded.
+ */
+const loadCourseRatingPopupContents = function(args) {
+    const isloggedin = !document.body.classList.contains('notloggedin');
+
+    if (isloggedin) {
+        return Fragment.loadFragment('tool_courserating', 'course_ratings_popup', systemContextId, args)
+            .then((html, js) => ({html, js}));
+    }
+
+    return ajax.call([{
+        methodname: 'tool_courserating_course_rating_popup',
+        args
+    }], undefined, false)[0]
+    .then(function(data) {
+        return {html: data.html, js: Fragment.processCollectedJavascript(data.javascript)};
+    });
 };

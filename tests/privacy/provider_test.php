@@ -79,7 +79,7 @@ class provider_test extends \core_privacy\tests\provider_testcase {
         $systemctx = \context_system::instance();
         $approvedcontextids = [
             $systemctx->id,
-            $coursectx->id
+            $coursectx->id,
         ];
 
         // Retrieve the User's tool_cohortroles data.

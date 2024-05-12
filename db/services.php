@@ -15,42 +15,28 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Capability definitions for this plugin.
+ * External functions and service declaration for Course ratings
+ *
+ * Documentation: {@link https://moodledev.io/docs/apis/subsystems/external/description}
  *
  * @package    tool_courserating
- * @copyright  2022 Marina Glancy <marina.glancy@gmail.com>
+ * @category   webservice
+ * @copyright  2023 Marina Glancy
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
 defined('MOODLE_INTERNAL') || die();
 
-$capabilities = [
+$functions = [
 
-    'tool/courserating:rate' => [
-        'captype' => 'write',
-        'contextlevel' => CONTEXT_COURSE,
-        'archetypes' => [
-            'student' => CAP_ALLOW,
-        ],
+    'tool_courserating_course_rating_popup' => [
+        'classname' => tool_courserating\external\course_rating_popup::class,
+        'description' => 'Course rating popup',
+        'type' => 'read',
+        'ajax' => true,
+        'loginrequired' => false,
     ],
+];
 
-    'tool/courserating:delete' => [
-        'riskbitmap' => RISK_DATALOSS,
-        'captype' => 'write',
-        'contextlevel' => CONTEXT_COURSE,
-        'archetypes' => [
-            'manager' => CAP_ALLOW,
-        ],
-    ],
-
-    'tool/courserating:reports' => [
-        'riskbitmap' => RISK_PERSONAL,
-        'captype' => 'write',
-        'contextlevel' => CONTEXT_COURSE,
-        'archetypes' => [
-            'manager' => CAP_ALLOW,
-            'teacher' => CAP_ALLOW,
-            'editingteacher' => CAP_ALLOW,
-        ],
-    ],
+$services = [
 ];
