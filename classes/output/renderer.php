@@ -84,8 +84,6 @@ class renderer extends plugin_renderer_base {
         $branch = $CFG->branch ?? '';
         if ($parentcss = helper::get_setting(constants::SETTING_PARENTCSS)) {
             $data->parentelement = $parentcss;
-        } else if ("{$branch}" === '311') {
-            $data->parentelement = '#page-header .card-body, #page-header #course-header, #page-header';
         } else if ("{$branch}" >= '400') {
             $data->parentelement = '#page-header';
             $data->extraclasses = 'pb-2';

@@ -40,8 +40,8 @@ class summary extends base {
      *
      * @return array
      */
-    protected function get_default_table_aliases(): array {
-        return ['tool_courserating_summary' => 'tool_courserating_summary'];
+    protected function get_default_tables(): array {
+        return ['tool_courserating_summary'];
     }
 
     /**

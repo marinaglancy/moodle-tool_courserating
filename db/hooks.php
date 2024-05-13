@@ -14,21 +14,28 @@
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
-namespace tool_courserating;
-
 /**
- * Tests for helper class
+ * Hook callbacks for tool_courserating
  *
  * @package     tool_courserating
- * @covers      \tool_courserating\helper
- * @copyright   2022 Marina Glancy <marina.glancy@gmail.com>
+ * @copyright   2024 Marina Glancy <marina.glancy@gmail.com>
+ * @author      Renaat Debleu <info@eWallah.net>
  * @license     https://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-final class helper_test extends \advanced_testcase {
 
-    public function test_coursefield(): void {
-        $this->resetAfterTest();
+defined('MOODLE_INTERNAL') || die();
 
-        $this->assertNotEmpty(helper::get_course_rating_field());
-    }
-}
+$callbacks = [
+    [
+        'hook' => core\hook\output\before_http_headers::class,
+        'callback' => 'tool_courserating\hook_listener::before_http_headers',
+    ],
+    [
+        'hook' => core\hook\output\before_standard_head_html_generation::class,
+        'callback' => 'tool_courserating\hook_listener::before_standard_head_html_generation',
+    ],
+    [
+        'hook' => core\hook\output\before_footer_html_generation::class,
+        'callback' => 'tool_courserating\hook_listener::before_footer_html_generation',
+    ],
+];

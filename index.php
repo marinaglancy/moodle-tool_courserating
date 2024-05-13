@@ -42,10 +42,6 @@ if (core_component::get_component_directory('core_reportbuilder')) {
         '', '', 0, ['courseid' => $courseid]);
 
     echo $report->output();
-} else {
-    // TODO remove when the minimum supported version is Moodle 4.0.
-    $table = new \tool_courserating\output\report311($PAGE->url);
-    $table->out(50, true);
 }
 
 echo $OUTPUT->footer();

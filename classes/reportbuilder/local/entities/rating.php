@@ -43,8 +43,8 @@ class rating extends base {
      *
      * @return array
      */
-    protected function get_default_table_aliases(): array {
-        return ['tool_courserating_rating' => 'tool_courserating_rating'];
+    protected function get_default_tables(): array {
+        return ['tool_courserating_rating'];
     }
 
     /**

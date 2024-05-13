@@ -35,8 +35,10 @@ class permission {
      * @return bool
      */
     public static function can_view_ratings(int $courseid): bool {
-        global $USER;
-        if (helper::get_course_rating_mode($courseid) == constants::RATEBY_NOONE) {
+        global $CFG, $USER;
+        require_once($CFG->dirroot . '/admin/tool/courserating/classes/helper.php');
+        require_once($CFG->dirroot . '/admin/tool/courserating/classes/constants.php');
+        if (\tool_courserating\helper::get_course_rating_mode($courseid) == constants::RATEBY_NOONE) {
             return false;
         }
         $course = get_course($courseid);

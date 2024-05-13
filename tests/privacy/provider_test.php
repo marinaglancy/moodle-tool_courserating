@@ -31,7 +31,7 @@ use tool_courserating\local\models\rating;
  * @copyright   2022 Marina Glancy <marina.glancy@gmail.com>
  * @license     https://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class provider_test extends \core_privacy\tests\provider_testcase {
+final class provider_test extends \core_privacy\tests\provider_testcase {
 
     /**
      * Overriding setUp() function to always reset after tests.
@@ -43,9 +43,7 @@ class provider_test extends \core_privacy\tests\provider_testcase {
     /**
      * Test for provider::get_contexts_for_userid().
      */
-    public function test_get_contexts_for_userid() {
-        global $DB;
-
+    public function test_get_contexts_for_userid(): void {
         $user = $this->getDataGenerator()->create_user();
         $course = $this->getDataGenerator()->create_course();
         $this->setUser($user);
@@ -64,7 +62,7 @@ class provider_test extends \core_privacy\tests\provider_testcase {
     /**
      * Test for provider::export_user_data().
      */
-    public function test_export_user_data() {
+    public function test_export_user_data(): void {
 
         [$user, $course] = $this->setup_test_scenario_data();
         $coursectx = \context_course::instance($course->id);
@@ -115,9 +113,8 @@ class provider_test extends \core_privacy\tests\provider_testcase {
     /**
      * Test for provider::delete_data_for_all_users_in_context().
      */
-    public function test_delete_data_for_all_users_in_context() {
+    public function test_delete_data_for_all_users_in_context(): void {
         global $DB;
-
         [$user, $course] = $this->setup_test_scenario_data();
         $coursectx = \context_course::instance($course->id);
         $this->setAdminUser();
@@ -130,9 +127,7 @@ class provider_test extends \core_privacy\tests\provider_testcase {
     /**
      * Test for provider::delete_data_for_user().
      */
-    public function test_delete_data_for_user() {
-        global $DB;
-
+    public function test_delete_data_for_user(): void {
         [$user, $course] = $this->setup_test_scenario_data();
         $coursectx = \context_course::instance($course->id);
         $this->setAdminUser();
@@ -149,7 +144,7 @@ class provider_test extends \core_privacy\tests\provider_testcase {
     /**
      * Test that only users within a course context are fetched.
      */
-    public function test_get_users_in_context() {
+    public function test_get_users_in_context(): void {
         $component = 'tool_courserating';
 
         [$user, $course] = $this->setup_test_scenario_data();
@@ -165,7 +160,7 @@ class provider_test extends \core_privacy\tests\provider_testcase {
     /**
      * Test that data for users in approved userlist is deleted.
      */
-    public function test_delete_data_for_users() {
+    public function test_delete_data_for_users(): void {
         $component = 'tool_courserating';
 
         [$user, $course] = $this->setup_test_scenario_data();

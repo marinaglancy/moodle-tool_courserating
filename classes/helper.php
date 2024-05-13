@@ -28,41 +28,6 @@ use tool_courserating\external\stars_exporter;
  * @license     https://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class helper {
-    /**
-     * Temporary function
-     *
-     * @return void
-     */
-    private function wordings() {
-        // @codingStandardsIgnoreStart
-        // Udemy.
-        'You\'ve finished the last lesson in this course! Would you like to leave a review?';
-        [
-            1 => 'Awful, not what I was expecting at all',
-            1.5 => 'Awful / Poor',
-            2 => 'Poor, pretty disappointed',
-            2.5 => 'Poor / Average',
-            3 => 'Average, could be better',
-            3.5 => 'Average / Good',
-            4 => 'Good, what I expected',
-            4.5 => 'Good / Amazing',
-            5 => 'Amazing, above expectations',
-        ];
-        'Tell us about your own personal experience taking this course. Was it a good match for you?';
-
-        'Report'; 'Report abuse';
-        'Flagged content is reviewed by Udemy staff to determine whether it violates Terms of Service or Community Guidelines. If you have a question or technical issue, please contact our Support team here.';
-        'Issue type';
-        [
-            'Inappropriate Course Content',
-            'Inappropriate Behavior',
-            'Udemy Policy Violation',
-            'Spammy Content',
-            'Other',
-        ];
-        'Issue details';
-        // @codingStandardsIgnoreEnd
-    }
 
     /**
      * Checks if we are on a main course page
@@ -189,7 +154,7 @@ class helper {
      * @param string $shortname
      * @return field_controller|null
      */
-    protected static function find_custom_field_by_shortname(string $shortname) : ?field_controller {
+    protected static function find_custom_field_by_shortname(string $shortname): ?field_controller {
         $handler = \core_course\customfield\course_handler::create();
         $categories = $handler->get_categories_with_fields();
         foreach ($categories as $category) {
@@ -213,7 +178,7 @@ class helper {
      * @return field_controller|null
      */
     protected static function create_custom_field(string $shortname, string $type = 'text', ?\lang_string $displayname = null,
-                                               array $config = [], string $description = '') : ?field_controller {
+                                               array $config = [], string $description = ''): ?field_controller {
         $handler = \core_course\customfield\course_handler::create();
         $categories = $handler->get_categories_with_fields();
         if (empty($categories)) {
@@ -432,13 +397,9 @@ class helper {
         if (empty($row->id) || !strlen($row->review ?? '')) {
             return '';
         }
+        $context = !empty($row->courseid) ? \context_course::instance($row->courseid) : \context_system::instance();
         $formatparams = [
-            'options' => [],
-            'striplinks' => true,
-            'component' => 'tool_courserating',
-            'filearea' => 'review',
-            'itemid' => $row->id,
-            'context' => !empty($row->courseid) ? \context_course::instance($row->courseid) : \context_system::instance(),
+            'context' => $context,
         ];
         if (self::get_setting(constants::SETTING_USEHTML)) {
             list($text, $format) = external_format_text($row->review, FORMAT_HTML, $formatparams['context'],

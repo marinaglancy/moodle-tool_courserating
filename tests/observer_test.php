@@ -28,7 +28,7 @@ use tool_courserating\local\models\summary;
  * @copyright   2022 Marina Glancy <marina.glancy@gmail.com>
  * @license     https://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class observer_test extends \advanced_testcase {
+final class observer_test extends \advanced_testcase {
 
     /**
      * Generator
@@ -41,7 +41,7 @@ class observer_test extends \advanced_testcase {
         return $generator;
     }
 
-    public function test_course_updated() {
+    public function test_course_updated(): void {
         $this->resetAfterTest();
         $course = $this->getDataGenerator()->create_course();
 
@@ -53,7 +53,7 @@ class observer_test extends \advanced_testcase {
         $this->assertEquals(constants::RATEBY_ANYTIME, summary::get_for_course($course->id)->get('ratingmode'));
     }
 
-    public function test_course_deleted() {
+    public function test_course_deleted(): void {
         global $DB;
         $this->resetAfterTest();
         $course = $this->getDataGenerator()->create_course();
@@ -72,7 +72,7 @@ class observer_test extends \advanced_testcase {
         $this->assertEmpty($DB->get_records(flag::TABLE, []));
     }
 
-    public function test_course_created() {
+    public function test_course_created(): void {
         global $DB;
         $this->resetAfterTest();
         $course = $this->getDataGenerator()->create_course();

@@ -24,7 +24,7 @@ namespace tool_courserating;
  * @copyright   2022 Marina Glancy <marina.glancy@gmail.com>
  * @license     https://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class permission_test extends \advanced_testcase {
+final class permission_test extends \advanced_testcase {
 
     /**
      * setUp
@@ -44,7 +44,7 @@ class permission_test extends \advanced_testcase {
         return $generator;
     }
 
-    public function test_can_view() {
+    public function test_can_view(): void {
         global $DB;
 
         $course1 = $this->getDataGenerator()->create_course();
@@ -86,7 +86,7 @@ class permission_test extends \advanced_testcase {
         }
     }
 
-    public function test_can_rate() {
+    public function test_can_rate(): void {
         $course = $this->getDataGenerator()->create_course();
         $user1 = $this->getDataGenerator()->create_user();
         $user2 = $this->getDataGenerator()->create_user();
@@ -113,7 +113,7 @@ class permission_test extends \advanced_testcase {
         }
     }
 
-    public function test_can_rate_completion() {
+    public function test_can_rate_completion(): void {
         $course = $this->getDataGenerator()->create_course(['enablecompletion' => 1]);
         $user1 = $this->getDataGenerator()->create_user();
         $user2 = $this->getDataGenerator()->create_user();
@@ -133,7 +133,7 @@ class permission_test extends \advanced_testcase {
         $this->assertTrue(permission::can_add_rating($course->id));
     }
 
-    public function test_can_flag_rating() {
+    public function test_can_flag_rating(): void {
         global $DB;
 
         $course1 = $this->getDataGenerator()->create_course();
@@ -184,7 +184,7 @@ class permission_test extends \advanced_testcase {
         }
     }
 
-    public function test_can_delete_rating() {
+    public function test_can_delete_rating(): void {
         global $DB;
         $user = $this->getDataGenerator()->create_user();
         $manager = $this->getDataGenerator()->create_user();

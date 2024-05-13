@@ -34,7 +34,7 @@ use tool_courserating\api;
  *
  * @covers \tool_courserating\reportbuilder\datasource\courseratings
  */
-class courseratings_test extends \advanced_testcase {
+final class courseratings_test extends \advanced_testcase {
 
     /**
      * Set up for test
@@ -48,7 +48,7 @@ class courseratings_test extends \advanced_testcase {
         $generator = self::getDataGenerator()->get_plugin_generator('tool_courserating');
         $rating1 = $generator->create_rating($user1->id, $course->id, 3, 'hello <b>unclosed tag');
         usleep(1000); // Make sure timestamp is different on the ratings.
-        $rating2 = $generator->create_rating($user2->id, $course->id, 2);
+        $generator->create_rating($user2->id, $course->id, 2);
 
         $this->setUser($user2);
         api::flag_review($rating1->get('id'));
