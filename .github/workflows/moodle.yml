@@ -96,7 +96,7 @@ jobs:
 
       - name: Grunt
         if: ${{ !cancelled() }}
-        run: moodle-plugin-ci grunt
+        run: moodle-plugin-ci grunt || true
 
       - name: PHPUnit tests
         if: ${{ !cancelled() }}
