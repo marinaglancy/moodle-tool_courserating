@@ -1,6 +1,12 @@
 # Changelog
 All notable changes to this project will be documented in this file.
 
+## Unreleased
+### Added
+- Support for Moodle 4.4
+### Fixed
+- Coding style fixes
+
 ## [1.5] - 2023112400
 ### Added
 - Display course ratings details to non-logged in users instead of redirecting to login page

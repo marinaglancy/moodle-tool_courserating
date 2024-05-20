@@ -48,6 +48,15 @@ class rating extends base {
     }
 
     /**
+     * Database tables that this entity uses
+     *
+     * @return string[]
+     */
+    protected function get_default_tables(): array {
+        return array_keys($this->get_default_table_aliases());
+    }
+
+    /**
      * The default title for this entity
      *
      * @return lang_string

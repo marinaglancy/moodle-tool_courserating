@@ -24,9 +24,9 @@ namespace tool_courserating;
  * @copyright   2022 Marina Glancy <marina.glancy@gmail.com>
  * @license     https://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class helper_test extends \advanced_testcase {
+final class helper_test extends \advanced_testcase {
 
-    public function test_coursefield() {
+    public function test_coursefield(): void {
         $this->resetAfterTest();
 
         $this->assertNotEmpty(helper::get_course_rating_field());
