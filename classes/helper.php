@@ -189,7 +189,7 @@ class helper {
      * @param string $shortname
      * @return field_controller|null
      */
-    protected static function find_custom_field_by_shortname(string $shortname) : ?field_controller {
+    protected static function find_custom_field_by_shortname(string $shortname): ?field_controller {
         $handler = \core_course\customfield\course_handler::create();
         $categories = $handler->get_categories_with_fields();
         foreach ($categories as $category) {
@@ -213,7 +213,7 @@ class helper {
      * @return field_controller|null
      */
     protected static function create_custom_field(string $shortname, string $type = 'text', ?\lang_string $displayname = null,
-                                               array $config = [], string $description = '') : ?field_controller {
+                                               array $config = [], string $description = ''): ?field_controller {
         $handler = \core_course\customfield\course_handler::create();
         $categories = $handler->get_categories_with_fields();
         if (empty($categories)) {
@@ -432,20 +432,21 @@ class helper {
         if (empty($row->id) || !strlen($row->review ?? '')) {
             return '';
         }
+        $context = !empty($row->courseid) ? \context_course::instance($row->courseid) : \context_system::instance();
         $formatparams = [
             'options' => [],
             'striplinks' => true,
             'component' => 'tool_courserating',
             'filearea' => 'review',
             'itemid' => $row->id,
-            'context' => !empty($row->courseid) ? \context_course::instance($row->courseid) : \context_system::instance(),
+            'context' => $context,
         ];
         if (self::get_setting(constants::SETTING_USEHTML)) {
             list($text, $format) = external_format_text($row->review, FORMAT_HTML, $formatparams['context'],
                 $formatparams['component'], $formatparams['filearea'], $formatparams['itemid'], $formatparams['options']);
             return $text;
         } else {
-            return format_text(clean_param($row->review, PARAM_TEXT), FORMAT_MOODLE, $formatparams);
+            return format_text(clean_param($row->review, PARAM_TEXT), FORMAT_MOODLE, ['context' => $context]);
         }
     }
 

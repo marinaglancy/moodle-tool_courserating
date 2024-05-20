@@ -33,7 +33,7 @@ class rating extends \core\persistent {
      *
      * @return array
      */
-    protected static function define_properties() : array {
+    protected static function define_properties(): array {
         return [
             'courseid' => [
                 'type' => PARAM_INT,

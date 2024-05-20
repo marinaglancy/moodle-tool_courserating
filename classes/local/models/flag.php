@@ -33,7 +33,7 @@ class flag extends \core\persistent {
      *
      * @return array
      */
-    protected static function define_properties() : array {
+    protected static function define_properties(): array {
         return [
             'ratingid' => [
                 'type' => PARAM_INT,

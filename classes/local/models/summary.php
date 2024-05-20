@@ -36,7 +36,7 @@ class summary extends \core\persistent {
      *
      * @return array
      */
-    protected static function define_properties() : array {
+    protected static function define_properties(): array {
         $props = [
             'courseid' => [
                 'type' => PARAM_INT,

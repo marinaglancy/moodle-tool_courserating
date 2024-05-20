@@ -28,6 +28,10 @@ use tool_courserating\external\ratings_list_exporter;
  * Callback allowing to add js to $PAGE->requires
  */
 function tool_courserating_before_http_headers() {
+    // This is an implementation of a legacy callback that will only be called in older Moodle versions.
+    // It will not be called in Moodle versions that contain the hook core\hook\output\before_http_headers,
+    // instead, the callback tool_courserating\local\hooks\output\before_http_headers::callback will be executed.
+
     global $PAGE, $CFG;
     if (\tool_courserating\helper::course_ratings_enabled_anywhere() &&
             !in_array($PAGE->pagelayout, ['redirect', 'embedded'])) {
@@ -50,6 +54,10 @@ function tool_courserating_before_http_headers() {
  * @return string
  */
 function tool_courserating_before_footer() {
+    // This is an implementation of a legacy callback that will only be called in older Moodle versions.
+    // It will not be called in Moodle versions that contain the hook core\hook\output\before_footer_html_generation,
+    // instead, the callback tool_courserating\local\hooks\output\before_footer_html_generation::callback will be executed.
+
     global $PAGE;
     $res = '';
     if (\tool_courserating\helper::course_ratings_enabled_anywhere()) {
@@ -69,6 +77,10 @@ function tool_courserating_before_footer() {
  * @return string
  */
 function tool_courserating_before_standard_html_head() {
+    // This is an implementation of a legacy callback that will only be called in older Moodle versions.
+    // It will not be called in Moodle versions that contain the hook core\hook\output\before_standard_head_html_generation,
+    // instead, the callback tool_courserating\local\hooks\output\before_standard_head_html_generation::callback will be executed.
+
     $res = '';
     if (\tool_courserating\helper::course_ratings_enabled_anywhere()) {
         // Add CSS to all pages, the course ratings can be displayed on any page (for example course listings).

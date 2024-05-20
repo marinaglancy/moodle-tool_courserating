@@ -33,7 +33,7 @@ use tool_courserating\local\models\summary;
  * @copyright   2022 Marina Glancy <marina.glancy@gmail.com>
  * @license     https://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class api_test extends \advanced_testcase {
+final class api_test extends \advanced_testcase {
 
     /**
      * Generator
@@ -123,7 +123,7 @@ class api_test extends \advanced_testcase {
         $sink->clear();
     }
 
-    public function test_set_rating() {
+    public function test_set_rating(): void {
         $this->resetAfterTest();
         $user = $this->getDataGenerator()->create_user();
         $user2 = $this->getDataGenerator()->create_user();
@@ -170,7 +170,7 @@ class api_test extends \advanced_testcase {
         $this->assert_summary($expected, $course->id);
     }
 
-    public function test_delete_rating() {
+    public function test_delete_rating(): void {
         $this->resetAfterTest();
         $user = $this->getDataGenerator()->create_user();
         $user2 = $this->getDataGenerator()->create_user();
@@ -202,7 +202,7 @@ class api_test extends \advanced_testcase {
         $this->assert_summary($expected, $course->id);
     }
 
-    public function test_flag_rating() {
+    public function test_flag_rating(): void {
         $this->resetAfterTest();
         $user = $this->getDataGenerator()->create_user();
         $user2 = $this->getDataGenerator()->create_user();
@@ -234,7 +234,7 @@ class api_test extends \advanced_testcase {
             '%ahas deleted course rating%a. Reason provided: spam');
     }
 
-    public function test_reindex() {
+    public function test_reindex(): void {
         $this->resetAfterTest();
         $user = $this->getDataGenerator()->create_user();
         $user2 = $this->getDataGenerator()->create_user();
@@ -262,7 +262,7 @@ class api_test extends \advanced_testcase {
         $this->assert_summary($expected, $course->id);
     }
 
-    public function test_create_rating() {
+    public function test_create_rating(): void {
         $this->resetAfterTest();
         $user = $this->getDataGenerator()->create_user();
         $course = $this->getDataGenerator()->create_course();

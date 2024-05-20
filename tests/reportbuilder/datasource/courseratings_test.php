@@ -34,7 +34,7 @@ use tool_courserating\api;
  *
  * @covers \tool_courserating\reportbuilder\datasource\courseratings
  */
-class courseratings_test extends \advanced_testcase {
+final class courseratings_test extends \advanced_testcase {
 
     /**
      * Set up for test

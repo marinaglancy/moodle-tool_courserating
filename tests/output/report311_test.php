@@ -29,7 +29,7 @@ use tool_courserating\api;
  *
  * @covers \tool_courserating\output\report311
  */
-class report311_test extends \advanced_testcase {
+final class report311_test extends \advanced_testcase {
     /** @var \stdClass */
     protected $course;
 
