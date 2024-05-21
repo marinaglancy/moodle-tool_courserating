@@ -28,6 +28,8 @@
  */
 function xmldb_tool_courserating_install() {
 
-    \tool_courserating\task\reindex::schedule();
+    if (!defined('PHPUNIT_TEST') || !PHPUNIT_TEST) {
+        \tool_courserating\task\reindex::schedule();
+    }
     return true;
 }

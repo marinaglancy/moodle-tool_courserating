@@ -38,6 +38,8 @@ final class provider_test extends \core_privacy\tests\provider_testcase {
      */
     public function setUp(): void {
         $this->resetAfterTest(true);
+        set_config(\tool_courserating\constants::SETTING_RATINGMODE,
+            \tool_courserating\constants::RATEBY_ANYTIME, 'tool_courserating');
     }
 
     /**

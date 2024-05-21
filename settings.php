@@ -27,11 +27,14 @@ defined('MOODLE_INTERNAL') || die();
 
 if ($hassiteconfig) {
 
+    // Disable ratings in unittests by default, otherwise it breaks core tests.
+    $isunittest = defined('PHPUNIT_TEST') && PHPUNIT_TEST;
+
     $temp = new admin_settingpage('tool_courserating', new lang_string('pluginname', 'tool_courserating'));
     $el = new admin_setting_configselect('tool_courserating/' . \tool_courserating\constants::SETTING_RATINGMODE,
         new lang_string('ratingmode', 'tool_courserating'),
         new lang_string('ratingmodeconfig', 'tool_courserating'),
-        \tool_courserating\constants::RATEBY_ANYTIME,
+        $isunittest ? \tool_courserating\constants::RATEBY_NOONE : \tool_courserating\constants::RATEBY_ANYTIME,
         \tool_courserating\constants::rated_courses_options());
     $el->set_updatedcallback('tool_courserating\task\reindex::schedule');
     $temp->add($el);
