@@ -31,6 +31,15 @@ use tool_courserating\local\models\summary;
 final class observer_test extends \advanced_testcase {
 
     /**
+     * Set up
+     */
+    public function setUp(): void {
+        $this->resetAfterTest();
+        set_config(\tool_courserating\constants::SETTING_RATINGMODE,
+            \tool_courserating\constants::RATEBY_ANYTIME, 'tool_courserating');
+    }
+
+    /**
      * Generator
      *
      * @return \tool_courserating_generator
@@ -42,7 +51,6 @@ final class observer_test extends \advanced_testcase {
     }
 
     public function test_course_updated(): void {
-        $this->resetAfterTest();
         $course = $this->getDataGenerator()->create_course();
 
         $this->get_generator()->set_config(constants::SETTING_PERCOURSE, 1);
@@ -55,7 +63,6 @@ final class observer_test extends \advanced_testcase {
 
     public function test_course_deleted(): void {
         global $DB;
-        $this->resetAfterTest();
         $course = $this->getDataGenerator()->create_course();
         $user1 = $this->getDataGenerator()->create_user();
         $user2 = $this->getDataGenerator()->create_user();
@@ -74,7 +81,6 @@ final class observer_test extends \advanced_testcase {
 
     public function test_course_created(): void {
         global $DB;
-        $this->resetAfterTest();
         $course = $this->getDataGenerator()->create_course();
         $this->assertNotEmpty($DB->get_records(summary::TABLE, ['courseid' => $course->id]));
     }

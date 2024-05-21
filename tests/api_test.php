@@ -36,6 +36,15 @@ use tool_courserating\local\models\summary;
 final class api_test extends \advanced_testcase {
 
     /**
+     * Set up
+     */
+    public function setUp(): void {
+        $this->resetAfterTest();
+        set_config(\tool_courserating\constants::SETTING_RATINGMODE,
+            \tool_courserating\constants::RATEBY_ANYTIME, 'tool_courserating');
+    }
+
+    /**
      * Generator
      *
      * @return \tool_courserating_generator
@@ -124,7 +133,6 @@ final class api_test extends \advanced_testcase {
     }
 
     public function test_set_rating(): void {
-        $this->resetAfterTest();
         $user = $this->getDataGenerator()->create_user();
         $user2 = $this->getDataGenerator()->create_user();
         $course = $this->getDataGenerator()->create_course();
@@ -171,7 +179,6 @@ final class api_test extends \advanced_testcase {
     }
 
     public function test_delete_rating(): void {
-        $this->resetAfterTest();
         $user = $this->getDataGenerator()->create_user();
         $user2 = $this->getDataGenerator()->create_user();
         $course = $this->getDataGenerator()->create_course();
@@ -203,7 +210,6 @@ final class api_test extends \advanced_testcase {
     }
 
     public function test_flag_rating(): void {
-        $this->resetAfterTest();
         $user = $this->getDataGenerator()->create_user();
         $user2 = $this->getDataGenerator()->create_user();
         $course = $this->getDataGenerator()->create_course();
@@ -235,7 +241,6 @@ final class api_test extends \advanced_testcase {
     }
 
     public function test_reindex(): void {
-        $this->resetAfterTest();
         $user = $this->getDataGenerator()->create_user();
         $user2 = $this->getDataGenerator()->create_user();
         $course = $this->getDataGenerator()->create_course();
@@ -263,7 +268,6 @@ final class api_test extends \advanced_testcase {
     }
 
     public function test_create_rating(): void {
-        $this->resetAfterTest();
         $user = $this->getDataGenerator()->create_user();
         $course = $this->getDataGenerator()->create_course();
         $this->get_generator()->create_rating($user->id, $course->id, 3);

@@ -37,6 +37,15 @@ use tool_courserating\api;
 final class courseratings_test extends \advanced_testcase {
 
     /**
+     * setUp
+     */
+    protected function setUp(): void {
+        $this->resetAfterTest();
+        set_config(\tool_courserating\constants::SETTING_RATINGMODE,
+            \tool_courserating\constants::RATEBY_ANYTIME, 'tool_courserating');
+    }
+
+    /**
      * Set up for test
      */
     protected function set_up_for_test() {
@@ -69,8 +78,6 @@ final class courseratings_test extends \advanced_testcase {
             $this->markTestSkipped('PHPUNIT_LONGTEST is not defined');
         }
 
-        $this->resetAfterTest();
-
         $this->set_up_for_test();
 
         $this->datasource_stress_test_columns(courseratings::class);
@@ -88,7 +95,6 @@ final class courseratings_test extends \advanced_testcase {
             // TODO remove when the minimum supported version is Moodle 4.0.
             $this->markTestSkipped('Report builder not found');
         }
-        $this->resetAfterTest();
         $this->set_up_for_test();
 
         /** @var \core_reportbuilder_generator $generator */

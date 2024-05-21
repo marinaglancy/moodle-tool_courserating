@@ -34,6 +34,15 @@ final class report311_test extends \advanced_testcase {
     protected $course;
 
     /**
+     * setUp
+     */
+    protected function setUp(): void {
+        $this->resetAfterTest();
+        set_config(\tool_courserating\constants::SETTING_RATINGMODE,
+            \tool_courserating\constants::RATEBY_ANYTIME, 'tool_courserating');
+    }
+
+    /**
      * Set up for test
      */
     protected function set_up_for_test() {
@@ -60,7 +69,6 @@ final class report311_test extends \advanced_testcase {
      * @return void
      */
     public function test_content(): void {
-        $this->resetAfterTest();
         $this->set_up_for_test();
 
         $report = new report311(new \moodle_url('/admin/tool/courserating/index.php', ['id' => $this->course->id]));

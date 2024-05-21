@@ -6,6 +6,7 @@ All notable changes to this project will be documented in this file.
 - Support for Moodle 4.4
 ### Fixed
 - Coding style fixes
+- Failing core unittests, #12
 
 ## [1.5] - 2023112400
 ### Added

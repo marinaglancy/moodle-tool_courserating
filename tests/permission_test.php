@@ -31,6 +31,8 @@ final class permission_test extends \advanced_testcase {
      */
     protected function setUp(): void {
         $this->resetAfterTest();
+        set_config(\tool_courserating\constants::SETTING_RATINGMODE,
+            \tool_courserating\constants::RATEBY_ANYTIME, 'tool_courserating');
     }
 
     /**
