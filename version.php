@@ -26,7 +26,7 @@ defined('MOODLE_INTERNAL') || die();
 
 $plugin->component = 'tool_courserating';
 $plugin->release = '1.6';
-$plugin->version = 2024053000;
+$plugin->version = 2024052100;
 $plugin->requires = 2021051700;
 $plugin->maturity = MATURITY_STABLE;
 $plugin->supported = [311, 404];
