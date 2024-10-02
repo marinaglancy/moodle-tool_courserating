@@ -34,6 +34,7 @@ final class observer_test extends \advanced_testcase {
      * Set up
      */
     public function setUp(): void {
+        parent::setUp();
         $this->resetAfterTest();
         set_config(\tool_courserating\constants::SETTING_RATINGMODE,
             \tool_courserating\constants::RATEBY_ANYTIME, 'tool_courserating');
