@@ -70,7 +70,7 @@ jobs:
           - php: '8.3'
             # Main job. Run all checks that do not require setup and only need to be run once.
             runchecks: 'all'
-            moodle-branch: 'main' # TODO replace with 'MOODLE_405_STABLE'
+            moodle-branch: 'MOODLE_405_STABLE'
             database: 'mariadb'
 
     steps:

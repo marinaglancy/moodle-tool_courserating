@@ -1,7 +1,7 @@
 # Changelog
 All notable changes to this project will be documented in this file.
 
-## Unreleased
+## [1.7] - 2024100500
 ### Added
 - Support for Moodle 4.5
 
