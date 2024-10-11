@@ -28,6 +28,20 @@ require_once(__DIR__ . '/../../../../../lib/behat/behat_base.php');
  */
 class behat_tool_courserating extends behat_base {
 
+    /**
+     * Adds "Course rating" custom field that would be otherwise breaking other tests.
+     *
+     * @Given Course ratings are enabled for all students
+     */
+    public function create_course_rating_field(): void {
+        // Custom fields API is not designed to be used from behat steps, so try to hack around it somehow.
+        $reflection = new \ReflectionProperty(\core_course\customfield\course_handler::class, 'singleton');
+        $reflection->setAccessible(true);
+        $reflection->setValue(null, null);
+
+        set_config(\tool_courserating\constants::SETTING_RATINGMODE, \tool_courserating\constants::RATEBY_ANYTIME, 'tool_courserating');
+        \tool_courserating\api::reindex(0);
+    }
 
     /**
      * Return the list of partial named selectors.

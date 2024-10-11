@@ -2,7 +2,8 @@
 Feature: Viewing and managing course ratings as a teacher and manager
 
   Background:
-    Given the following "courses" exist:
+    Given Course ratings are enabled for all students
+    And the following "courses" exist:
       | fullname | shortname | numsections |
       | Course 1 | C1        | 1           |
       | Course 2 | C2        | 1           |
