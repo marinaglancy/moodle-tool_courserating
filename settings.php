@@ -28,7 +28,7 @@ defined('MOODLE_INTERNAL') || die();
 if ($hassiteconfig) {
 
     // Disable ratings in unittests by default, otherwise it breaks core tests.
-    $isunittest = defined('PHPUNIT_TEST') && PHPUNIT_TEST;
+    $isunittest = (defined('PHPUNIT_TEST') && PHPUNIT_TEST) || (defined('BEHAT_UTIL') && BEHAT_UTIL);
 
     $temp = new admin_settingpage('tool_courserating', new lang_string('pluginname', 'tool_courserating'));
     $el = new admin_setting_configselect('tool_courserating/' . \tool_courserating\constants::SETTING_RATINGMODE,
