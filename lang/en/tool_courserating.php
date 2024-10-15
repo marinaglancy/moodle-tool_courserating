@@ -112,3 +112,12 @@ $string['usehtmlconfig'] = 'Allow students to use rich text editor for the revie
 $string['usersflagged'] = '{$a} user(s) have flagged this review as inappropriate/offensive.';
 $string['viewallreviews'] = 'View all reviews';
 $string['youflagged'] = 'You have flagged this review as inappropriate/offensive.';
+// Add the new "Hide Username" setting
+$string['hideusername_scope'] = 'Hide Usernames';
+$string['hideusername_scope_desc'] = 'Choose whether to show or hide usernames globally, or to hide them on a per-course basis.';
+$string['showuser'] = 'Show usernames';
+$string['hideuser'] = 'Hide usernames globally';
+$string['percourse'] = 'Hide usernames on a per-course basis';
+$string['hideusername_course'] = 'Hide Usernames';
+$string['hideusername_course_desc'] = 'Hide usernames for ratings in this specific course';
+$string['setting_updated'] = 'Settings updated successfully.';

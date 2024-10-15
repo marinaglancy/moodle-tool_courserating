@@ -64,6 +64,20 @@ if ($hassiteconfig) {
     $el->set_updatedcallback('tool_courserating\task\reindex::schedule');
     $temp->add($el);
 
+    // Add the global and per-course "Hide Username" setting
+    $el = new admin_setting_configselect('tool_courserating/hideusername_scope',
+    new lang_string('hideusername_scope', 'tool_courserating'),
+    new lang_string('hideusername_scope_desc', 'tool_courserating'),
+    'showuser',  // Default setting
+    array(
+        'showuser' => get_string('showuser', 'tool_courserating'),   // Show usernames globally
+        'hideuser' => get_string('hideuser', 'tool_courserating'),   // Hide usernames globally
+        'percourse' => get_string('percourse', 'tool_courserating')  // Hide usernames on a per-course basis
+    )
+    );
+    $temp->add($el);
+    // end adding new setting
+    
     $el = new admin_setting_configcheckbox('tool_courserating/' . \tool_courserating\constants::SETTING_USEHTML,
         new lang_string('usehtml', 'tool_courserating'),
         new lang_string('usehtmlconfig', 'tool_courserating'), 0);

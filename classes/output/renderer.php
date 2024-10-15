@@ -55,15 +55,34 @@ class renderer extends plugin_renderer_base {
      */
     public function course_ratings_popup(int $courseid): string {
         global $USER;
+        
         $data1 = (new summary_exporter($courseid))->export($this);
         $data2 = (new ratings_list_exporter(['courseid' => $courseid]))->export($this);
         $data = (array)$data1 + (array)$data2;
+        
         $data['canrate'] = permission::can_add_rating($courseid);
         $data['hasrating'] = $data['canrate'] && rating::get_record(['userid' => $USER->id, 'courseid' => $courseid]);
+    
+        // Start new code. Get the global setting for hiding usernames
+        $scope = get_config('tool_courserating', 'hideusername_scope');
+
+        if ($scope === 'hideuser') {
+            // Hide usernames globally
+            $data['showusername'] = false;
+        } else if ($scope === 'percourse') {
+            // For per-course logic, default to showing usernames unless explicitly hidden for the course
+            $hideusernamecourse = get_config('tool_courserating', 'hide_username_course_' . $courseid);
+            $data['showusername'] = !$hideusernamecourse; // Show usernames unless hidden
+        } else {
+            // Show usernames globally
+            $data['showusername'] = true;
+        }
+        // end new code
+        
         $this->page->requires->js_call_amd('tool_courserating/rating', 'setupViewRatingsPopup', []);
         return $this->render_from_template('tool_courserating/course_ratings_popup', $data);
     }
-
+    
     /**
      * Course review widget to be added to the course page
      *
@@ -90,6 +109,22 @@ class renderer extends plugin_renderer_base {
             $data->parentelement = '#page-header';
             $data->extraclasses = 'pb-2';
         }
+
+        // Check global setting for hiding usernames
+        $scope = get_config('tool_courserating', 'hideusername_scope');
+
+        if ($scope === 'hideuser') {
+            // Hide usernames globally
+            $data->showusername = false;
+        } else if ($scope === 'percourse') {
+            // Check course-specific setting
+            $data->showusername = !get_config('tool_courserating', 'hide_username_course', $courseid);
+        } else {
+            // Show usernames globally
+            $data->showusername = true;
+        }
+        // end new code
+        
         return $this->render_from_template('tool_courserating/course_rating_block', $data);
     }
 }
