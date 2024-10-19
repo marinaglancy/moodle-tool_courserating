@@ -62,4 +62,23 @@ class observer {
     public static function course_created(course_created $event) {
         api::reindex($event->courseid);
     }
+
+    /**
+     * Event observer for core_customfield\event\field_deleted
+     *
+     * @param \core_customfield\event\field_deleted $event
+     */
+    public static function field_deleted(\core_customfield\event\field_deleted $event): void {
+        if (CLI_SCRIPT) {
+            return;
+        }
+        // Special trigger for full recalculation. If admin deletes the old 'textarea' field with the
+        // name 'tool_courserating', and the number field is already supported, schedule full reindex.
+        // This will create a new 'number' field with the provider.
+        $field = $event->get_record_snapshot($event->objecttable, $event->objectid);
+        if ($field->shortname === constants::CFIELD_RATING && $field->type === 'textarea'
+                && api::number_field_supported()) {
+            \tool_courserating\task\reindex::schedule();
+        }
+    }
 }

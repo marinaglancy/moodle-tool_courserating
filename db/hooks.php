@@ -43,4 +43,10 @@ $callbacks = [
         'callback' => 'tool_courserating\local\hooks\output\before_http_headers::callback',
         'priority' => 0,
     ],
+
+    [
+        'hook' => customfield_number\hook\add_custom_providers::class,
+        'callback' => 'tool_courserating\customfield_number_provider::register',
+        'priority' => 0,
+    ],
 ];

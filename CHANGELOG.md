@@ -1,6 +1,10 @@
 # Changelog
 All notable changes to this project will be documented in this file.
 
+## Unreleased
+### Added
+- Support for the 'number' custom field type in Moodle 4.5 (available form 4.5.1)
+
 ## [1.7] - 2024100500
 ### Added
 - Support for Moodle 4.5

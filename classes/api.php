@@ -17,6 +17,8 @@
 namespace tool_courserating;
 
 use core\output\inplace_editable;
+use core_component;
+use core_customfield\field_controller;
 use tool_courserating\event\flag_created;
 use tool_courserating\event\flag_deleted;
 use tool_courserating\event\rating_created;
@@ -35,6 +37,20 @@ use tool_courserating\local\models\summary;
  * @license     https://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class api {
+
+    /**
+     * Does current version of Moodle fully support 'number' custom field
+     *
+     * @return bool
+     */
+    public static function number_field_supported(): bool {
+        global $CFG;
+        // TODO change to the version when https://tracker.moodle.org/browse/MDL-83430 is integrated.
+        // This functionality is available in Moodle LMS from 4.5.1 (when MDL-83430 is integrated)
+        // and in Moodle Workpalce from 4.5.
+        return $CFG->version >= 2024100700.02
+            || ($CFG->version >= 2024100700 && core_component::get_component_directory('tool_wp'));
+    }
 
     /**
      * Add or update user rating
@@ -74,7 +90,9 @@ class api {
             }
             $summary = summary::add_rating($courseid, $r);
         }
-        self::update_course_rating_in_custom_field($summary);
+        if ($field = helper::get_course_rating_field()) {
+            self::update_course_rating_in_custom_field($summary, $field);
+        }
 
         if ($ratingold) {
             rating_updated::create_from_rating($r, $oldrecord)->trigger();
@@ -108,7 +126,9 @@ class api {
             $DB->delete_records(flag::TABLE, ['ratingid' => $record->id]);
         }
         $summary = summary::delete_rating($record);
-        self::update_course_rating_in_custom_field($summary);
+        if ($field = helper::get_course_rating_field()) {
+            self::update_course_rating_in_custom_field($summary, $field);
+        }
 
         rating_deleted::create_from_rating($record, $flagcount, $reason)->trigger();
 
@@ -119,29 +139,37 @@ class api {
      * Update content of the course custom field that displays the rating
      *
      * @param summary|null $summary
+     * @param field_controller $field since this function may be called in a loop, do not retrieve the field each time
      * @return void
      */
-    protected static function update_course_rating_in_custom_field(?summary $summary) {
+    protected static function update_course_rating_in_custom_field(?summary $summary, field_controller $field) {
         global $PAGE;
-        if (!$summary || !helper::get_course_rating_field()) {
+        if (!$summary) {
             return;
         }
         $courseid = $summary->get('courseid');
 
         if ($summary->get('ratingmode') == constants::RATEBY_NOONE) {
+            $decvalue = null;
             $ratingstr = '';
         } else {
+            $decvalue = $summary->get('avgrating');
             /** @var \tool_courserating\output\renderer $output */
             $output = $PAGE->get_renderer('tool_courserating');
-            $data = (new summary_exporter(0, $summary))->export($output);
-            $ratingstr = $output->render_from_template('tool_courserating/summary_for_cfield', $data);
+            $templatedata = (new summary_exporter(0, $summary))->export($output);
+            $ratingstr = trim($output->render_from_template('tool_courserating/summary_for_cfield', $templatedata));
         }
 
-        if ($data = helper::get_course_rating_data_in_cfield($courseid)) {
-            $data->instance_form_save((object)[
-                'id' => $courseid,
-                $data->get_form_element_name() => ['text' => $ratingstr, 'format' => FORMAT_HTML],
-            ]);
+        if ($data = helper::get_course_rating_data_in_cfield($courseid, $field)) {
+            if ($data->get('id') && $ratingstr === '') {
+                $data->delete();
+            } else if ($ratingstr !== '') {
+                // If we don't store decvalue, the gray stars will not be displayed in case of 'displayempty' setting.
+                $data->set('decvalue', $decvalue ?? -1);
+                $data->set('value', $ratingstr);
+                $data->set('valueformat', FORMAT_HTML);
+                $data->save();
+            }
         }
     }
 
@@ -277,26 +305,27 @@ class api {
 
         $percourse = helper::get_setting(constants::SETTING_PERCOURSE);
         $ratingfield = helper::get_course_rating_field();
-        $ratingmodefield = helper::get_course_rating_mode_field();
 
         if (!$ratingfield) {
             return;
         }
 
-        $fields = 'c.id as courseid, d.value as cfield, s.cntall as summarycntall, s.ratingmode as summaryratingmode,
+        if ($percourse && !($ratingmodefield = helper::get_course_rating_mode_field())) {
+            $percourse = 0;
+        }
+
+        $fields = 'c.id as actualcourseid, s.*,
                (select count(1) from {tool_courserating_rating} r where r.courseid=c.id) as actualcntall ';
         $join = 'from {course} c
             left join {tool_courserating_summary} s on s.courseid = c.id
-            left join {customfield_field} f on f.shortname = :field1
-            left join {customfield_data} d on d.fieldid = f.id and d.instanceid = c.id ';
+            ';
         $params = [
-            'field1' => $ratingfield->get('shortname'),
             'siteid' => $SITE->id ?? SITEID,
         ];
 
-        if ($percourse && $ratingmodefield) {
+        if ($percourse) {
             // Each course may override whether course ratings are enabled.
-            $fields .= ', dr.intvalue as rateby';
+            $fields .= ', dr.intvalue as actualratingmode';
             $join .= ' left join {customfield_field} fr on fr.shortname = :field2
             left join {customfield_data} dr on dr.fieldid = fr.id and dr.instanceid = c.id';
             $params['field2'] = $ratingmodefield->get('shortname');
@@ -311,51 +340,47 @@ class api {
         }
 
         $records = $DB->get_records_sql($sql, $params);
+        $defaultratingmode = helper::get_setting(constants::SETTING_RATINGMODE);
+        $ratedcourseoptions = array_keys(constants::rated_courses_options());
         foreach ($records as $record) {
-            $record->actualratingmode = helper::get_setting(constants::SETTING_RATINGMODE);
-            if ($percourse && $record->rateby && array_key_exists($record->rateby, constants::rated_courses_options())) {
-                $record->actualratingmode = $record->rateby;
-            }
-            self::reindex_course($record);
+            $record->actualratingmode = ($percourse && in_array($record->actualratingmode, $ratedcourseoptions)) ?
+                $record->actualratingmode : $defaultratingmode;
+            $summary = self::reindex_course($record);
+            self::update_course_rating_in_custom_field($summary, $ratingfield);
         }
     }
 
     /**
      * Re-index individual course
      *
-     * @param \stdClass $data contains fields: courseid, cfield, summarycntall, actualcntall
-     *     where cfield is the actual value stored in the "course rating" custom course field,
-     *     summarycntall - the field tool_courserating_summary.cntall that corresponds to this course,
-     *     summaryratingmode - the field tool_courserating_summary.ratingmode that corresponds to this course,
+     * @param \stdClass $data contains fields:
+     *     * - all fields of the summary table
+     *     actualcourseid - course id
      *     actualcntall - the actual count of ratings for this course (count(*) from tool_courserating_rating)
      *     actualratingmode - what actually must be the rating mode of this course
+     *     datafieldid - id in the data table for the customfield
      */
-    protected static function reindex_course(\stdClass $data) {
+    protected static function reindex_course(\stdClass $data): summary {
+        if (!$data->id) {
+            $summaryrecord = (object)['courseid' => $data->actualcourseid];
+        } else {
+            $summaryrecord = (object)array_intersect_key((array)$data, summary::properties_definition() + ['id' => 1]);
+        }
+        $summary = new summary(0, $summaryrecord);
+
         $mustbeempty = $data->actualratingmode == constants::RATEBY_NOONE
             || (!$data->actualcntall && !helper::get_setting(constants::SETTING_DISPLAYEMPTY));
 
-        if ($data->summaryratingmode != $data->actualratingmode) {
-            // Rating mode for this course has changed.
-            $summary = summary::get_for_course($data->courseid);
+        if (!$mustbeempty // Needs recalculating.
+                || ($summary->get('ratingmode') != $data->actualratingmode) // Needs updating ratingmode and maybe resetting.
+                || ($mustbeempty && !empty($summary->get('cntall'))) // Needs resetting.
+                || !$summary->get('id') // Needs creating.
+                ) {
             $summary->set('ratingmode', $data->actualratingmode);
-            if ($data->actualratingmode == constants::RATEBY_NOONE) {
-                $summary->reset_all_counters();
-            }
-            $summary->save();
+            $summary->recalculate();
         }
 
-        if ($mustbeempty) {
-            // Course rating should not be displayed at all.
-            if (!empty($data->cfield)) {
-                $summary = $summary ?? summary::get_for_course($data->courseid);
-                self::update_course_rating_in_custom_field($summary);
-            }
-        } else {
-            // Update summary and cfield with the data.
-            $summary = $summary ?? summary::get_for_course($data->courseid);
-            $summary->recalculate();
-            self::update_course_rating_in_custom_field($summary);
-        }
+        return $summary;
     }
 
     /**

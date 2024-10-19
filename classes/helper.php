@@ -255,20 +255,57 @@ class helper {
     /**
      * Retrieve course custom field responsible for storing course ratings, create if not found
      *
-     * @return field_controller|null
+     * @return field_controller
      */
     public static function get_course_rating_field(): ?field_controller {
         $shortname = constants::CFIELD_RATING;
-        $field = self::find_custom_field_by_shortname($shortname);
+        $existingfields = [];
+        $mainfield = null;
+        $handler = \core_course\customfield\course_handler::create();
+        $categories = $handler->get_categories_with_fields();
+        foreach ($categories as $category) {
+            foreach ($category->get_fields() as $field) {
+                if ($field->get('shortname') === $shortname) {
+                    $existingfields[] = $field;
+                } else if ($field->get('type') === 'number' &&
+                        api::number_field_supported() &&
+                        $field->get_configdata_property('fieldtype') === customfield_number_provider::class) {
+                    $existingfields[] = $field;
+                    $mainfield = $mainfield ?? $field;
+                }
+            }
+        }
 
         if (!self::course_ratings_enabled_anywhere()) {
-            if ($field) {
+            foreach ($existingfields as $field) {
                 $field->get_handler()->delete_field_configuration($field);
             }
             return null;
         }
 
-        return $field ?? self::create_custom_field($shortname,
+        if (count($existingfields) > 1) {
+            foreach ($existingfields as $field) {
+                if ($field->get('id') != $mainfield->get('id')) {
+                    $field->get_handler()->delete_field_configuration($field);
+                }
+            }
+            return $mainfield;
+        }
+
+        if ($existingfields) {
+            return reset($existingfields);
+        }
+
+        if (api::number_field_supported()) {
+            return self::create_custom_field($shortname,
+                'number',
+                new \lang_string('ratinglabel', 'tool_courserating'),
+                ['fieldtype' => customfield_number_provider::class],
+                '');
+        }
+
+        // For Moodle before 4.5.1.
+        return self::create_custom_field($shortname,
             'textarea',
             new \lang_string('ratinglabel', 'tool_courserating'),
             ['locked' => 1],
@@ -328,11 +365,11 @@ class helper {
      * Retireve data stored in a course custom field
      *
      * @param int $courseid
-     * @param string $shortname
+     * @param field_controller|null $f
      * @return data_controller|null
      */
-    protected static function get_custom_field_data(int $courseid, string $shortname): ?data_controller {
-        if ($f = self::find_custom_field_by_shortname($shortname)) {
+    protected static function get_custom_field_data(int $courseid, ?field_controller $f): ?data_controller {
+        if ($f) {
             $fields = \core_customfield\api::get_instance_fields_data([$f->get('id') => $f], $courseid);
             foreach ($fields as $data) {
                 if (!$data->get('id')) {
@@ -348,10 +385,11 @@ class helper {
      * Retrieve data stored in a course rating course custom field
      *
      * @param int $courseid
+     * @param field_controller $field
      * @return data_controller|null
      */
-    public static function get_course_rating_data_in_cfield(int $courseid): ?data_controller {
-        return self::get_custom_field_data($courseid, constants::CFIELD_RATING);
+    public static function get_course_rating_data_in_cfield(int $courseid, field_controller $field): ?data_controller {
+        return self::get_custom_field_data($courseid, $field);
     }
 
     /**
@@ -361,7 +399,8 @@ class helper {
      * @return data_controller|null
      */
     public static function get_course_rating_enabled_data_in_cfield(int $courseid): ?data_controller {
-        return self::get_custom_field_data($courseid, constants::CFIELD_RATINGMODE);
+        $field = self::get_course_rating_mode_field();
+        return self::get_custom_field_data($courseid, $field);
     }
 
     /**

@@ -28,8 +28,14 @@
  */
 function xmldb_tool_courserating_install() {
 
-    if (!defined('PHPUNIT_TEST') || !PHPUNIT_TEST) {
-        \tool_courserating\task\reindex::schedule();
+    if (defined('BEHAT_UTIL') && BEHAT_UTIL) {
+        return true;
     }
+
+    if (defined('PHPUNIT_TEST') && PHPUNIT_TEST) {
+        return true;
+    }
+
+    \tool_courserating\task\reindex::schedule();
     return true;
 }

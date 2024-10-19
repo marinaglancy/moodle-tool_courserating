@@ -37,4 +37,8 @@ $observers = [
         'eventname'   => '\core\event\course_deleted',
         'callback'    => '\tool_courserating\observer::course_deleted',
     ],
+    [
+        'eventname' => core_customfield\event\field_deleted::class,
+        'callback' => 'tool_courserating\observer::field_deleted',
+    ],
 ];
