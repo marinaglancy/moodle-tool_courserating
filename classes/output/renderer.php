@@ -17,29 +17,32 @@
 namespace tool_courserating\output;
 
 use plugin_renderer_base;
-use tool_courserating\api;
 use tool_courserating\constants;
-use tool_courserating\external\summary_exporter;
-use tool_courserating\external\ratings_list_exporter;
 use tool_courserating\helper;
 use tool_courserating\local\models\rating;
 use tool_courserating\local\models\summary;
 use tool_courserating\permission;
+use tool_courserating\external\summary_exporter;
+use tool_courserating\external\ratings_list_exporter;
+use html_writer;
+use moodle_url;
 
 /**
- * Renderer
+ * Renderer for tool_courserating.
+ *
+ * Provides rendering methods for course ratings features.
  *
  * @package     tool_courserating
  * @copyright   2022 Marina Glancy <marina.glancy@gmail.com>
- * @license     https://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ * @license     http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class renderer extends plugin_renderer_base {
 
     /**
-     * Reads contents of a custom field and displays it
+     * Renders content of a custom field for a course.
      *
-     * @param int $courseid
-     * @return string
+     * @param int $courseid The course ID.
+     * @return string Rendered HTML content for the custom field.
      */
     public function cfield(int $courseid): string {
         $summary = summary::get_for_course($courseid);
@@ -48,52 +51,54 @@ class renderer extends plugin_renderer_base {
     }
 
     /**
-     * Content of a course rating summary popup
+     * Renders the popup content for course ratings.
      *
-     * @param int $courseid
-     * @return string
+     * @param int $courseid The course ID.
+     * @return string Rendered HTML content for the popup.
      */
     public function course_ratings_popup(int $courseid): string {
         global $USER;
-        
+    
+        // Получение текущего значения глобальной настройки.
+        $showusernames = helper::get_setting(constants::SETTING_SHOWUSERNAMES);
+    
+        // Если глобальная настройка установлена на "per-course", учитывать настройку курса.
+        if ($showusernames == constants::SHOWUSERNAMES_PERCOURSE) {
+            $percoursevisibility = get_config('tool_courserating', "username_visibility_course_{$courseid}");
+            $showusernames = ($percoursevisibility === null) ? constants::SHOWUSERNAMES_SHOW : (int)$percoursevisibility;
+        }
+    
+        // Экспорт данных для использования в шаблоне.
         $data1 = (new summary_exporter($courseid))->export($this);
         $data2 = (new ratings_list_exporter(['courseid' => $courseid]))->export($this);
-        $data = (array)$data1 + (array)$data2;
-        
+        $data = (array) $data1 + (array) $data2;
+    
+        // Добавление информации о видимости имён пользователей.
         $data['canrate'] = permission::can_add_rating($courseid);
         $data['hasrating'] = $data['canrate'] && rating::get_record(['userid' => $USER->id, 'courseid' => $courseid]);
+        $data['showusernames'] = $showusernames;
     
-        // Start new code. Get the global setting for hiding usernames
-        $scope = get_config('tool_courserating', 'hideusername_scope');
-
-        if ($scope === 'hideuser') {
-            // Hide usernames globally
-            $data['showusername'] = false;
-        } else if ($scope === 'percourse') {
-            // For per-course logic, default to showing usernames unless explicitly hidden for the course
-            $hideusernamecourse = get_config('tool_courserating', 'hide_username_course_' . $courseid);
-            $data['showusername'] = !$hideusernamecourse; // Show usernames unless hidden
-        } else {
-            // Show usernames globally
-            $data['showusername'] = true;
-        }
-        // end new code
-        
+        // Подключение необходимых JavaScript для всплывающего окна.
         $this->page->requires->js_call_amd('tool_courserating/rating', 'setupViewRatingsPopup', []);
+    
+        // Рендеринг содержимого всплывающего окна.
         return $this->render_from_template('tool_courserating/course_ratings_popup', $data);
     }
     
+
     /**
-     * Course review widget to be added to the course page
+     * Renders the course rating block to be added to the course page.
      *
-     * @param int $courseid
-     * @return string
+     * @param int $courseid The course ID.
+     * @return string Rendered HTML content for the rating block.
      */
     public function course_rating_block(int $courseid): string {
         global $CFG, $USER;
+
         if (!permission::can_view_ratings($courseid)) {
             return '';
         }
+
         $summary = summary::get_for_course($courseid);
         $canrate = permission::can_add_rating($courseid);
         $data = (new summary_exporter(0, $summary, $canrate))->export($this);
@@ -103,28 +108,81 @@ class renderer extends plugin_renderer_base {
         $branch = $CFG->branch ?? '';
         if ($parentcss = helper::get_setting(constants::SETTING_PARENTCSS)) {
             $data->parentelement = $parentcss;
-        } else if ("{$branch}" === '311') {
+        } else if ((string) $branch === '311') {
             $data->parentelement = '#page-header .card-body, #page-header #course-header, #page-header';
-        } else if ("{$branch}" >= '400') {
+        } else if ((string) $branch >= '400') {
             $data->parentelement = '#page-header';
             $data->extraclasses = 'pb-2';
         }
 
-        // Check global setting for hiding usernames
-        $scope = get_config('tool_courserating', 'hideusername_scope');
-
-        if ($scope === 'hideuser') {
-            // Hide usernames globally
-            $data->showusername = false;
-        } else if ($scope === 'percourse') {
-            // Check course-specific setting
-            $data->showusername = !get_config('tool_courserating', 'hide_username_course', $courseid);
-        } else {
-            // Show usernames globally
-            $data->showusername = true;
-        }
-        // end new code
-        
         return $this->render_from_template('tool_courserating/course_rating_block', $data);
     }
+
+    /**
+     * Renders the visibility toggle for usernames in course ratings.
+     *
+     * @param int $courseid The course ID.
+     * @return string Rendered HTML content for the toggle form.
+     */
+    public function render_visibility_toggle(int $courseid): string {
+        $globalvisibility = helper::get_setting(constants::SETTING_SHOWUSERNAMES);
+        if ($globalvisibility != constants::SHOWUSERNAMES_PERCOURSE) {
+            // Do not render the toggle if "Per-Course" mode is not active.
+            return '';
+        }
+
+        $currentvisibility = get_config('tool_courserating', "username_visibility_course_{$courseid}") ?? 1;
+        $url = new moodle_url('/admin/tool/courserating/index.php', ['id' => $courseid]);
+
+        // Start container with some margin for vertical spacing.
+        $output = html_writer::start_div('tool-courserating-toggle mt-3 mb-3');
+
+        // Start the form; using 'form-inline' to align elements horizontally in many Moodle themes.
+        $output .= html_writer::start_tag('form', [
+            'method' => 'post',
+            'action' => $url->out(false),
+            'class'  => 'form-inline'
+        ]);
+
+        // Label for our select element.
+        $output .= html_writer::tag('label',
+            get_string('usernamevisibilitytoggle', 'tool_courserating') . '&nbsp;',
+            ['for' => 'username-visibility-toggle']
+        );
+
+        // The select element with "Show" or "Hide" options.
+        // Adding Bootstrap classes for consistent styling.
+        $output .= html_writer::select(
+            [1 => get_string('show', 'tool_courserating'), 0 => get_string('hide', 'tool_courserating')],
+            'usernamevisibility',
+            $currentvisibility,
+            false,
+            [
+                'id'    => 'username-visibility-toggle',
+                'class' => 'custom-select mx-2'
+            ]
+        );
+
+        // Hidden field for sesskey (no changes here).
+        $output .= html_writer::empty_tag('input', [
+            'type'  => 'hidden',
+            'name'  => 'sesskey',
+            'value' => sesskey()
+        ]);
+
+        // Submit button in a style similar to Moodle "Download" or "Save changes" buttons.
+        // If your "Download" is primary (blue), change 'btn btn-secondary' to 'btn btn-primary'.
+        $output .= html_writer::empty_tag('input', [
+            'type'  => 'submit',
+            'value' => get_string('savechanges', 'core'),
+            'class' => 'btn btn-secondary'
+        ]);
+
+        // Close the form and the container.
+        $output .= html_writer::end_tag('form');
+        $output .= html_writer::end_div();
+
+        return $output;
+    }
+
 }
