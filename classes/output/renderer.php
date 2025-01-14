@@ -59,29 +59,29 @@ class renderer extends plugin_renderer_base {
     public function course_ratings_popup(int $courseid): string {
         global $USER;
     
-        // Получение текущего значения глобальной настройки.
+        // Retrieving the current value of the global setting.
         $showusernames = helper::get_setting(constants::SETTING_SHOWUSERNAMES);
     
-        // Если глобальная настройка установлена на "per-course", учитывать настройку курса.
+        // If the global setting is set to "per-course", consider the course setting.
         if ($showusernames == constants::SHOWUSERNAMES_PERCOURSE) {
             $percoursevisibility = get_config('tool_courserating', "username_visibility_course_{$courseid}");
             $showusernames = ($percoursevisibility === null) ? constants::SHOWUSERNAMES_SHOW : (int)$percoursevisibility;
         }
     
-        // Экспорт данных для использования в шаблоне.
+        // Export data for use in the template.
         $data1 = (new summary_exporter($courseid))->export($this);
         $data2 = (new ratings_list_exporter(['courseid' => $courseid]))->export($this);
         $data = (array) $data1 + (array) $data2;
     
-        // Добавление информации о видимости имён пользователей.
+        // Adding information about the visibility of user names.
         $data['canrate'] = permission::can_add_rating($courseid);
         $data['hasrating'] = $data['canrate'] && rating::get_record(['userid' => $USER->id, 'courseid' => $courseid]);
         $data['showusernames'] = $showusernames;
     
-        // Подключение необходимых JavaScript для всплывающего окна.
+        // Including required JavaScript for the popup.
         $this->page->requires->js_call_amd('tool_courserating/rating', 'setupViewRatingsPopup', []);
     
-        // Рендеринг содержимого всплывающего окна.
+        // Rendering the popup content.
         return $this->render_from_template('tool_courserating/course_ratings_popup', $data);
     }
     
