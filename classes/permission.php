@@ -105,6 +105,54 @@ class permission {
     }
 
     /**
+     * If you have the capability tool/courserating:reviewoverride at the course context level
+     * you can always view and manage reviews there despite the global or course override setting.
+     *
+     * @param int $courseid id of course to check
+     * @return bool
+     */
+    public static function can_add_review(int $courseid): bool {
+        global $CFG, $USER;
+
+        if (has_capability('tool/courserating:reviewoverride', \context_course::instance($courseid))) {
+            return true;
+        }
+
+        $coursereviewmode = helper::get_course_review_mode($courseid);
+
+        if ($coursereviewmode == constants::REVIEWBY_NOONE) {
+            return false;
+        }
+
+        if ($coursereviewmode == constants::REVIEWBY_COMPLETED) {
+            require_once($CFG->dirroot.'/completion/completion_completion.php');
+            // The course is supposed to be marked as completed at $timeend.
+            $ccompletion = new \completion_completion(['userid' => $USER->id, 'course' => $courseid]);
+            return $ccompletion->is_complete();
+        }
+
+        return true;
+    }
+
+    /**
+     * Can user view reviews on the course.
+     * Governed by global and course level review mode but overriden by tool/courserating:reviewoverride capability
+     * at course context level.
+     *
+     * @param int $courseid
+     * @return bool
+     */
+    public static function can_view_reviews(int $courseid) {
+        if (has_capability('tool/courserating:reviewoverride', \context_course::instance($courseid))) {
+            return true;
+        }
+        if (helper::get_course_review_mode($courseid) == constants::REVIEWBY_NOONE) {
+            return false;
+        }
+        return true;
+    }
+
+    /**
      * User can view the 'Course ratings' item in the course administration
      *
      * @param int $courseid

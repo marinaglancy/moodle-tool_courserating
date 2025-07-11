@@ -86,3 +86,20 @@ Feature: Viewing and adding course ratings as a student
     And I should see "hello" in the "Course reviews" "dialogue"
     And I should not see "Flag"
     And I click on "Close" "button" in the "Course reviews" "dialogue"
+
+  Scenario: Viewing course reviews without permission override
+    Given the following "tool_courserating > ratings" exist:
+      | user     | course | rating | review |
+      | student1 | C1     | 3      | abcdef |
+    And the following config values are set as admin:
+      | config            | value | plugin            |
+      | frontpage         | 7,6   |                   |
+      | frontpageloggedin | 7,6   |                   |
+      | reviewmode        | 1     | tool_courserating |
+    And the following config values are set as admin:
+      | config | value | plugin |
+      | allowborders | 1 | atto_table |
+    And I am on site homepage
+    And I click on ".tool_courserating-ratings" "css_element" in the "Course 1" "tool_courserating > Coursebox"
+    And I should see "3" in the "Course reviews" "dialogue"
+    And I should not see "abcdef" in the "Course reviews" "dialogue"

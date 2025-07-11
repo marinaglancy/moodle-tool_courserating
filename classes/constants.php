@@ -41,6 +41,22 @@ class constants {
 
     /** @var string */
     const SETTING_RATINGMODE = 'ratingmode';
+
+    /** @var string */
+    const CFIELD_REVIEWMODE = 'tool_courserating_reviewmode';
+
+    /** @var int */
+    const REVIEWBY_NOONE = 1;
+
+    /** @var int */
+    const REVIEWBY_ANYTIME = 2;
+
+    /** @var int */
+    const REVIEWBY_COMPLETED = 3;
+
+    /** @var string */
+    const SETTING_REVIEWMODE = 'reviewmode';
+
     /** @var string */
     const SETTING_PERCOURSE = 'percourse';
     /** @var string */
@@ -72,6 +88,19 @@ class constants {
             self::RATEBY_NOONE => new \lang_string('ratebynoone', 'tool_courserating'),
             self::RATEBY_ANYTIME => new \lang_string('ratebyanybody', 'tool_courserating'),
             self::RATEBY_COMPLETED => new \lang_string('ratebycompleted', 'tool_courserating'),
+        ];
+    }
+
+    /**
+     * List of options for the 'reviewmode' selector
+     *
+     * @return \lang_string[]
+     */
+    public static function reviewed_courses_options(): array {
+        return [
+            self::REVIEWBY_NOONE => new \lang_string('reviewbynoone', 'tool_courserating'),
+            self::REVIEWBY_ANYTIME => new \lang_string('reviewbyanybody', 'tool_courserating'),
+            self::REVIEWBY_COMPLETED => new \lang_string('reviewbycompleted', 'tool_courserating'),
         ];
     }
 }

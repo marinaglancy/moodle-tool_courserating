@@ -105,12 +105,12 @@ class rating_exporter extends persistent_exporter {
         } else {
             $result['user'] = [];
         }
-
-        $result['reviewtext'] = helper::format_review($this->data->review, $this->data);
+        $canreview = permission::can_add_review($this->data->courseid);
+        $result['reviewtext'] = $canreview ? helper::format_review($this->data->review, $this->data) : '';
 
         $result['reviewstars'] = (new stars_exporter($this->data->rating))->export($output);
 
-        $result['reviewdate'] = helper::format_date($this->data->timemodified);
+        $result['reviewdate'] = $canreview ? helper::format_date($this->data->timemodified) : '';
 
         if (permission::can_delete_rating($this->data->id, $this->data->courseid)) {
             $flags = flag::count_records(['ratingid' => $this->data->id]);

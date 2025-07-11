@@ -39,6 +39,14 @@ if ($hassiteconfig) {
     $el->set_updatedcallback('tool_courserating\task\reindex::schedule');
     $temp->add($el);
 
+    $el = new admin_setting_configselect('tool_courserating/' . \tool_courserating\constants::SETTING_REVIEWMODE,
+        new lang_string('reviewmode', 'tool_courserating'),
+        new lang_string('reviewmodeconfig', 'tool_courserating'),
+        $isunittest ? \tool_courserating\constants::REVIEWBY_NOONE : \tool_courserating\constants::REVIEWBY_ANYTIME,
+        \tool_courserating\constants::reviewed_courses_options());
+    $el->set_updatedcallback('tool_courserating\task\reindex::schedule');
+    $temp->add($el);
+
     $el = new admin_setting_configcheckbox('tool_courserating/' . \tool_courserating\constants::SETTING_PERCOURSE,
         new lang_string('percourseoverride', 'tool_courserating'),
         new lang_string('percourseoverrideconfig', 'tool_courserating'), 0);

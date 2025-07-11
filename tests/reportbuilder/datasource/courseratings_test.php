@@ -21,6 +21,7 @@ use core_reportbuilder\local\helpers\aggregation;
 use core_reportbuilder\local\helpers\report;
 use core_reportbuilder\table\custom_report_table_view;
 use tool_courserating\api;
+use tool_courserating\constants;
 
 /**
  * Tests for reportbuilder datasource courseratings.
@@ -51,7 +52,6 @@ final class courseratings_test extends \advanced_testcase {
      */
     protected function set_up_for_test() {
         $course = $this->getDataGenerator()->create_course();
-        $this->getDataGenerator()->create_course();
         $user1 = $this->getDataGenerator()->create_user(['firstname' => 'User1']);
         $user2 = $this->getDataGenerator()->create_user(['firstname' => 'User2']);
         /** @var \tool_courserating_generator $generator */
@@ -59,6 +59,20 @@ final class courseratings_test extends \advanced_testcase {
         $rating1 = $generator->create_rating($user1->id, $course->id, 3, 'hello <b>unclosed tag');
         usleep(1000); // Make sure timestamp is different on the ratings.
         $rating2 = $generator->create_rating($user2->id, $course->id, 2);
+
+        // Turn review mode override on for this course.
+        $generator->set_config(constants::SETTING_PERCOURSE, 1);
+        \tool_courserating\helper::get_course_review_mode_field();
+        self::getDataGenerator()->create_course(
+            [
+                'customfields' => [
+                    [
+                        'shortname' => constants::CFIELD_REVIEWMODE,
+                        'value' => constants::REVIEWBY_ANYTIME,
+                    ],
+                ],
+            ]
+        );
 
         $this->setUser($user2);
         api::flag_review($rating1->get('id'));

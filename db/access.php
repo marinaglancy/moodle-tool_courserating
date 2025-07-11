@@ -43,6 +43,16 @@ $capabilities = [
         ],
     ],
 
+    'tool/courserating:reviewoverride' => [
+        'captype' => 'write',
+        'contextlevel' => CONTEXT_COURSE,
+        'archetypes' => [
+            'manager' => CAP_ALLOW,
+            'teacher' => CAP_ALLOW,
+            'editingteacher' => CAP_ALLOW,
+        ],
+    ],
+
     'tool/courserating:reports' => [
         'riskbitmap' => RISK_PERSONAL,
         'captype' => 'write',

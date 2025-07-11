@@ -38,8 +38,10 @@ class observer {
     public static function course_updated(course_updated $event) {
         if (helper::get_setting(constants::SETTING_PERCOURSE)) {
             $summary = summary::get_for_course($event->courseid);
-            if ($summary->get('ratingmode') != helper::get_course_rating_mode($event->courseid)) {
-                // Rating mode has changed for this course.
+            $ratingmode = helper::get_course_rating_mode($event->courseid);
+            $reviewmode = helper::get_course_review_mode($event->courseid);
+            if ($summary->get('ratingmode') != $ratingmode || $summary->get('reviewmode') != $reviewmode) {
+                // Rating or review mode has changed for this course.
                 api::reindex($event->courseid);
             }
         }

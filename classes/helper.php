@@ -149,6 +149,7 @@ class helper {
             constants::SETTING_DISPLAYEMPTY => false,
             constants::SETTING_PERCOURSE => false,
             constants::SETTING_RATINGMODE => constants::RATEBY_ANYTIME,
+            constants::SETTING_REVIEWMODE => constants::REVIEWBY_ANYTIME,
             constants::SETTING_USEHTML => false,
         ];
         if (!isset($value) && array_key_exists($name, $defaults)) {
@@ -166,6 +167,10 @@ class helper {
         }
         if ($name === constants::SETTING_RATINGMODE) {
             static $available = [constants::RATEBY_NOONE, constants::RATEBY_ANYTIME, constants::RATEBY_COMPLETED];
+            return in_array($value, $available) ? $value : $defaults[$name];
+        }
+        if ($name === constants::SETTING_REVIEWMODE) {
+            static $available = [constants::REVIEWBY_NOONE, constants::REVIEWBY_ANYTIME, constants::REVIEWBY_COMPLETED];
             return in_array($value, $available) ? $value : $defaults[$name];
         }
         return $value;
@@ -309,6 +314,43 @@ class helper {
     }
 
     /**
+     * Retrieve course custom field responsible for configuring per-course course rating mode, create if needed
+     *
+     * @return field_controller|null
+     */
+    public static function get_course_review_mode_field(): ?field_controller {
+        $shortname = constants::CFIELD_REVIEWMODE;
+        $field = self::find_custom_field_by_shortname($shortname);
+        if (!self::get_setting(constants::SETTING_PERCOURSE)) {
+            if ($field) {
+                $field->get_handler()->delete_field_configuration($field);
+            }
+            return null;
+        }
+
+        $options = constants::reviewed_courses_options();
+        $description = get_string(
+            'reviewbydefault',
+            'tool_courserating',
+            $options[self::get_setting(constants::SETTING_REVIEWMODE)]
+        );
+        $field = $field ?? self::create_custom_field($shortname,
+            'select',
+            new \lang_string('reviewmode', 'tool_courserating'),
+            [
+                'visibility' => \core_course\customfield\course_handler::NOTVISIBLE,
+                'options' => implode("\n", $options),
+            ],
+            $description
+        );
+        if ($field && $field->get('description') !== $description) {
+            $field->set('description', $description);
+            $field->save();
+        }
+        return $field;
+    }
+
+    /**
      * Delete all course custom fields created by this plugin (on uninstall)
      *
      * @return void
@@ -319,6 +361,10 @@ class helper {
             $field->get_handler()->delete_field_configuration($field);
         }
         $shortname = constants::CFIELD_RATING;
+        if ($field = self::find_custom_field_by_shortname($shortname)) {
+            $field->get_handler()->delete_field_configuration($field);
+        }
+        $shortname = constants::CFIELD_REVIEWMODE;
         if ($field = self::find_custom_field_by_shortname($shortname)) {
             $field->get_handler()->delete_field_configuration($field);
         }
@@ -365,6 +411,16 @@ class helper {
     }
 
     /**
+     * Retrieve data stored in a review mode custom course field
+     *
+     * @param int $courseid
+     * @return data_controller|null
+     */
+    public static function get_course_review_enabled_data_in_cfield(int $courseid): ?data_controller {
+        return self::get_custom_field_data($courseid, constants::CFIELD_REVIEWMODE);
+    }
+
+    /**
      * Calculate the rating mode for a specific course
      *
      * @param int $courseid
@@ -376,6 +432,26 @@ class helper {
             if ($data = self::get_course_rating_enabled_data_in_cfield($courseid)) {
                 $modecourse = (int)$data->get('intvalue');
                 if (array_key_exists($modecourse, constants::rated_courses_options())) {
+                    // Value is overridden for this course.
+                    return $modecourse;
+                }
+            }
+        }
+        return $mode;
+    }
+
+    /**
+     * Calculate the review mode for a specific course
+     *
+     * @param int $courseid
+     * @return int
+     */
+    public static function get_course_review_mode(int $courseid): int {
+        $mode = self::get_setting(constants::SETTING_REVIEWMODE);
+        if (self::get_setting(constants::SETTING_PERCOURSE)) {
+            if ($data = self::get_course_review_enabled_data_in_cfield($courseid)) {
+                $modecourse = (int)$data->get('intvalue');
+                if (array_key_exists($modecourse, constants::reviewed_courses_options())) {
                     // Value is overridden for this course.
                     return $modecourse;
                 }

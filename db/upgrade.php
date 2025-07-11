@@ -66,5 +66,19 @@ function xmldb_tool_courserating_upgrade($oldversion) {
         upgrade_plugin_savepoint(true, 2022111300, 'tool', 'courserating');
     }
 
+    if ($oldversion < 2025071100) {
+
+        // Add a new column to store review mode in {tool_courserating_summary}.
+        $table = new xmldb_table('tool_courserating_summary');
+        $field = new xmldb_field('reviewmode', XMLDB_TYPE_INTEGER, 10, null, XMLDB_NOTNULL, null, 0);
+
+        if (!$dbman->field_exists($table, $field)) {
+            $dbman->add_field($table, $field);
+        }
+
+        // Courserating savepoint reached.
+        upgrade_plugin_savepoint(true, 2025071100, 'tool', 'courserating');
+    }
+
     return true;
 }

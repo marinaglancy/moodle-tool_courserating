@@ -181,6 +181,20 @@ class summary extends base {
                 return is_null($v) ? null : (constants::rated_courses_options()[$v] ?? null);
             });
 
+        // Reviewmode column.
+        $columns[] = (new column(
+            'reviewmode',
+            new lang_string('summary_reviewmode', 'tool_courserating'),
+            $this->get_entity_name()
+        ))
+            ->add_joins($this->get_joins())
+            ->set_type(column::TYPE_INTEGER)
+            ->add_fields("{$tablealias}.reviewmode")
+            ->set_is_sortable(true)
+            ->set_callback(static function($v) {
+                return is_null($v) ? null : (constants::reviewed_courses_options()[$v] ?? null);
+            });
+
         return $columns;
     }
 
@@ -294,6 +308,19 @@ class summary extends base {
             ->add_joins($this->get_joins())
             ->set_options_callback(static function(): array {
                 return constants::rated_courses_options();
+            });
+
+        // Reviewmode filter.
+        $filters[] = (new filter(
+            select::class,
+            'reviewmode',
+            new lang_string('summary_reviewmode', 'tool_courserating'),
+            $this->get_entity_name(),
+            "{$tablealias}.reviewmode"
+        ))
+            ->add_joins($this->get_joins())
+            ->set_options_callback(static function(): array {
+                return constants::reviewed_courses_options();
             });
 
         return $filters;

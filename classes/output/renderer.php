@@ -59,6 +59,7 @@ class renderer extends plugin_renderer_base {
         $data2 = (new ratings_list_exporter(['courseid' => $courseid]))->export($this);
         $data = (array)$data1 + (array)$data2;
         $data['canrate'] = permission::can_add_rating($courseid);
+        $data['canreview'] = permission::can_add_review($courseid);
         $data['hasrating'] = $data['canrate'] && rating::get_record(['userid' => $USER->id, 'courseid' => $courseid]);
         $this->page->requires->js_call_amd('tool_courserating/rating', 'setupViewRatingsPopup', []);
         return $this->render_from_template('tool_courserating/course_ratings_popup', $data);

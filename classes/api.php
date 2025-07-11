@@ -278,12 +278,14 @@ class api {
         $percourse = helper::get_setting(constants::SETTING_PERCOURSE);
         $ratingfield = helper::get_course_rating_field();
         $ratingmodefield = helper::get_course_rating_mode_field();
+        $reviewmodefield = helper::get_course_review_mode_field();
 
         if (!$ratingfield) {
             return;
         }
 
         $fields = 'c.id as courseid, d.value as cfield, s.cntall as summarycntall, s.ratingmode as summaryratingmode,
+                s.reviewmode as summaryreviewmode,
                (select count(1) from {tool_courserating_rating} r where r.courseid=c.id) as actualcntall ';
         $join = 'from {course} c
             left join {tool_courserating_summary} s on s.courseid = c.id
@@ -302,6 +304,14 @@ class api {
             $params['field2'] = $ratingmodefield->get('shortname');
         }
 
+        if ($percourse && $reviewmodefield) {
+            // Each course may override whether course reviews are enabled.
+            $fields .= ', dre.intvalue as reviewby';
+            $join .= ' left join {customfield_field} fre on fre.shortname = :field3
+            left join {customfield_data} dre on dre.fieldid = fre.id and dre.instanceid = c.id';
+            $params['field3'] = $reviewmodefield->get('shortname');
+        }
+
         $sql = "SELECT $fields $join WHERE c.id <> :siteid ";
         if ($courseid) {
             $sql .= " AND c.id = :courseid ";
@@ -313,8 +323,12 @@ class api {
         $records = $DB->get_records_sql($sql, $params);
         foreach ($records as $record) {
             $record->actualratingmode = helper::get_setting(constants::SETTING_RATINGMODE);
+            $record->actualreviewmode = helper::get_setting(constants::SETTING_REVIEWMODE);
             if ($percourse && $record->rateby && array_key_exists($record->rateby, constants::rated_courses_options())) {
                 $record->actualratingmode = $record->rateby;
+            }
+            if ($percourse && $record->reviewby && array_key_exists($record->reviewby, constants::reviewed_courses_options())) {
+                $record->actualreviewmode = $record->reviewby;
             }
             self::reindex_course($record);
         }
@@ -327,8 +341,10 @@ class api {
      *     where cfield is the actual value stored in the "course rating" custom course field,
      *     summarycntall - the field tool_courserating_summary.cntall that corresponds to this course,
      *     summaryratingmode - the field tool_courserating_summary.ratingmode that corresponds to this course,
+     *     summaryreviewmode - the field tool_courserating_summary.reviewmode that corresponds to this course,
      *     actualcntall - the actual count of ratings for this course (count(*) from tool_courserating_rating)
      *     actualratingmode - what actually must be the rating mode of this course
+     *     actualreviewmode - what actually must be the review mode of this course
      */
     protected static function reindex_course(\stdClass $data) {
         $mustbeempty = $data->actualratingmode == constants::RATEBY_NOONE
@@ -341,6 +357,13 @@ class api {
             if ($data->actualratingmode == constants::RATEBY_NOONE) {
                 $summary->reset_all_counters();
             }
+            $summary->save();
+        }
+
+        if ($data->summaryreviewmode != $data->actualreviewmode) {
+            // Review mode for this course has changed.
+            $summary = summary::get_for_course($data->courseid);
+            $summary->set('reviewmode', $data->actualreviewmode);
             $summary->save();
         }
 

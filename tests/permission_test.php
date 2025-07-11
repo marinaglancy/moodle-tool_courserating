@@ -34,6 +34,8 @@ final class permission_test extends \advanced_testcase {
         $this->resetAfterTest();
         set_config(\tool_courserating\constants::SETTING_RATINGMODE,
             \tool_courserating\constants::RATEBY_ANYTIME, 'tool_courserating');
+        set_config(\tool_courserating\constants::SETTING_REVIEWMODE,
+            \tool_courserating\constants::REVIEWBY_ANYTIME, 'tool_courserating');
     }
 
     /**
@@ -68,17 +70,23 @@ final class permission_test extends \advanced_testcase {
         $this->getDataGenerator()->enrol_user($user->id, $course4->id, 'student');
         $this->assertTrue(permission::can_view_ratings($course4->id));
 
-        // Disable ratings everywhere.
+        // Disable ratings and reviews everywhere.
         $this->get_generator()->set_config(constants::SETTING_RATINGMODE, constants::RATEBY_NOONE);
+        $this->get_generator()->set_config(constants::SETTING_REVIEWMODE, constants::REVIEWBY_NOONE);
         $this->assertFalse(permission::can_view_ratings($course1->id));
+        $this->assertFalse(permission::can_view_reviews($course1->id));
 
-        // Allow to override ratings per course.
+        // Allow to override ratings and reviews per course.
         $this->get_generator()->set_config(constants::SETTING_PERCOURSE, 1);
         $this->get_generator()->set_course_rating_mode($course2->id, constants::RATEBY_ANYTIME);
+        $this->get_generator()->set_course_review_mode($course2->id, constants::REVIEWBY_ANYTIME);
         $this->assertTrue(permission::can_view_ratings($course2->id));
+        $this->assertTrue(permission::can_view_reviews($course2->id));
 
         $this->get_generator()->set_course_rating_mode($course3->id, constants::RATEBY_COMPLETED);
+        $this->get_generator()->set_course_review_mode($course3->id, constants::REVIEWBY_COMPLETED);
         $this->assertTrue(permission::can_view_ratings($course3->id));
+        $this->assertTrue(permission::can_view_reviews($course3->id));
 
         // Assert exception in require- method.
         try {
@@ -114,6 +122,57 @@ final class permission_test extends \advanced_testcase {
         } catch (\moodle_exception $e) {
             $this->assertNotEmpty($e->getMessage());
         }
+    }
+
+    /**
+     * Users can make reviews if the review mode is @see constants::REVIEWBY_ANYTIME
+     * or they have the review override permission tool/courserating:reviewoverride.
+     * @return void
+     */
+    public function test_can_review(): void {
+        global $DB;
+
+        $course = $this->getDataGenerator()->create_course();
+        $user1 = $this->getDataGenerator()->create_user();
+
+        $this->setUser($user1);
+        $this->assertTrue(permission::can_add_review($course->id));
+
+        $this->get_generator()->set_config(constants::SETTING_REVIEWMODE, constants::REVIEWBY_NOONE);
+        $this->assertFalse(permission::can_add_review($course->id));
+
+        // You can review despite setting if you have the review override permission on the context.
+        $userrole = $DB->get_field('role', 'id', ['shortname' => 'user'], MUST_EXIST);
+        assign_capability('tool/courserating:reviewoverride',
+            CAP_ALLOW,
+            $userrole,
+            \context_course::instance($course->id)->id,
+            true
+        );
+
+        $this->assertTrue(permission::can_add_review($course->id));
+    }
+
+    /**
+     * Users can make reviews if the review mode is @see constants::REVIEWBY_COMPLETED and they have completed the course.
+     *
+     * @return void
+     */
+    public function test_can_review_completion(): void {
+
+        $course = $this->getDataGenerator()->create_course();
+        $user = $this->getDataGenerator()->create_user();
+
+        $this->get_generator()->set_config(constants::SETTING_REVIEWMODE, constants::REVIEWBY_COMPLETED);
+
+        $this->setUser($user);
+        $this->assertFalse(permission::can_add_review($course->id));
+
+        $cc = ['course' => $course->id, 'userid' => $user->id];
+        $ccompletion = new \completion_completion($cc);
+        $ccompletion->mark_complete();
+
+        $this->assertTrue(permission::can_add_review($course->id));
     }
 
     public function test_can_rate_completion(): void {

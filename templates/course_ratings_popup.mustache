@@ -40,10 +40,11 @@
     <div class="container course-rating-summary" data-courseid="{{courseid}}" data-for="tool_courserating-summary">
         {{>tool_courserating/course_ratings_summary}}
     </div>
-
-    <div class="course-reviews" data-for="tool_courserating-reviews"
-         data-systemcontextid="{{systemcontextid}}" data-courseid="{{courseid}}"
-         data-withrating="0">
-        {{>tool_courserating/course_ratings_popup_reviews}}
-    </div>
+    {{#canreview}}
+        <div class="course-reviews" data-for="tool_courserating-reviews"
+             data-systemcontextid="{{systemcontextid}}" data-courseid="{{courseid}}"
+             data-withrating="0">
+            {{>tool_courserating/course_ratings_popup_reviews}}
+        </div>
+    {{/canreview}}
 </div>

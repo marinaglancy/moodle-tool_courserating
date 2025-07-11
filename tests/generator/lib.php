@@ -44,6 +44,22 @@ class tool_courserating_generator extends testing_module_generator {
     }
 
     /**
+     * Set course review mode
+     *
+     * @param int $courseid
+     * @param int $mode
+     */
+    public function set_course_review_mode(int $courseid, int $mode): void {
+        if ($data = helper::get_course_review_enabled_data_in_cfield($courseid)) {
+            $data->instance_form_save((object)[
+                'id' => $courseid,
+                $data->get_form_element_name() => $mode,
+            ]);
+            api::reindex($courseid);
+        }
+    }
+
+    /**
      * Set courserating config and reindex
      *
      * @param string $name

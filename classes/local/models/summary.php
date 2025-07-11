@@ -62,6 +62,10 @@ class summary extends \core\persistent {
                 'type' => PARAM_INT,
                 'default' => 0,
             ],
+            'reviewmode' => [
+                'type' => PARAM_INT,
+                'default' => 0,
+            ],
         ];
         for ($i = 1; $i <= 10; $i++) {
             $props[self::cntkey($i)] = [

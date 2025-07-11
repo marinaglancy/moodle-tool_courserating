@@ -78,14 +78,23 @@ EOF
         $el = $mform->addGroup($radioarray, 'ratinggroup', get_string('rating', 'tool_courserating'), [' ', ' '], false);
         $el->setAttributes($el->getAttributes() + ['class' => 'tool_courserating-form-stars-group']);
 
-        if (helper::get_setting(constants::SETTING_USEHTML)) {
-            $options = helper::review_editor_options($this->get_context_for_dynamic_submission());
-            $mform->addElement('editor', 'review_editor', get_string('review', 'tool_courserating'),
-                ['rows' => 4], $options);
-        } else {
-            $mform->addElement('textarea', 'review', get_string('review', 'tool_courserating'),
-                ['rows' => 4]);
-            $mform->setType('review', PARAM_TEXT);
+        if (permission::can_add_review($this->get_course_id())) {
+            if (helper::get_setting(constants::SETTING_USEHTML)) {
+                $options = helper::review_editor_options($this->get_context_for_dynamic_submission());
+                $mform->addElement('editor',
+                    'review_editor',
+                    get_string('review', 'tool_courserating'),
+                    ['rows' => 4],
+                    $options
+                );
+            } else {
+                $mform->addElement('textarea',
+                    'review',
+                    get_string('review', 'tool_courserating'),
+                    ['rows' => 4]
+                );
+                $mform->setType('review', PARAM_TEXT);
+            }
         }
     }
 

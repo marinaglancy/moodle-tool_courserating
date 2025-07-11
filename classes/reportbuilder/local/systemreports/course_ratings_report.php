@@ -92,11 +92,14 @@ class course_ratings_report extends system_report {
             'user:fullnamewithpicturelink',
             'rating:timemodified',
             'rating:rating',
-            'rating:review',
-            'rating:flags',
         ];
         if (permission::can_delete_rating(0, $this->get_course_id())) {
             $columns[] = 'rating:actions';
+        }
+
+        if (permission::can_view_reviews($this->get_course_id())) {
+            $columns[] = 'rating:review';
+            $columns[] = 'rating:flags';
         }
 
         $this->add_columns_from_entities($columns);
@@ -124,10 +127,13 @@ class course_ratings_report extends system_report {
         $filters = [
             'user:fullname',
             'rating:rating',
-            'rating:hasreview',
-            'rating:review',
-            'rating:flags',
         ];
+
+        if (permission::can_view_reviews($this->get_course_id())) {
+            $filters[] = 'rating:review';
+            $filters[] = 'rating:flags';
+            $filters[] = 'rating:hasreview';
+        }
 
         $this->add_filters_from_entities($filters);
     }
