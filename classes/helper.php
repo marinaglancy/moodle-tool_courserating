@@ -429,6 +429,7 @@ class helper {
      * @return string
      */
     public static function format_review($value, \stdClass $row): string {
+        global $CFG;
         if (empty($row->id) || !strlen($row->review ?? '')) {
             return '';
         }
@@ -442,6 +443,7 @@ class helper {
             'context' => $context,
         ];
         if (self::get_setting(constants::SETTING_USEHTML)) {
+            require_once($CFG->libdir . '/externallib.php');
             list($text, $format) = external_format_text($row->review, FORMAT_HTML, $formatparams['context'],
                 $formatparams['component'], $formatparams['filearea'], $formatparams['itemid'], $formatparams['options']);
             return $text;

@@ -29,7 +29,9 @@ Feature: Viewing and managing course ratings as a teacher and manager
       | user     | role    | contextlevel | reference |
       | manager1 | manager | System       |           |
 
-  Scenario: Removing reviews as manager through reviews popup
+  Scenario Outline: Removing reviews as manager through reviews popup
+    Given the following config values are set as admin:
+      | usehtml | <usehtml> | tool_courserating |
     When I log in as "manager1"
     And I am on "Course 1" course homepage
     And I click on "2.7" "text" in the "#page-header .tool_courserating-ratings" "css_element"
@@ -51,7 +53,14 @@ Feature: Viewing and managing course ratings as a teacher and manager
     And I should not see "2.7"
     And I should see "2.5" in the "#page-header" "css_element"
 
-  Scenario: Removing reviews as manager through the course report
+    Examples:
+      | usehtml  |
+      | 0        |
+      | 1        |
+
+  Scenario Outline: Removing reviews as manager through the course report
+    Given the following config values are set as admin:
+      | usehtml | <usehtml> | tool_courserating |
     When I log in as "manager1"
     And I am on "Course 1" course homepage
     And I navigate to "Course ratings" in current page administration
@@ -64,7 +73,14 @@ Feature: Viewing and managing course ratings as a teacher and manager
     And I should see "Student 1"
     And I should not see "Student 3"
 
-  Scenario: Viewing reviews as teacher through the course report
+    Examples:
+      | usehtml  |
+      | 0        |
+      | 1        |
+
+  Scenario Outline: Viewing reviews as teacher through the course report
+    Given the following config values are set as admin:
+      | usehtml | <usehtml> | tool_courserating |
     When I log in as "teacher1"
     And I am on "Course 1" course homepage
     And I navigate to "Course ratings" in current page administration
@@ -72,7 +88,14 @@ Feature: Viewing and managing course ratings as a teacher and manager
     And I should see "hello" in the "Student 2" "table_row"
     And I should not see "Permanently delete"
 
-  Scenario: Creating course rating report in report builder
+    Examples:
+      | usehtml  |
+      | 0        |
+      | 1        |
+
+  Scenario Outline: Creating course rating report in report builder
+    Given the following config values are set as admin:
+      | usehtml | <usehtml> | tool_courserating |
     Given reportbuilder is available for tool_courserating
     Given I log in as "admin"
     And I change window size to "large"
@@ -89,7 +112,14 @@ Feature: Viewing and managing course ratings as a teacher and manager
       | Course full name with link | Course rating |
       | Course 1                   | 2.7           |
 
-  Scenario: Deleting ratings from the custom report in report builder
+    Examples:
+      | usehtml  |
+      | 0        |
+      | 1        |
+
+  Scenario Outline: Deleting ratings from the custom report in report builder
+    Given the following config values are set as admin:
+      | usehtml | <usehtml> | tool_courserating |
     Given reportbuilder is available for tool_courserating
     Given I log in as "admin"
     When I navigate to "Reports > Report builder > Custom reports" in site administration
@@ -112,3 +142,8 @@ Feature: Viewing and managing course ratings as a teacher and manager
     And I click on "Switch to preview mode" "button"
     And I should see "Student 1"
     And I should not see "Student 3"
+
+    Examples:
+      | usehtml  |
+      | 0        |
+      | 1        |

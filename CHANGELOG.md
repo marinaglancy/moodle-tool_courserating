@@ -1,6 +1,10 @@
 # Changelog
 All notable changes to this project will be documented in this file.
 
+## Unreleased
+### Fixed
+- Call to undefined function tool_courserating\external_format_text #20, #22
+
 ## [1.8] - 2025100700
 ### Added
 - Support for Moodle 5.0 and 5.1

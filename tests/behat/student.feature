@@ -22,11 +22,14 @@ Feature: Viewing and adding course ratings as a student
       | user     | role    | contextlevel | reference |
       | manager1 | manager | System       |           |
 
-  Scenario: Rating a course as a student
+  Scenario Outline: Rating a course as a student
+    Given the following config values are set as admin:
+      | usehtml | <usehtml> | tool_courserating |
     When I log in as "student1"
     And I am on "Course 1" course homepage
     And I follow "Leave a rating"
     And I click on ".tool_courserating-form-stars-group .stars-3" "css_element"
+    And I set the field "Review (optional)" in the "Leave a rating" "dialogue" to "abcdef"
     And I press "Save changes"
     And I should see "3.0" in the ".tool_courserating-widget" "css_element"
     And I should see "(1)" in the ".tool_courserating-widget" "css_element"
@@ -42,8 +45,16 @@ Feature: Viewing and adding course ratings as a student
     And I click on "(2)" "text" in the ".tool_courserating-widget" "css_element"
     And I follow "View all reviews"
     And I should see "3.5" in the "Course reviews" "dialogue"
+    And I should see "abcdef"
 
-  Scenario: Flagging course ratings as a student
+    Examples:
+      | usehtml  |
+      | 0        |
+      | 1        |
+
+  Scenario Outline: Flagging course ratings as a student
+    Given the following config values are set as admin:
+      | usehtml | <usehtml> | tool_courserating |
     Given the following "tool_courserating > ratings" exist:
       | user     | course | rating | review |
       | student1 | C1     | 3      | abcdef |
@@ -69,7 +80,14 @@ Feature: Viewing and adding course ratings as a student
     And I should see "Permanently delete" in the "Student 1" "tool_courserating > Review"
     And I should not see "user(s) have flagged this review as inappropriate/offensive." in the "Student 2" "tool_courserating > Review"
 
-  Scenario: Viewing course ratings as a non-logged in user
+    Examples:
+      | usehtml  |
+      | 0        |
+      | 1        |
+
+  Scenario Outline: Viewing course ratings as a non-logged in user
+    Given the following config values are set as admin:
+      | usehtml | <usehtml> | tool_courserating |
     Given the following "tool_courserating > ratings" exist:
       | user     | course | rating | review |
       | student1 | C1     | 3      | abcdef |
@@ -86,3 +104,8 @@ Feature: Viewing and adding course ratings as a student
     And I should see "hello" in the "Course reviews" "dialogue"
     And I should not see "Flag"
     And I click on "Close" "button" in the "Course reviews" "dialogue"
+
+    Examples:
+      | usehtml  |
+      | 0        |
+      | 1        |
