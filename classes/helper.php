@@ -508,7 +508,7 @@ class helper {
         }
         return \html_writer::span(
             self::stars((float)$rating) .
-            \html_writer::span($rating, 'tool_courserating-ratingcolor ml-2'),
+            \html_writer::span($rating, 'tool_courserating-ratingcolor mx-2'),
             'tool_courserating-reportrating'
         );
     }
