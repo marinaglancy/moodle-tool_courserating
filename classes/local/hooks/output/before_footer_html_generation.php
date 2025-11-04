@@ -24,7 +24,6 @@ namespace tool_courserating\local\hooks\output;
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class before_footer_html_generation {
-
     /**
      * Callback allowing to add contetnt inside the region-main, in the very end
      *
@@ -42,8 +41,10 @@ class before_footer_html_generation {
         if (\tool_courserating\helper::course_ratings_enabled_anywhere()) {
             /** @var \tool_courserating\output\renderer $output */
             $output = $PAGE->get_renderer('tool_courserating');
-            if (($courseid = \tool_courserating\helper::is_course_page()) ||
-                ($courseid = \tool_courserating\helper::is_single_activity_course_page())) {
+            if (
+                ($courseid = \tool_courserating\helper::is_course_page()) ||
+                ($courseid = \tool_courserating\helper::is_single_activity_course_page())
+            ) {
                 $res .= $output->course_rating_block($courseid);
             }
         }

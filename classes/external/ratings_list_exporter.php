@@ -29,7 +29,6 @@ use tool_courserating\local\models\rating;
  * @license     https://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class ratings_list_exporter extends exporter {
-
     /**
      * Constructor.
      *
@@ -99,11 +98,15 @@ class ratings_list_exporter extends exporter {
         $withrating = $this->related['withrating'] ?: 0;
 
         $reviews = rating::get_records_select(
-            'courseid = :courseid'.
-            (empty($this->related['showempty']) ? ' AND hasreview = 1' : '').
+            'courseid = :courseid' .
+            (empty($this->related['showempty']) ? ' AND hasreview = 1' : '') .
             ($withrating ? ' AND rating = :rating' : ''),
             ['courseid' => $courseid, 'rating' => $withrating],
-            'timemodified DESC, id DESC', '*', $offset, $limit + 1);
+            'timemodified DESC, id DESC',
+            '*',
+            $offset,
+            $limit + 1
+        );
 
         $data = [
             'ratings' => [],

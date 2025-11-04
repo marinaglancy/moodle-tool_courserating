@@ -33,7 +33,6 @@ use tool_courserating\reportbuilder\local\entities\rating;
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class course_ratings_report extends system_report {
-
     /**
      * Get course id
      *
@@ -51,8 +50,10 @@ class course_ratings_report extends system_report {
         $ratingentity = new rating();
         $ratingtablealias = $ratingentity->get_table_alias('tool_courserating_rating');
         $paramcourseid = database::generate_param_name();
-        $this->add_base_condition_sql("{$ratingtablealias}.courseid = :{$paramcourseid}",
-            [$paramcourseid => $this->get_course_id()]);
+        $this->add_base_condition_sql(
+            "{$ratingtablealias}.courseid = :{$paramcourseid}",
+            [$paramcourseid => $this->get_course_id()]
+        );
 
         $this->set_main_table('tool_courserating_rating', $ratingtablealias);
         $this->add_entity($ratingentity);
@@ -61,8 +62,7 @@ class course_ratings_report extends system_report {
         $entityuser = new user();
         $entityuseralias = $entityuser->get_table_alias('user');
         $this->add_entity($entityuser
-            ->add_join("JOIN {user} {$entityuseralias} ON {$entityuseralias}.id = {$ratingtablealias}.userid")
-        );
+            ->add_join("JOIN {user} {$entityuseralias} ON {$entityuseralias}.id = {$ratingtablealias}.userid"));
 
         // Now we can call our helper methods to add the content we want to include in the report.
         $this->add_columns();
@@ -111,7 +111,6 @@ class course_ratings_report extends system_report {
         if ($column = $this->get_column('rating:flags')) {
             $column->set_callback([helper::class, 'format_flags_in_course_report']);
         }
-
     }
 
     /**

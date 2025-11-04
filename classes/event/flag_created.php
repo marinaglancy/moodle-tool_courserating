@@ -27,7 +27,6 @@ use tool_courserating\local\models\rating;
  * @license     https://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class flag_created extends \core\event\base {
-
     /**
      * Init
      */

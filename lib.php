@@ -33,16 +33,24 @@ function tool_courserating_before_http_headers() {
     // instead, the callback tool_courserating\local\hooks\output\before_http_headers::callback will be executed.
 
     global $PAGE, $CFG;
-    if (\tool_courserating\helper::course_ratings_enabled_anywhere() &&
-            !in_array($PAGE->pagelayout, ['redirect', 'embedded'])) {
+    if (
+        \tool_courserating\helper::course_ratings_enabled_anywhere() &&
+            !in_array($PAGE->pagelayout, ['redirect', 'embedded'])
+    ) {
         // Add JS to all pages, the course ratings can be displayed on any page (for example course listings).
         $branch = $CFG->branch ?? '';
-        $PAGE->requires->js_call_amd('tool_courserating/rating', 'init',
-            [context_system::instance()->id, "{$branch}" < "400"]);
+        $PAGE->requires->js_call_amd(
+            'tool_courserating/rating',
+            'init',
+            [context_system::instance()->id, "{$branch}" < "400"]
+        );
         if (\tool_courserating\helper::is_course_edit_page()) {
             $field = \tool_courserating\helper::get_course_rating_field();
-            $PAGE->requires->js_call_amd('tool_courserating/rating', 'hideEditField',
-                [$field->get('shortname')]);
+            $PAGE->requires->js_call_amd(
+                'tool_courserating/rating',
+                'hideEditField',
+                [$field->get('shortname')]
+            );
         }
     }
     return null;
@@ -63,8 +71,10 @@ function tool_courserating_before_footer() {
     if (\tool_courserating\helper::course_ratings_enabled_anywhere()) {
         /** @var tool_courserating\output\renderer $output */
         $output = $PAGE->get_renderer('tool_courserating');
-        if (($courseid = \tool_courserating\helper::is_course_page()) ||
-            ($courseid = \tool_courserating\helper::is_single_activity_course_page())) {
+        if (
+            ($courseid = \tool_courserating\helper::is_course_page()) ||
+            ($courseid = \tool_courserating\helper::is_single_activity_course_page())
+        ) {
             $res .= $output->course_rating_block($courseid);
         }
     }

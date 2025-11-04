@@ -32,15 +32,17 @@ use tool_courserating\local\models\rating;
  * @license     https://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 final class provider_test extends \core_privacy\tests\provider_testcase {
-
     /**
      * Overriding setUp() function to always reset after tests.
      */
     public function setUp(): void {
         parent::setUp();
         $this->resetAfterTest(true);
-        set_config(\tool_courserating\constants::SETTING_RATINGMODE,
-            \tool_courserating\constants::RATEBY_ANYTIME, 'tool_courserating');
+        set_config(
+            \tool_courserating\constants::SETTING_RATINGMODE,
+            \tool_courserating\constants::RATEBY_ANYTIME,
+            'tool_courserating'
+        );
     }
 
     /**
@@ -188,5 +190,4 @@ final class provider_test extends \core_privacy\tests\provider_testcase {
         provider::get_users_in_context($userlist1);
         $this->assertCount(0, $userlist1);
     }
-
 }

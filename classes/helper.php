@@ -84,8 +84,10 @@ class helper {
      */
     public static function is_single_activity_course_page(): int {
         global $PAGE, $CFG;
-        if ($PAGE->context->contextlevel == CONTEXT_MODULE && $PAGE->course->format === 'singleactivity' &&
-            $PAGE->url->out_omit_querystring() === $CFG->wwwroot . '/mod/' . $PAGE->cm->modname . '/view.php') {
+        if (
+            $PAGE->context->contextlevel == CONTEXT_MODULE && $PAGE->course->format === 'singleactivity' &&
+            $PAGE->url->out_omit_querystring() === $CFG->wwwroot . '/mod/' . $PAGE->cm->modname . '/view.php'
+        ) {
             return $PAGE->course->id;
         }
         return 0;
@@ -110,8 +112,10 @@ class helper {
      * @return bool
      */
     public static function course_ratings_enabled_anywhere(): bool {
-        if (self::get_setting(constants::SETTING_RATINGMODE) == constants::RATEBY_NOONE &&
-                !self::get_setting(constants::SETTING_PERCOURSE)) {
+        if (
+            self::get_setting(constants::SETTING_RATINGMODE) == constants::RATEBY_NOONE &&
+                !self::get_setting(constants::SETTING_PERCOURSE)
+        ) {
             return false;
         }
         return true;
@@ -125,7 +129,7 @@ class helper {
      */
     public static function review_editor_options(\context $context) {
         global $CFG;
-        require_once($CFG->dirroot.'/lib/formslib.php');
+        require_once($CFG->dirroot . '/lib/formslib.php');
         return [
             'subdirs' => 0,
             'maxbytes' => $CFG->maxbytes,
@@ -156,8 +160,10 @@ class helper {
             return $defaults[$name];
         }
 
-        if ($name === constants::SETTING_DISPLAYEMPTY || $name === constants::SETTING_PERCOURSE
-                || $name === constants::SETTING_USEHTML) {
+        if (
+            $name === constants::SETTING_DISPLAYEMPTY || $name === constants::SETTING_PERCOURSE
+                || $name === constants::SETTING_USEHTML
+        ) {
             return !empty($value);
         }
         if ($name === constants::SETTING_STARCOLOR || $name === constants::SETTING_RATINGCOLOR) {
@@ -177,10 +183,10 @@ class helper {
      * @return string
      */
     public static function get_rating_colour_css() {
-        return '.tool_courserating-stars { color: '.self::get_setting(constants::SETTING_STARCOLOR).'; }'."\n".
-            '.tool_courserating-ratingcolor { color: '.self::get_setting(constants::SETTING_RATINGCOLOR).';}'."\n".
-            '.tool_courserating-norating .tool_courserating-stars { color: '.constants::COLOR_GRAY.';}'."\n".
-            '.tool_courserating-barcolor { background-color: '.self::get_setting(constants::SETTING_STARCOLOR).';}'."\n";
+        return '.tool_courserating-stars { color: ' . self::get_setting(constants::SETTING_STARCOLOR) . '; }' . "\n" .
+            '.tool_courserating-ratingcolor { color: ' . self::get_setting(constants::SETTING_RATINGCOLOR) . ';}' . "\n" .
+            '.tool_courserating-norating .tool_courserating-stars { color: ' . constants::COLOR_GRAY . ';}' . "\n" .
+            '.tool_courserating-barcolor { background-color: ' . self::get_setting(constants::SETTING_STARCOLOR) . ';}' . "\n";
     }
 
     /**
@@ -212,8 +218,13 @@ class helper {
      * @param string $description
      * @return field_controller|null
      */
-    protected static function create_custom_field(string $shortname, string $type = 'text', ?\lang_string $displayname = null,
-                                               array $config = [], string $description = ''): ?field_controller {
+    protected static function create_custom_field(
+        string $shortname,
+        string $type = 'text',
+        ?\lang_string $displayname = null,
+        array $config = [],
+        string $description = ''
+    ): ?field_controller {
         $handler = \core_course\customfield\course_handler::create();
         $categories = $handler->get_categories_with_fields();
         if (empty($categories)) {
@@ -268,11 +279,13 @@ class helper {
             return null;
         }
 
-        return $field ?? self::create_custom_field($shortname,
+        return $field ?? self::create_custom_field(
+            $shortname,
             'textarea',
             new \lang_string('ratinglabel', 'tool_courserating'),
             ['locked' => 1],
-            get_string('cfielddescription', 'tool_courserating'));
+            get_string('cfielddescription', 'tool_courserating')
+        );
     }
 
     /**
@@ -291,16 +304,21 @@ class helper {
         }
 
         $options = constants::rated_courses_options();
-        $description = get_string('ratebydefault', 'tool_courserating',
-            $options[self::get_setting(constants::SETTING_RATINGMODE)]);
-        $field = $field ?? self::create_custom_field($shortname,
+        $description = get_string(
+            'ratebydefault',
+            'tool_courserating',
+            $options[self::get_setting(constants::SETTING_RATINGMODE)]
+        );
+        $field = $field ?? self::create_custom_field(
+            $shortname,
             'select',
             new \lang_string('ratingmode', 'tool_courserating'),
             [
                 'visibility' => \core_course\customfield\course_handler::NOTVISIBLE,
                 'options' => join("\n", $options),
             ],
-            $description);
+            $description
+        );
         if ($field && $field->get('description') !== $description) {
             $field->set('description', $description);
             $field->save();
@@ -408,8 +426,10 @@ class helper {
             return '';
         }
         $output = $output ?? $PAGE->get_renderer('tool_courserating');
-        return $output->render_from_template('tool_courserating/stars',
-            (new stars_exporter($avgrating))->export($output));
+        return $output->render_from_template(
+            'tool_courserating/stars',
+            (new stars_exporter($avgrating))->export($output)
+        );
     }
 
     /**
@@ -444,8 +464,15 @@ class helper {
         ];
         if (self::get_setting(constants::SETTING_USEHTML)) {
             require_once($CFG->libdir . '/externallib.php');
-            list($text, $format) = external_format_text($row->review, FORMAT_HTML, $formatparams['context'],
-                $formatparams['component'], $formatparams['filearea'], $formatparams['itemid'], $formatparams['options']);
+            [$text, $format] = external_format_text(
+                $row->review,
+                FORMAT_HTML,
+                $formatparams['context'],
+                $formatparams['component'],
+                $formatparams['filearea'],
+                $formatparams['itemid'],
+                $formatparams['options']
+            );
             return $text;
         } else {
             return format_text(clean_param($row->review, PARAM_TEXT), FORMAT_MOODLE, ['context' => $context]);
@@ -463,9 +490,9 @@ class helper {
         if (!$id || !permission::can_delete_rating($id, $row->courseid)) {
             return '';
         }
-        return "<span data-for=\"tool_courserating-rbcell\" data-ratingid=\"$id\">".
-            "<a href=\"#\" data-action=\"tool_courserating-delete-rating\" data-ratingid=\"$id\">".
-            get_string('deleterating', 'tool_courserating')."</a></span>";
+        return "<span data-for=\"tool_courserating-rbcell\" data-ratingid=\"$id\">" .
+            "<a href=\"#\" data-action=\"tool_courserating-delete-rating\" data-ratingid=\"$id\">" .
+            get_string('deleterating', 'tool_courserating') . "</a></span>";
     }
 
     /**
@@ -480,9 +507,10 @@ class helper {
             return '';
         }
         return \html_writer::span(
-            self::stars((float)$rating).
+            self::stars((float)$rating) .
             \html_writer::span($rating, 'tool_courserating-ratingcolor ml-2'),
-            'tool_courserating-reportrating');
+            'tool_courserating-reportrating'
+        );
     }
 
     /**

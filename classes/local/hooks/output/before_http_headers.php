@@ -24,7 +24,6 @@ namespace tool_courserating\local\hooks\output;
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class before_http_headers {
-
     /**
      * Callback allowing to add js to $PAGE->requires
      *
@@ -38,16 +37,24 @@ class before_http_headers {
         }
 
         global $PAGE, $CFG;
-        if (\tool_courserating\helper::course_ratings_enabled_anywhere() &&
-                !in_array($PAGE->pagelayout, ['redirect', 'embedded'])) {
+        if (
+            \tool_courserating\helper::course_ratings_enabled_anywhere() &&
+                !in_array($PAGE->pagelayout, ['redirect', 'embedded'])
+        ) {
             // Add JS to all pages, the course ratings can be displayed on any page (for example course listings).
             $branch = $CFG->branch ?? '';
-            $PAGE->requires->js_call_amd('tool_courserating/rating', 'init',
-                [\context_system::instance()->id, "{$branch}" < "400"]);
+            $PAGE->requires->js_call_amd(
+                'tool_courserating/rating',
+                'init',
+                [\context_system::instance()->id, "{$branch}" < "400"]
+            );
             if (\tool_courserating\helper::is_course_edit_page()) {
                 $field = \tool_courserating\helper::get_course_rating_field();
-                $PAGE->requires->js_call_amd('tool_courserating/rating', 'hideEditField',
-                    [$field->get('shortname')]);
+                $PAGE->requires->js_call_amd(
+                    'tool_courserating/rating',
+                    'hideEditField',
+                    [$field->get('shortname')]
+                );
             }
         }
     }

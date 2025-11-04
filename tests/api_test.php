@@ -34,15 +34,17 @@ use tool_courserating\local\models\summary;
  * @license     https://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 final class api_test extends \advanced_testcase {
-
     /**
      * Set up
      */
     public function setUp(): void {
         parent::setUp();
         $this->resetAfterTest();
-        set_config(\tool_courserating\constants::SETTING_RATINGMODE,
-            \tool_courserating\constants::RATEBY_ANYTIME, 'tool_courserating');
+        set_config(
+            \tool_courserating\constants::SETTING_RATINGMODE,
+            \tool_courserating\constants::RATEBY_ANYTIME,
+            'tool_courserating'
+        );
     }
 
     /**
@@ -71,8 +73,10 @@ final class api_test extends \advanced_testcase {
             $this->assertEmpty($DB->get_records(rating::TABLE, $params));
         } else {
             $fields = join(', ', array_keys($expected));
-            $this->assertEquals($expected,
-                (array)$DB->get_record(rating::TABLE, $params, $fields, MUST_EXIST));
+            $this->assertEquals(
+                $expected,
+                (array)$DB->get_record(rating::TABLE, $params, $fields, MUST_EXIST)
+            );
         }
     }
 
@@ -85,12 +89,14 @@ final class api_test extends \advanced_testcase {
     protected function assert_summary(array $expected, int $courseid) {
         global $DB;
 
-        $cfield = $DB->get_field_sql('SELECT d.value FROM {customfield_field} f
+        $cfield = $DB->get_field_sql(
+            'SELECT d.value FROM {customfield_field} f
             JOIN {customfield_data} d ON d.fieldid = f.id
             JOIN {customfield_category} c ON f.categoryid = c.id
             WHERE f.shortname = ? AND d.instanceid = ?
                   AND c.component = ? AND c.area = ?',
-            [constants::CFIELD_RATING, $courseid, 'core_course', 'course']);
+            [constants::CFIELD_RATING, $courseid, 'core_course', 'course']
+        );
 
         $params = ['courseid' => $courseid];
         if (empty($expected)) {
@@ -118,8 +124,13 @@ final class api_test extends \advanced_testcase {
      * @param string $descriptionmatch
      * @return void
      */
-    protected function assert_event(\phpunit_event_sink $sink, string $classname, int $courseid,
-                                    string $namematch, string $descriptionmatch) {
+    protected function assert_event(
+        \phpunit_event_sink $sink,
+        string $classname,
+        int $courseid,
+        string $namematch,
+        string $descriptionmatch
+    ) {
         $events = $sink->get_events();
         $this->assertEquals(1, count($events));
         /** @var base $event */
@@ -146,8 +157,13 @@ final class api_test extends \advanced_testcase {
         $this->setUser($user);
         $sink = $this->redirectEvents();
         api::set_rating($course->id, (object)['rating' => 4]);
-        $this->assert_event($sink, rating_created::class, $course->id, 'Course rating created',
-            '%ahas rated the course with 4 stars');
+        $this->assert_event(
+            $sink,
+            rating_created::class,
+            $course->id,
+            'Course rating created',
+            '%ahas rated the course with 4 stars'
+        );
 
         $this->assert_rating(['rating' => 4, 'review' => ''], $user->id, $course->id);
         $expected = ['cntall' => 1, 'avgrating' => 4, 'sumrating' => 4, 'cnt02' => 0, 'cnt03' => 0, 'cnt04' => 1];
@@ -166,8 +182,13 @@ final class api_test extends \advanced_testcase {
         $this->setUser($user);
         $sink->clear();
         api::set_rating($course->id, (object)['rating' => 3, 'review' => 'hello']);
-        $this->assert_event($sink, rating_updated::class, $course->id, 'Course rating updated',
-            'User %a has changed the rating for the course from 4 to 3');
+        $this->assert_event(
+            $sink,
+            rating_updated::class,
+            $course->id,
+            'Course rating updated',
+            'User %a has changed the rating for the course from 4 to 3'
+        );
 
         $this->assert_rating(['rating' => 3, 'review' => 'hello', 'hasreview' => 1], $user->id, $course->id);
         $this->assert_rating(['rating' => 2, 'review' => '', 'hasreview' => 0], $user2->id, $course->id);
@@ -201,8 +222,13 @@ final class api_test extends \advanced_testcase {
         // Delete rating for the first user.
         $sink = $this->redirectEvents();
         api::delete_rating($rating->get('id'));
-        $this->assert_event($sink, rating_deleted::class, $course->id, 'Course rating deleted',
-            '%ahas deleted course rating%a');
+        $this->assert_event(
+            $sink,
+            rating_deleted::class,
+            $course->id,
+            'Course rating deleted',
+            '%ahas deleted course rating%a'
+        );
 
         $this->assert_rating(null, $user->id, $course->id);
         $this->assert_rating(['rating' => 2, 'review' => ''], $user2->id, $course->id);
@@ -223,22 +249,42 @@ final class api_test extends \advanced_testcase {
         $this->setUser($user2);
         $sink = $this->redirectEvents();
         api::flag_review($rating->get('id'));
-        $this->assert_event($sink, flag_created::class, $course->id, 'Course rating flagged',
-            '%ahas flagged the course rating%a');
+        $this->assert_event(
+            $sink,
+            flag_created::class,
+            $course->id,
+            'Course rating flagged',
+            '%ahas flagged the course rating%a'
+        );
 
         // Revoke.
         api::revoke_review_flag($rating->get('id'));
-        $this->assert_event($sink, flag_deleted::class, $course->id, 'Course rating flag revoked',
-            '%ahas revoked their flag%a');
+        $this->assert_event(
+            $sink,
+            flag_deleted::class,
+            $course->id,
+            'Course rating flag revoked',
+            '%ahas revoked their flag%a'
+        );
 
         // Flag again and delete rating as admin.
         api::flag_review($rating->get('id'));
-        $this->assert_event($sink, flag_created::class, $course->id, 'Course rating flagged',
-            '%ahas flagged the course rating%a');
+        $this->assert_event(
+            $sink,
+            flag_created::class,
+            $course->id,
+            'Course rating flagged',
+            '%ahas flagged the course rating%a'
+        );
         $this->setAdminUser();
         api::delete_rating($rating->get('id'), 'spam');
-        $this->assert_event($sink, rating_deleted::class, $course->id, 'Course rating deleted',
-            '%ahas deleted course rating%a. Reason provided: spam');
+        $this->assert_event(
+            $sink,
+            rating_deleted::class,
+            $course->id,
+            'Course rating deleted',
+            '%ahas deleted course rating%a. Reason provided: spam'
+        );
     }
 
     public function test_reindex(): void {
@@ -254,8 +300,13 @@ final class api_test extends \advanced_testcase {
         $this->setUser($user);
         $sink = $this->redirectEvents();
         api::set_rating($course->id, (object)['rating' => 4]);
-        $this->assert_event($sink, rating_created::class, $course->id, 'Course rating created',
-            '%ahas rated the course with 4 stars');
+        $this->assert_event(
+            $sink,
+            rating_created::class,
+            $course->id,
+            'Course rating created',
+            '%ahas rated the course with 4 stars'
+        );
 
         $this->assert_rating(['rating' => 4, 'review' => ''], $user->id, $course->id);
         $expected = ['cntall' => 1, 'avgrating' => 4, 'sumrating' => 4, 'cnt02' => 0, 'cnt03' => 0, 'cnt04' => 1];

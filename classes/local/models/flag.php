@@ -24,7 +24,6 @@ namespace tool_courserating\local\models;
  * @license     https://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class flag extends \core\persistent {
-
     /** @var string Table name */
     public const TABLE = 'tool_courserating_flag';
 

@@ -26,7 +26,6 @@ use tool_courserating\local\models\rating;
  * @license     https://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class tool_courserating_generator extends testing_module_generator {
-
     /**
      * Set course rating mode
      *

@@ -39,7 +39,11 @@ if (core_component::get_component_directory('core_reportbuilder')) {
     $report = \core_reportbuilder\system_report_factory::create(
         \tool_courserating\reportbuilder\local\systemreports\course_ratings_report::class,
         context_course::instance($courseid),
-        '', '', 0, ['courseid' => $courseid]);
+        '',
+        '',
+        0,
+        ['courseid' => $courseid]
+    );
 
     echo $report->output();
 } else {

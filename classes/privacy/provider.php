@@ -35,10 +35,9 @@ use tool_courserating\task\reindex;
  * @license     https://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class provider implements
-    \core_privacy\local\metadata\provider,
     \core_privacy\local\request\core_userlist_provider,
+    \core_privacy\local\metadata\provider,
     \core_privacy\local\request\plugin\provider {
-
     /**
      * get_metadata
      *
@@ -138,7 +137,7 @@ class provider implements
 
         $userid = $contextlist->get_user()->id;
 
-        list($coursesql, $courseparams) = $DB->get_in_or_equal($courseids, SQL_PARAMS_NAMED);
+        [$coursesql, $courseparams] = $DB->get_in_or_equal($courseids, SQL_PARAMS_NAMED);
 
         // Retrieve the tool_courserating_rating records created for the user.
         $sql = "SELECT r.id, r.userid, r.courseid, r.rating, r.review, r.hasreview, r.timecreated, r.timemodified,
@@ -216,14 +215,14 @@ class provider implements
             return;
         }
         [$sql, $params] = $DB->get_in_or_equal($courseids, SQL_PARAMS_NAMED);
-        $sqlrating = 'SELECT courseid FROM {tool_courserating_rating} WHERE courseid '.$sql.' AND userid = :userid';
+        $sqlrating = 'SELECT courseid FROM {tool_courserating_rating} WHERE courseid ' . $sql . ' AND userid = :userid';
         $params['userid'] = $userid;
         $sqlflags = 'SELECT f.id FROM {tool_courserating_flag} f JOIN {tool_courserating_rating} r ON f.ratingid = r.id
-            WHERE r.courseid '.$sql.' AND f.userid = :userid';
+            WHERE r.courseid ' . $sql . ' AND f.userid = :userid';
         $flags = $DB->get_fieldset_sql($sqlflags, $params);
         if ($flags) {
             [$sqlf, $pf] = $DB->get_in_or_equal($flags);
-            $DB->execute('DELETE FROM {tool_courserating_flag} WHERE id '.$sqlf, $pf);
+            $DB->execute('DELETE FROM {tool_courserating_flag} WHERE id ' . $sqlf, $pf);
         }
         $affectedcourses = $DB->get_fieldset_sql($sqlrating, $params);
         foreach ($affectedcourses as $cid) {

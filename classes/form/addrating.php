@@ -32,7 +32,6 @@ use tool_courserating\permission;
  * @license     https://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class addrating extends \core_form\dynamic_form {
-
     /**
      * Current course id
      *
@@ -80,11 +79,20 @@ EOF
 
         if (helper::get_setting(constants::SETTING_USEHTML)) {
             $options = helper::review_editor_options($this->get_context_for_dynamic_submission());
-            $mform->addElement('editor', 'review_editor', get_string('review', 'tool_courserating'),
-                ['rows' => 4], $options);
+            $mform->addElement(
+                'editor',
+                'review_editor',
+                get_string('review', 'tool_courserating'),
+                ['rows' => 4],
+                $options
+            );
         } else {
-            $mform->addElement('textarea', 'review', get_string('review', 'tool_courserating'),
-                ['rows' => 4]);
+            $mform->addElement(
+                'textarea',
+                'review',
+                get_string('review', 'tool_courserating'),
+                ['rows' => 4]
+            );
             $mform->setType('review', PARAM_TEXT);
         }
     }
@@ -112,8 +120,11 @@ EOF
     public function display() {
         parent::display();
         global $PAGE;
-        $PAGE->requires->js_call_amd('tool_courserating/rating', 'setupAddRatingForm',
-        [$this->_form->getElement('ratinggroup')->getAttribute('id')]);
+        $PAGE->requires->js_call_amd(
+            'tool_courserating/rating',
+            'setupAddRatingForm',
+            [$this->_form->getElement('ratinggroup')->getAttribute('id')]
+        );
     }
 
     /**

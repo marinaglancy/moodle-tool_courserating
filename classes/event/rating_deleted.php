@@ -26,7 +26,6 @@ use tool_courserating\local\models\rating;
  * @license     https://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class rating_deleted extends \core\event\base {
-
     /**
      * Init
      */
@@ -51,9 +50,9 @@ class rating_deleted extends \core\event\base {
      * @return string
      */
     public function get_description(): string {
-        return "User {$this->userid} has deleted course rating made by the user with id {$this->relateduserid}. ".
-            "The old rating was ".$this->other['oldrating']." and the review had been flagged ".
-            $this->other['flagcount']." times. Reason provided: ".s($this->other['reason']);
+        return "User {$this->userid} has deleted course rating made by the user with id {$this->relateduserid}. " .
+            "The old rating was " . $this->other['oldrating'] . " and the review had been flagged " .
+            $this->other['flagcount'] . " times. Reason provided: " . s($this->other['reason']);
     }
 
     /**

@@ -26,7 +26,6 @@ use tool_courserating\api;
  * @license     https://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class reindex extends \core\task\adhoc_task {
-
     /**
      * Name of the task
      *
@@ -46,7 +45,7 @@ class reindex extends \core\task\adhoc_task {
         try {
             api::reindex($courseid);
         } catch (\Throwable $t) {
-            debugging($t->getMessage()."\n\n".$t->getTraceAsString());
+            debugging($t->getMessage() . "\n\n" . $t->getTraceAsString());
         }
     }
 

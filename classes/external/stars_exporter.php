@@ -27,7 +27,6 @@ use renderer_base;
  * @license     https://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class stars_exporter extends exporter {
-
     /**
      * Constructor.
      *

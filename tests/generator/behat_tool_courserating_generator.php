@@ -25,7 +25,6 @@ use tool_courserating\helper;
  * @license     https://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class behat_tool_courserating_generator extends behat_generator_base {
-
     /**
      * @var tool_courserating_generator
      */
@@ -57,7 +56,11 @@ class behat_tool_courserating_generator extends behat_generator_base {
      * @return void
      */
     protected function process_rating($data) {
-        $this->componentdatagenerator->create_rating((int)$data['userid'], (int)$data['courseid'],
-            (int)$data['rating'], $data['review'] ?? '');
+        $this->componentdatagenerator->create_rating(
+            (int)$data['userid'],
+            (int)$data['courseid'],
+            (int)$data['rating'],
+            $data['review'] ?? ''
+        );
     }
 }

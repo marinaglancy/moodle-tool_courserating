@@ -107,7 +107,7 @@ class rating extends base {
             ->set_type(column::TYPE_INTEGER)
             ->add_fields("{$tablealias}.rating, {$tablealias}.id")
             ->set_is_sortable(true)
-            ->set_callback(static function($rating, $row) {
+            ->set_callback(static function ($rating, $row) {
                 // TODO MDL-76199 not currently possible to set custom callbacks for AVG() that should display float.
                 if (empty($row->id)) {
                     // This is aggregation - display as float, it works for AVG but not for MIN/MAX/SUM unfortunately.
@@ -129,7 +129,7 @@ class rating extends base {
             ->add_fields("{$tablealias}.rating")
             ->set_disabled_aggregation(['sum']) // Not possible to set different callback to SUM(), so we have to disable it.
             ->set_is_sortable(true)
-            ->add_callback(static function($avgrating, $r) {
+            ->add_callback(static function ($avgrating, $r) {
                 return helper::stars((float)$avgrating);
             });
 
@@ -159,7 +159,7 @@ class rating extends base {
             ->set_type(column::TYPE_BOOLEAN)
             ->add_fields("{$tablealias}.hasreview")
             ->set_is_sortable(true)
-            ->add_callback(static function($value, stdClass $row): ?string {
+            ->add_callback(static function ($value, stdClass $row): ?string {
                 return is_null($value) ? null : format::boolean_as_text((int)$value);
             });
 

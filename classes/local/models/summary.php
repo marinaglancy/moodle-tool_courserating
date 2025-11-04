@@ -27,7 +27,6 @@ use tool_courserating\helper;
  * @license     https://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class summary extends \core\persistent {
-
     /** @var string Table name */
     public const TABLE = 'tool_courserating_summary';
 
@@ -186,7 +185,7 @@ class summary extends \core\persistent {
         $isempty = $DB->sql_isempty('', 'review', false, true);
         $sql = 'SELECT COUNT(id) AS cntall,
                SUM(rating) AS sumrating,
-               SUM(CASE WHEN '.$isempty.' THEN 0 ELSE 1 END) as cntreviews,
+               SUM(CASE WHEN ' . $isempty . ' THEN 0 ELSE 1 END) as cntreviews,
                SUM(CASE WHEN rating = 1 THEN 1 ELSE 0 END) as cnt01,
                SUM(CASE WHEN rating = 2 THEN 1 ELSE 0 END) as cnt02,
                SUM(CASE WHEN rating = 3 THEN 1 ELSE 0 END) as cnt03,

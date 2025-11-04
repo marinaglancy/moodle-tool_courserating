@@ -114,7 +114,7 @@ class summary extends base {
             ->set_type(column::TYPE_FLOAT)
             ->add_fields("{$tablealias}.avgrating")
             ->set_is_sortable(true)
-            ->add_callback(static function($value, stdClass $row): ?string {
+            ->add_callback(static function ($value, stdClass $row): ?string {
                 return helper::format_avgrating($value);
             });
 
@@ -128,7 +128,7 @@ class summary extends base {
             ->add_fields("{$tablealias}.avgrating")
             ->set_disabled_aggregation(['sum'])
             ->set_is_sortable(true)
-            ->add_callback(static function($avgrating, $r) {
+            ->add_callback(static function ($avgrating, $r) {
                 return helper::stars((float)$avgrating);
             });
 
@@ -152,19 +152,18 @@ class summary extends base {
                 $fld,
                 // phpcs:disable Squiz.PHP.CommentedOutCode.Found
                 // Mdlcode assume-next-line: $fld ['cnt01', 'cnt02', 'cnt03', 'cnt04', 'cnt05'] .
-                new lang_string('summary_'.$fld, 'tool_courserating'),
+                new lang_string('summary_' . $fld, 'tool_courserating'),
                 $this->get_entity_name()
             ))
                 ->add_joins($this->get_joins())
                 ->set_type(column::TYPE_FLOAT)
-                ->add_field("CASE WHEN {$tablealias}.cntall > 0 THEN ".
+                ->add_field("CASE WHEN {$tablealias}.cntall > 0 THEN " .
                     "100.0*{$tablealias}.{$fld}/{$tablealias}.cntall ELSE NULL END", "p")
                 ->set_is_sortable(true)
                 ->set_groupby_sql("{$tablealias}.cntall, {$tablealias}.{$fld}")
                 ->set_callback(function ($value, $row) {
                     return ($row->p === null) ? null : format::percent($value);
                 });
-
         }
 
         // Ratingmode column.
@@ -177,7 +176,7 @@ class summary extends base {
             ->set_type(column::TYPE_INTEGER)
             ->add_fields("{$tablealias}.ratingmode")
             ->set_is_sortable(true)
-            ->set_callback(static function($v) {
+            ->set_callback(static function ($v) {
                 return is_null($v) ? null : (constants::rated_courses_options()[$v] ?? null);
             });
 
@@ -292,7 +291,7 @@ class summary extends base {
             "{$tablealias}.ratingmode"
         ))
             ->add_joins($this->get_joins())
-            ->set_options_callback(static function(): array {
+            ->set_options_callback(static function (): array {
                 return constants::rated_courses_options();
             });
 

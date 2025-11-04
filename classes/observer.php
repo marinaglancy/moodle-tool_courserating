@@ -29,7 +29,6 @@ use tool_courserating\local\models\summary;
  * @license     https://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class observer {
-
     /**
      * Observer for course_updated event
      *

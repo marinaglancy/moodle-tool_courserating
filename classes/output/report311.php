@@ -21,7 +21,7 @@ use tool_courserating\permission;
 
 defined('MOODLE_INTERNAL') || die();
 
-require_once($CFG->libdir.'/tablelib.php');
+require_once($CFG->libdir . '/tablelib.php');
 
 /**
  * Course ratings list for Moodle 3.11 (before report builder)

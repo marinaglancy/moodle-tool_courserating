@@ -36,7 +36,6 @@ use tool_dataprivacy\context_instance;
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class rating_exporter extends persistent_exporter {
-
     /**
      * Defines the persistent class.
      *

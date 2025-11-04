@@ -34,7 +34,6 @@ function xmldb_tool_courserating_upgrade($oldversion) {
     $dbman = $DB->get_manager();
 
     if ($oldversion < 2022111300) {
-
         // Define index avgrating (not unique) to be dropped form tool_courserating_summary.
         $table = new xmldb_table('tool_courserating_summary');
         $index = new xmldb_index('avgrating', XMLDB_INDEX_NOTUNIQUE, ['avgrating']);

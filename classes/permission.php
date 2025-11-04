@@ -27,7 +27,6 @@ use tool_courserating\local\models\rating;
  * @license     https://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class permission {
-
     /**
      * User can view rating for the course (ratings are enabled for this course)
      *
@@ -65,7 +64,7 @@ class permission {
             return false;
         }
         if ($courseratingmode == constants::RATEBY_COMPLETED) {
-            require_once($CFG->dirroot.'/completion/completion_completion.php');
+            require_once($CFG->dirroot . '/completion/completion_completion.php');
             // The course is supposed to be marked as completed at $timeend.
             $ccompletion = new \completion_completion(['userid' => $USER->id, 'course' => $courseid]);
             return $ccompletion->is_complete();
@@ -154,8 +153,12 @@ class permission {
             $courseid = (new rating($ratingid))->get('courseid');
         }
         if (!self::can_delete_rating($ratingid, $courseid)) {
-            throw new required_capability_exception(\context_course::instance($courseid),
-                'tool/courserating:delete', 'nopermissions', '');
+            throw new required_capability_exception(
+                \context_course::instance($courseid),
+                'tool/courserating:delete',
+                'nopermissions',
+                ''
+            );
         }
     }
 
@@ -184,8 +187,12 @@ class permission {
             throw new \moodle_exception('ratebynoone', 'tool_courserating');
         }
         if (!self::can_view_report($courseid)) {
-            throw new required_capability_exception(\context_course::instance($courseid),
-                'tool/courserating:reports', 'nopermissions', '');
+            throw new required_capability_exception(
+                \context_course::instance($courseid),
+                'tool/courserating:reports',
+                'nopermissions',
+                ''
+            );
         }
     }
 }

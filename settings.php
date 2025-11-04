@@ -26,57 +26,77 @@
 defined('MOODLE_INTERNAL') || die();
 
 if ($hassiteconfig) {
-
     // Disable ratings in unittests by default, otherwise it breaks core tests.
     $isunittest = defined('PHPUNIT_TEST') && PHPUNIT_TEST;
 
     $temp = new admin_settingpage('tool_courserating', new lang_string('pluginname', 'tool_courserating'));
-    $el = new admin_setting_configselect('tool_courserating/' . \tool_courserating\constants::SETTING_RATINGMODE,
+    $el = new admin_setting_configselect(
+        'tool_courserating/' . \tool_courserating\constants::SETTING_RATINGMODE,
         new lang_string('ratingmode', 'tool_courserating'),
         new lang_string('ratingmodeconfig', 'tool_courserating'),
         $isunittest ? \tool_courserating\constants::RATEBY_NOONE : \tool_courserating\constants::RATEBY_ANYTIME,
-        \tool_courserating\constants::rated_courses_options());
+        \tool_courserating\constants::rated_courses_options()
+    );
     $el->set_updatedcallback('tool_courserating\task\reindex::schedule');
     $temp->add($el);
 
-    $el = new admin_setting_configcheckbox('tool_courserating/' . \tool_courserating\constants::SETTING_PERCOURSE,
+    $el = new admin_setting_configcheckbox(
+        'tool_courserating/' . \tool_courserating\constants::SETTING_PERCOURSE,
         new lang_string('percourseoverride', 'tool_courserating'),
-        new lang_string('percourseoverrideconfig', 'tool_courserating'), 0);
+        new lang_string('percourseoverrideconfig', 'tool_courserating'),
+        0
+    );
     $el->set_updatedcallback('tool_courserating\task\reindex::schedule');
     $temp->add($el);
 
-    $el = new admin_setting_configcolourpicker('tool_courserating/' . \tool_courserating\constants::SETTING_STARCOLOR,
+    $el = new admin_setting_configcolourpicker(
+        'tool_courserating/' . \tool_courserating\constants::SETTING_STARCOLOR,
         new lang_string('colorstar', 'tool_courserating'),
-        '', \tool_courserating\constants::SETTING_STARCOLOR_DEFAULT);
+        '',
+        \tool_courserating\constants::SETTING_STARCOLOR_DEFAULT
+    );
     $el->set_updatedcallback('tool_courserating\task\reindex::schedule');
     $temp->add($el);
 
-    $el = new admin_setting_configcolourpicker('tool_courserating/' . \tool_courserating\constants::SETTING_RATINGCOLOR,
+    $el = new admin_setting_configcolourpicker(
+        'tool_courserating/' . \tool_courserating\constants::SETTING_RATINGCOLOR,
         new lang_string('colorrating', 'tool_courserating'),
         new lang_string('colorratingconfig', 'tool_courserating'),
-        \tool_courserating\constants::SETTING_RATINGCOLOR_DEFAULT);
+        \tool_courserating\constants::SETTING_RATINGCOLOR_DEFAULT
+    );
     $el->set_updatedcallback('tool_courserating\task\reindex::schedule');
     $temp->add($el);
 
-    $el = new admin_setting_configcheckbox('tool_courserating/' . \tool_courserating\constants::SETTING_DISPLAYEMPTY,
+    $el = new admin_setting_configcheckbox(
+        'tool_courserating/' . \tool_courserating\constants::SETTING_DISPLAYEMPTY,
         new lang_string('displayempty', 'tool_courserating'),
-        new lang_string('displayemptyconfig', 'tool_courserating'), 0);
+        new lang_string('displayemptyconfig', 'tool_courserating'),
+        0
+    );
     $el->set_updatedcallback('tool_courserating\task\reindex::schedule');
     $temp->add($el);
 
-    $el = new admin_setting_configcheckbox('tool_courserating/' . \tool_courserating\constants::SETTING_USEHTML,
+    $el = new admin_setting_configcheckbox(
+        'tool_courserating/' . \tool_courserating\constants::SETTING_USEHTML,
         new lang_string('usehtml', 'tool_courserating'),
-        new lang_string('usehtmlconfig', 'tool_courserating'), 0);
+        new lang_string('usehtmlconfig', 'tool_courserating'),
+        0
+    );
     $temp->add($el);
 
-    $el = new admin_setting_configtext('tool_courserating/' . \tool_courserating\constants::SETTING_PARENTCSS,
+    $el = new admin_setting_configtext(
+        'tool_courserating/' . \tool_courserating\constants::SETTING_PARENTCSS,
         new lang_string('parentcss', 'tool_courserating'),
-        new lang_string('parentcssconfig', 'tool_courserating'), '');
+        new lang_string('parentcssconfig', 'tool_courserating'),
+        ''
+    );
     $temp->add($el);
 
-    $temp->add(new admin_setting_description('tool_courserating/description',
+    $temp->add(new admin_setting_description(
+        'tool_courserating/description',
         '',
-        new lang_string('settingsdescription', 'tool_courserating')));
+        new lang_string('settingsdescription', 'tool_courserating')
+    ));
 
     $ADMIN->add('courses', $temp);
 }

@@ -26,7 +26,6 @@ use tool_courserating\local\models\rating;
  * @license     https://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class rating_updated extends \core\event\base {
-
     /**
      * Init
      */
@@ -51,8 +50,8 @@ class rating_updated extends \core\event\base {
      * @return string
      */
     public function get_description(): string {
-        return "User {$this->relateduserid} has changed the rating for the course from ".
-            $this->other['oldrating']." to ".$this->other['rating'];
+        return "User {$this->relateduserid} has changed the rating for the course from " .
+            $this->other['oldrating'] . " to " . $this->other['rating'];
     }
 
     /**

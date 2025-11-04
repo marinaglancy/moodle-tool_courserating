@@ -25,15 +25,17 @@ namespace tool_courserating;
  * @license     https://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 final class helper_test extends \advanced_testcase {
-
     /**
      * Set up
      */
     public function setUp(): void {
         parent::setUp();
         $this->resetAfterTest();
-        set_config(\tool_courserating\constants::SETTING_RATINGMODE,
-            \tool_courserating\constants::RATEBY_ANYTIME, 'tool_courserating');
+        set_config(
+            \tool_courserating\constants::SETTING_RATINGMODE,
+            \tool_courserating\constants::RATEBY_ANYTIME,
+            'tool_courserating'
+        );
     }
 
     public function test_coursefield(): void {

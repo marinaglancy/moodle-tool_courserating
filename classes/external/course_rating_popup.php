@@ -41,7 +41,6 @@ require_once($CFG->libdir . '/externallib.php');
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class course_rating_popup extends external_api {
-
     /**
      * Describes the parameters for tool_courserating_course_rating_popup
      *

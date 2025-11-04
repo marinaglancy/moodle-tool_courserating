@@ -35,7 +35,6 @@ use tool_courserating\local\models\summary;
  * @license     https://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class api {
-
     /**
      * Add or update user rating
      *
@@ -156,8 +155,15 @@ class api {
         $usehtml = helper::get_setting(constants::SETTING_USEHTML);
         if ($rating && $usehtml && !rating::review_is_empty($data->review_editor['text'] ?? '')) {
             $context = \context_course::instance($rating->get('courseid'));
-            $data = file_postupdate_standard_editor($data, 'review', helper::review_editor_options($context), $context,
-                'tool_courserating', 'review', $rating->get('id'));
+            $data = file_postupdate_standard_editor(
+                $data,
+                'review',
+                helper::review_editor_options($context),
+                $context,
+                'tool_courserating',
+                'review',
+                $rating->get('id')
+            );
             if ($data->reviewformat != FORMAT_HTML) {
                 // We always store reviews as HTML, we don't even store the reviewformat field.
                 // Do not apply filters now, they will be applied during display.
@@ -189,8 +195,15 @@ class api {
             if (helper::get_setting(constants::SETTING_USEHTML)) {
                 $data->reviewformat = FORMAT_HTML;
                 $context = \context_course::instance($courseid);
-                $data = file_prepare_standard_editor($data, 'review', helper::review_editor_options($context), $context,
-                    'tool_courserating', 'review', $data->id);
+                $data = file_prepare_standard_editor(
+                    $data,
+                    'review',
+                    helper::review_editor_options($context),
+                    $context,
+                    'tool_courserating',
+                    'review',
+                    $data->id
+                );
                 $rv['review_editor'] = $data->review_editor;
             } else {
                 $rv['review'] = clean_param($data->review, PARAM_TEXT);
@@ -260,8 +273,15 @@ class api {
         $displayvalue = $hasflag ? get_string('revokeratingflag', 'tool_courserating') :
             get_string('flagrating', 'tool_courserating');
         $edithint = $displayvalue;
-        $r = new inplace_editable('tool_courserating', 'flag', $ratingid, true, $displayvalue,
-            $hasflag ? 1 : 0, $edithint);
+        $r = new inplace_editable(
+            'tool_courserating',
+            'flag',
+            $ratingid,
+            true,
+            $displayvalue,
+            $hasflag ? 1 : 0,
+            $edithint
+        );
         $r->set_type_toggle([0, 1]);
         return $r;
     }
@@ -366,8 +386,8 @@ class api {
      */
     public static function delete_all_data_for_course(int $courseid) {
         global $DB;
-        $DB->execute('DELETE from {'.flag::TABLE.'} WHERE ratingid IN (SELECT id FROM {'.
-            rating::TABLE.'} WHERE courseid = ?)', [$courseid]);
+        $DB->execute('DELETE from {' . flag::TABLE . '} WHERE ratingid IN (SELECT id FROM {' .
+            rating::TABLE . '} WHERE courseid = ?)', [$courseid]);
         $DB->delete_records(rating::TABLE, ['courseid' => $courseid]);
         $DB->delete_records(summary::TABLE, ['courseid' => $courseid]);
     }

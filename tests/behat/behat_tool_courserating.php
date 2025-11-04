@@ -15,7 +15,7 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 use Behat\Gherkin\Node\TableNode,
-    Behat\Mink\Exception\ExpectationException as ExpectationException;
+    Behat\Mink\Exception\ExpectationException;
 
 require_once(__DIR__ . '/../../../../../lib/behat/behat_base.php');
 
@@ -27,8 +27,6 @@ require_once(__DIR__ . '/../../../../../lib/behat/behat_base.php');
  * @license     https://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class behat_tool_courserating extends behat_base {
-
-
     /**
      * Return the list of partial named selectors.
      *
@@ -62,7 +60,8 @@ XPATH
         $path = core_component::get_component_directory('core_reportbuilder');
         if (!$path) {
             throw new \Moodle\BehatExtension\Exception\SkippedException(
-                'Skipping this scenario because the reportbuilder is not avialable.');
+                'Skipping this scenario because the reportbuilder is not avialable.'
+            );
         }
     }
 }

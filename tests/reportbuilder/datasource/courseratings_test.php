@@ -35,15 +35,17 @@ use tool_courserating\api;
  * @covers \tool_courserating\reportbuilder\datasource\courseratings
  */
 final class courseratings_test extends \advanced_testcase {
-
     /**
      * setUp
      */
     protected function setUp(): void {
         parent::setUp();
         $this->resetAfterTest();
-        set_config(\tool_courserating\constants::SETTING_RATINGMODE,
-            \tool_courserating\constants::RATEBY_ANYTIME, 'tool_courserating');
+        set_config(
+            \tool_courserating\constants::SETTING_RATINGMODE,
+            \tool_courserating\constants::RATEBY_ANYTIME,
+            'tool_courserating'
+        );
     }
 
     /**
@@ -117,8 +119,10 @@ final class courseratings_test extends \advanced_testcase {
 
         $this->assertEquals(['2.5', '2.5', ''], array_column($content, 'c2_avgrating'));
         $this->assertEquals(['User1', 'User2', null], array_column($content, 'c4_firstname'));
-        $this->assertEquals(['<div class="text_to_html">hello unclosed tag</div>', '', null],
-            array_column($content, 'c6_review'));
+        $this->assertEquals(
+            ['<div class="text_to_html">hello unclosed tag</div>', '', null],
+            array_column($content, 'c6_review')
+        );
         $this->assertEquals([1, 0, 0], array_column($content, 'c7_flags'));
         $this->assertEquals([1, 0, 0], array_column($content, 'c8_flags'));
     }

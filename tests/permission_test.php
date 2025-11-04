@@ -25,15 +25,17 @@ namespace tool_courserating;
  * @license     https://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 final class permission_test extends \advanced_testcase {
-
     /**
      * setUp
      */
     protected function setUp(): void {
         parent::setUp();
         $this->resetAfterTest();
-        set_config(\tool_courserating\constants::SETTING_RATINGMODE,
-            \tool_courserating\constants::RATEBY_ANYTIME, 'tool_courserating');
+        set_config(
+            \tool_courserating\constants::SETTING_RATINGMODE,
+            \tool_courserating\constants::RATEBY_ANYTIME,
+            'tool_courserating'
+        );
     }
 
     /**
@@ -55,8 +57,13 @@ final class permission_test extends \advanced_testcase {
         $course3 = $this->getDataGenerator()->create_course(['enablecompletion' => 1]);
         $cat = $this->getDataGenerator()->create_category();
         $userrole = $DB->get_field('role', 'id', ['shortname' => 'user'], MUST_EXIST);
-        assign_capability('moodle/category:viewcourselist', CAP_PROHIBIT,
-            $userrole, \context_coursecat::instance($cat->id)->id, true);
+        assign_capability(
+            'moodle/category:viewcourselist',
+            CAP_PROHIBIT,
+            $userrole,
+            \context_coursecat::instance($cat->id)->id,
+            true
+        );
         $course4 = $this->getDataGenerator()->create_course(['category' => $cat->id]);
         $user = $this->getDataGenerator()->create_user();
 
@@ -144,8 +151,13 @@ final class permission_test extends \advanced_testcase {
         $course3 = $this->getDataGenerator()->create_course(['enablecompletion' => 1]);
         $cat = $this->getDataGenerator()->create_category();
         $userrole = $DB->get_field('role', 'id', ['shortname' => 'user'], MUST_EXIST);
-        assign_capability('moodle/category:viewcourselist', CAP_PROHIBIT,
-            $userrole, \context_coursecat::instance($cat->id)->id, true);
+        assign_capability(
+            'moodle/category:viewcourselist',
+            CAP_PROHIBIT,
+            $userrole,
+            \context_coursecat::instance($cat->id)->id,
+            true
+        );
         $course4 = $this->getDataGenerator()->create_course(['category' => $cat->id]);
         $user = $this->getDataGenerator()->create_user();
 

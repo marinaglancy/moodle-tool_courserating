@@ -29,15 +29,17 @@ use tool_courserating\local\models\summary;
  * @license     https://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 final class observer_test extends \advanced_testcase {
-
     /**
      * Set up
      */
     public function setUp(): void {
         parent::setUp();
         $this->resetAfterTest();
-        set_config(\tool_courserating\constants::SETTING_RATINGMODE,
-            \tool_courserating\constants::RATEBY_ANYTIME, 'tool_courserating');
+        set_config(
+            \tool_courserating\constants::SETTING_RATINGMODE,
+            \tool_courserating\constants::RATEBY_ANYTIME,
+            'tool_courserating'
+        );
     }
 
     /**
@@ -58,7 +60,7 @@ final class observer_test extends \advanced_testcase {
         $this->get_generator()->set_config(constants::SETTING_RATINGMODE, constants::RATEBY_NOONE);
 
         $this->assertEquals(constants::RATEBY_NOONE, summary::get_for_course($course->id)->get('ratingmode'));
-        update_course((object)['id' => $course->id, 'customfield_'.constants::CFIELD_RATINGMODE => constants::RATEBY_ANYTIME]);
+        update_course((object)['id' => $course->id, 'customfield_' . constants::CFIELD_RATINGMODE => constants::RATEBY_ANYTIME]);
         $this->assertEquals(constants::RATEBY_ANYTIME, summary::get_for_course($course->id)->get('ratingmode'));
     }
 
