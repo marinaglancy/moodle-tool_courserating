@@ -1,7 +1,7 @@
 # Changelog
 All notable changes to this project will be documented in this file.
 
-## Unreleased
+## [1.9] - 2025110400
 ### Fixed
 - Call to undefined function tool_courserating\external_format_text #20, #22
 
