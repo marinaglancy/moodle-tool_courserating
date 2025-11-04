@@ -342,16 +342,21 @@ function tool_courserating_pluginfile($course, $cm, $context, $filearea, $args, 
  * @param context $context The context of the course
  */
 function tool_courserating_extend_navigation_course(\navigation_node $navigation, \stdClass $course, \context $context) {
-    if (!\tool_courserating\permission::can_view_report($course->id)) {
-        return;
+    // Check if the user has permission to view the course ratings report.
+    if (!has_capability('tool/courserating:reports', $context)) {
+        return; // Exit if the user does not have the required capability.
     }
+
+    // Define the URL for the course ratings page.
     $url = new moodle_url('/admin/tool/courserating/index.php', ['id' => $course->id]);
+
+    // Add the "Course ratings" link to the course navigation menu.
     $navigation->add(
-        get_string('pluginname', 'tool_courserating'),
-        $url,
-        navigation_node::TYPE_SETTING,
-        null,
-        null,
-        new pix_icon('i/report', '')
+        get_string('pluginname', 'tool_courserating'), // The link text.
+        $url, // The URL the link points to.
+        navigation_node::TYPE_SETTING, // The type of navigation node.
+        null, // No specific key.
+        null, // No specific node ID.
+        new pix_icon('i/report', '') // Use the default "report" icon.
     );
 }

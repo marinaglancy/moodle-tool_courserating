@@ -23,17 +23,19 @@
 
 }}
 <div class="mt-2 pt-2 user-review" data-for="tool_courserating-user-rating" data-ratingid="{{id}}">
-    <div class="userinfo">
-        {{#user}}
-            <a href="{{profileurl}}" title="{{#str}}viewprofile{{/str}}">
-                <img height="18" src="{{profileimageurlsmall}}" alt="" role="presentation">
-            </a>
-            <span>{{fullname}}</span>
-            {{#hasidentity}}
-                <span><small>{{identity}}</small></span>
-            {{/hasidentity}}
-        {{/user}}
-    </div>
+    {{#showusernames}}
+        <div class="userinfo">
+            {{#user}}
+                <a href="{{profileurl}}" title="{{#str}}viewprofile{{/str}}">
+                    <img height="18" src="{{profileimageurlsmall}}" alt="" role="presentation">
+                </a>
+                <span>{{fullname}}</span>
+                {{#hasidentity}}
+                    <span><small>{{identity}}</small></span>
+                {{/hasidentity}}
+            {{/user}}
+        </div>
+    {{/showusernames}}
     <div class="user-rating">
         {{#reviewstars}}
             {{> tool_courserating/stars }}

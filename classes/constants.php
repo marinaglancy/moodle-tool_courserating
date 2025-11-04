@@ -53,6 +53,13 @@ class constants {
     const SETTING_USEHTML = 'usehtml';
     /** @var string */
     const SETTING_PARENTCSS = 'parentcss';
+    /** @var string */
+    const SETTING_SHOWUSERNAMES = 'showusernames';
+    /** @var int */
+    const SETTING_SHOWUSERNAMES_DEFAULT = 1;
+
+    /** @var int */
+    const SHOWUSERNAMES_PERCOURSE = 2; // Added constant for per-course username visibility.
 
     /** @var string */
     const SETTING_STARCOLOR_DEFAULT = '#e59819';

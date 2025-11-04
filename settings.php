@@ -74,6 +74,17 @@ if ($hassiteconfig) {
         new lang_string('parentcssconfig', 'tool_courserating'), '');
     $temp->add($el);
 
+    $el = new admin_setting_configselect('tool_courserating/' . \tool_courserating\constants::SETTING_SHOWUSERNAMES,
+        new lang_string('showusernames', 'tool_courserating'),
+        new lang_string('showusernamesconfig', 'tool_courserating'),
+        \tool_courserating\constants::SETTING_SHOWUSERNAMES_DEFAULT,
+        [
+            0 => new lang_string('hide', 'tool_courserating'),
+            1 => new lang_string('show', 'tool_courserating'),
+            2 => new lang_string('percourse', 'tool_courserating'),
+        ]);
+    $temp->add($el);
+
     $temp->add(new admin_setting_description('tool_courserating/description',
         '',
         new lang_string('settingsdescription', 'tool_courserating')));

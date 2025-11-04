@@ -26,6 +26,20 @@ require('../../../config.php');
 
 $courseid = required_param('id', PARAM_INT);
 
+// Handle the visibility toggle form submission.
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && optional_param('usernamevisibility', null, PARAM_INT) !== null) {
+    require_sesskey();
+    $visibility = required_param('usernamevisibility', PARAM_INT);
+    set_config("username_visibility_course_{$courseid}", $visibility, 'tool_courserating');
+
+    redirect(
+        new moodle_url('/admin/tool/courserating/index.php', ['id' => $courseid]),
+        get_string('changessaved'), // "Changes saved" localized
+        null,
+        \core\output\notification::NOTIFY_SUCCESS // Tells Moodle to show a success notification
+    );
+}
+
 require_course_login($courseid);
 \tool_courserating\permission::require_can_view_reports($courseid);
 $PAGE->set_url(new moodle_url('/admin/tool/courserating/index.php', ['id' => $courseid]));
@@ -35,17 +49,21 @@ $PAGE->set_heading($COURSE->fullname);
 echo $OUTPUT->header();
 echo $OUTPUT->heading(get_string('pluginname', 'tool_courserating'));
 
+$renderer = $PAGE->get_renderer('tool_courserating');
+
 if (core_component::get_component_directory('core_reportbuilder')) {
     $report = \core_reportbuilder\system_report_factory::create(
         \tool_courserating\reportbuilder\local\systemreports\course_ratings_report::class,
         context_course::instance($courseid),
-        '', '', 0, ['courseid' => $courseid]);
-
+        '', '', 0, ['courseid' => $courseid]
+    );
     echo $report->output();
 } else {
     // TODO remove when the minimum supported version is Moodle 4.0.
     $table = new \tool_courserating\output\report311($PAGE->url);
     $table->out(50, true);
 }
+
+echo $renderer->render_visibility_toggle($courseid);
 
 echo $OUTPUT->footer();
