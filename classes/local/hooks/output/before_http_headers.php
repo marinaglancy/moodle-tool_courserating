@@ -30,23 +30,22 @@ class before_http_headers {
      * @param \core\hook\output\before_http_headers $hook
      */
     public static function callback(\core\hook\output\before_http_headers $hook): void {
+        global $PAGE, $CFG;
 
         if (during_initial_install() || isset($CFG->upgraderunning)) {
             // Do nothing during installation or upgrade.
             return;
         }
 
-        global $PAGE, $CFG;
         if (
             \tool_courserating\helper::course_ratings_enabled_anywhere() &&
                 !in_array($PAGE->pagelayout, ['redirect', 'embedded'])
         ) {
             // Add JS to all pages, the course ratings can be displayed on any page (for example course listings).
-            $branch = $CFG->branch ?? '';
             $PAGE->requires->js_call_amd(
                 'tool_courserating/rating',
                 'init',
-                [\context_system::instance()->id, "{$branch}" < "400"]
+                [\context_system::instance()->id]
             );
             if (\tool_courserating\helper::is_course_edit_page()) {
                 $field = \tool_courserating\helper::get_course_rating_field();

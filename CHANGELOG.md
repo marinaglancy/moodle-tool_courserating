@@ -1,6 +1,10 @@
 # Changelog
 All notable changes to this project will be documented in this file.
 
+## Unreleased
+### Changed
+- Raised minimum supported Moodle version to 4.1, remove legacy code
+
 ## [1.9] - 2025110400
 ### Fixed
 - Call to undefined function tool_courserating\external_format_text #20, #22

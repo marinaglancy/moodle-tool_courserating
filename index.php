@@ -35,21 +35,15 @@ $PAGE->set_heading($COURSE->fullname);
 echo $OUTPUT->header();
 echo $OUTPUT->heading(get_string('pluginname', 'tool_courserating'));
 
-if (core_component::get_component_directory('core_reportbuilder')) {
-    $report = \core_reportbuilder\system_report_factory::create(
-        \tool_courserating\reportbuilder\local\systemreports\course_ratings_report::class,
-        context_course::instance($courseid),
-        '',
-        '',
-        0,
-        ['courseid' => $courseid]
-    );
+$report = \core_reportbuilder\system_report_factory::create(
+    \tool_courserating\reportbuilder\local\systemreports\course_ratings_report::class,
+    context_course::instance($courseid),
+    '',
+    '',
+    0,
+    ['courseid' => $courseid]
+);
 
-    echo $report->output();
-} else {
-    // TODO remove when the minimum supported version is Moodle 4.0.
-    $table = new \tool_courserating\output\report311($PAGE->url);
-    $table->out(50, true);
-}
+echo $report->output();
 
 echo $OUTPUT->footer();

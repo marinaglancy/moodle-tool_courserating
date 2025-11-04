@@ -63,9 +63,8 @@ let addRatingModal;
  * Initialise listeners
  *
  * @param {Number} systemContextIdParam
- * @param {Boolean} useJQuery
  */
-export const init = (systemContextIdParam, useJQuery = false) => {
+export const init = (systemContextIdParam) => {
     systemContextId = systemContextIdParam;
 
     document.addEventListener('click', e => {
@@ -103,13 +102,7 @@ export const init = (systemContextIdParam, useJQuery = false) => {
         }
     });
 
-    if (useJQuery) {
-        require(['jquery'], function($) {
-            $('body').on('updated', '[data-inplaceeditable]', e => reloadFlag(e.target));
-        });
-    } else {
-        document.addEventListener('core/inplace_editable:updated', e => reloadFlag(e.target));
-    }
+    document.addEventListener('core/inplace_editable:updated', e => reloadFlag(e.target));
 };
 
 /**
