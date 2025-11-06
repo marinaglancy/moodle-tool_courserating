@@ -59,6 +59,11 @@ class renderer extends plugin_renderer_base {
         $data2 = $canviewreviews ? (new ratings_list_exporter(['courseid' => $courseid]))->export($this) : [];
         $data = (array)$data1 + (array)$data2;
         $data['canviewreviews'] = $canviewreviews;
+        if ($canviewreviews && helper::get_course_allow_reviews($courseid) == constants::ALLOWREVIEWS_HIDDEN) {
+            $data['hiddenreviewsnotification'] = (new \core\output\notification(
+                get_string('reviewsarehidden', 'tool_courserating'),
+                \core\output\notification::NOTIFY_WARNING))->export_for_template($this);
+        }
         $data['canrate'] = permission::can_add_rating($courseid);
         $data['hasrating'] = $data['canrate'] && rating::get_record(['userid' => $USER->id, 'courseid' => $courseid]);
         $this->page->requires->js_call_amd('tool_courserating/rating', 'setupViewRatingsPopup', []);

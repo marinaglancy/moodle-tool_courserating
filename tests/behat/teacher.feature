@@ -147,3 +147,12 @@ Feature: Viewing and managing course ratings as a teacher and manager
       | usehtml  |
       | 0        |
       | 1        |
+
+  Scenario: Viewing reviews in the course popup when they are hidden from students
+    Given the following config values are set as admin:
+      | allowreviews | 2 | tool_courserating |
+    When I log in as "manager1"
+    And I am on "Course 1" course homepage
+    And I click on "2.7" "text" in the "#page-header .tool_courserating-ratings" "css_element"
+    And I should see "abcdef" in the "Student 1" "tool_courserating > Review"
+    And I should see "Students can see only the average rating but not the text reviews."

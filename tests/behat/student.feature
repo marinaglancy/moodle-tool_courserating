@@ -109,3 +109,55 @@ Feature: Viewing and adding course ratings as a student
       | usehtml  |
       | 0        |
       | 1        |
+
+  Scenario: Students can not leave text reviews
+    Given the following config values are set as admin:
+      | allowreviews | 1 | tool_courserating |
+    When I log in as "student1"
+    And I am on "Course 1" course homepage
+    And I follow "Leave a rating"
+    And I click on ".tool_courserating-form-stars-group .stars-3" "css_element"
+    And I should not see "Review" in the "Leave a rating" "dialogue"
+    And I press "Save changes"
+    And I should see "3.0" in the ".tool_courserating-widget" "css_element"
+    And I should see "(1)" in the ".tool_courserating-widget" "css_element"
+    And I log out
+    And I log in as "student2"
+    And I am on "Course 1" course homepage
+    And I should see "3.0" in the ".tool_courserating-widget" "css_element"
+    And I should see "(1)" in the ".tool_courserating-widget" "css_element"
+    And I follow "Leave a rating"
+    And I click on ".tool_courserating-form-stars-group .stars-4" "css_element"
+    And I press "Save changes"
+    And I should see "3.5" in the ".tool_courserating-widget" "css_element"
+    And I click on "(2)" "text" in the ".tool_courserating-widget" "css_element"
+    And I should not see "View all reviews"
+    And I follow "View all ratings"
+    And I should see "3.5" in the "Course reviews" "dialogue"
+    And I should not see "abcdef"
+
+  Scenario: Students can leave text reviews but not read them
+    Given the following config values are set as admin:
+      | allowreviews | 2 | tool_courserating |
+    When I log in as "student1"
+    And I am on "Course 1" course homepage
+    And I follow "Leave a rating"
+    And I click on ".tool_courserating-form-stars-group .stars-3" "css_element"
+    And I set the field "Review (optional)" in the "Leave a rating" "dialogue" to "abcdef"
+    And I press "Save changes"
+    And I should see "3.0" in the ".tool_courserating-widget" "css_element"
+    And I should see "(1)" in the ".tool_courserating-widget" "css_element"
+    And I log out
+    And I log in as "student2"
+    And I am on "Course 1" course homepage
+    And I should see "3.0" in the ".tool_courserating-widget" "css_element"
+    And I should see "(1)" in the ".tool_courserating-widget" "css_element"
+    And I follow "Leave a rating"
+    And I click on ".tool_courserating-form-stars-group .stars-4" "css_element"
+    And I press "Save changes"
+    And I should see "3.5" in the ".tool_courserating-widget" "css_element"
+    And I click on "(2)" "text" in the ".tool_courserating-widget" "css_element"
+    And I should not see "View all reviews"
+    And I follow "View all ratings"
+    And I should see "3.5" in the "Course reviews" "dialogue"
+    And I should see "abcdef"

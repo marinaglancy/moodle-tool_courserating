@@ -19,7 +19,10 @@
 
     Example context (json):
     {
-        "courseid": 12
+        "courseid": 12,
+        "canviewreviews": true,
+        "canrate": true,
+
     }
 
 }}
@@ -42,6 +45,9 @@
     </div>
 
     {{#canviewreviews}}
+        {{#hiddenreviewsnotification}}
+            {{> core/notification_warning}}
+        {{/hiddenreviewsnotification}}
     <div class="course-reviews" data-for="tool_courserating-reviews"
          data-systemcontextid="{{systemcontextid}}" data-courseid="{{courseid}}"
          data-withrating="0">

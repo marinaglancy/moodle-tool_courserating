@@ -19,13 +19,15 @@
 
     Example context (json):
     {
-        "courseid": 12
+        "courseid": 12,
+        "ratings": [
+        ]
     }
 
 }}
 {{^offset}}
     {{#withrating}}
-        <p class="mdl-align">Showing reviews with rating {{withrating}}.
+        <p class="mdl-align">{{#str}}showallreviewsforrating, tool_courserating, {{withrating}}{{/str}}
             <a href="#" data-for="tool_courserating-resetwithrating">{{#str}}showallratings, tool_courserating{{/str}}</a></p>
     {{/withrating}}
 {{/offset}}
