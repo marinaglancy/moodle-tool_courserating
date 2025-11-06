@@ -1,7 +1,10 @@
 # Changelog
 All notable changes to this project will be documented in this file.
 
-## Unreleased
+## [4.1.0] - 2025110600
+### Added
+- Ability to completely disable text reviews or make them visible to teachers only #9
+
 ### Changed
 - Raised minimum supported Moodle version to 4.1, remove legacy code
 
