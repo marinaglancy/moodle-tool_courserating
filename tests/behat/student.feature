@@ -160,4 +160,4 @@ Feature: Viewing and adding course ratings as a student
     And I should not see "View all reviews"
     And I follow "View all ratings"
     And I should see "3.5" in the "Course reviews" "dialogue"
-    And I should see "abcdef"
+    And I should not see "abcdef"

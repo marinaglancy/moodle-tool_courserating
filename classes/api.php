@@ -294,6 +294,10 @@ class api {
      */
     public static function reindex(int $courseid = 0) {
         global $DB, $SITE;
+        if (defined('BEHAT_SITE_RUNNING') || defined('BEHAT_TEST')) {
+            // There is a caching in behat that does not clear when a setting is changed via site administration tree.
+            \cache_helper::invalidate_by_definition('core', 'config', [], 'tool_courserating');
+        }
 
         $percourse = helper::get_setting(constants::SETTING_PERCOURSE);
         $ratingfield = helper::get_course_rating_field();

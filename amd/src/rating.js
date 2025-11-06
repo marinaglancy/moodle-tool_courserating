@@ -316,7 +316,7 @@ export const setupViewRatingsPopup = () => {
         return Fragment.loadFragment('tool_courserating', 'course_reviews', el.dataset.systemcontextid, params);
     };
 
-    el.addEventListener('click', e => {
+    el?.addEventListener('click', e => {
         const button = e.target.closest(SELECTORS.SHOWMORE_BUTTON);
         if (button) {
             const wrapper = button.closest(SELECTORS.SHOWMORE_WRAPPER);
@@ -332,7 +332,7 @@ export const setupViewRatingsPopup = () => {
     });
 
     const elSummary = document.querySelector(SELECTORS.POPUP_SUMMARY);
-    elSummary.addEventListener('click', e => {
+    elSummary?.addEventListener('click', e => {
         const withRatingButton = e.target.closest(SELECTORS.SET_WITHRATINGS);
         if (withRatingButton) {
             el.dataset.withrating = (el.dataset.withrating === withRatingButton.dataset.withrating) ?
