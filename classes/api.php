@@ -298,6 +298,7 @@ class api {
         $percourse = helper::get_setting(constants::SETTING_PERCOURSE);
         $ratingfield = helper::get_course_rating_field();
         $ratingmodefield = helper::get_course_rating_mode_field();
+        helper::ensure_allow_reviews_field_is_setup();
 
         if (!$ratingfield) {
             return;

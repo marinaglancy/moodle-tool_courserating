@@ -290,7 +290,7 @@ function tool_courserating_output_fragment_course_reviews($args) {
     if (!$args['courseid']) {
         throw new moodle_exception('missingparam', '', '', 'courseid');
     }
-    \tool_courserating\permission::require_can_view_ratings($args['courseid']);
+    \tool_courserating\permission::require_can_view_reviews($args['courseid']);
     /** @var tool_courserating\output\renderer $output */
     $output = $PAGE->get_renderer('tool_courserating');
     $data = (new ratings_list_exporter($args))->export($output);

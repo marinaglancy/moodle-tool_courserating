@@ -41,9 +41,11 @@
         {{>tool_courserating/course_ratings_summary}}
     </div>
 
+    {{#canviewreviews}}
     <div class="course-reviews" data-for="tool_courserating-reviews"
          data-systemcontextid="{{systemcontextid}}" data-courseid="{{courseid}}"
          data-withrating="0">
         {{>tool_courserating/course_ratings_popup_reviews}}
     </div>
+    {{/canviewreviews}}
 </div>

@@ -45,6 +45,25 @@ class permission {
     }
 
     /**
+     * User can view reviews for the course
+     *
+     * @param int $courseid
+     * @return bool
+     */
+    public static function can_view_reviews(int $courseid): bool {
+        global $USER;
+        if (!self::can_view_ratings($courseid)) {
+            return false;
+        }
+        $allowreviews = helper::get_course_allow_reviews($courseid);
+        if ($allowreviews == constants::ALLOWREVIEWS_NO) {
+            return false;
+        }
+        return $allowreviews == constants::ALLOWREVIEWS_VISIBLE ||
+            has_capability('tool/courserating:reports', \context_course::instance($courseid));
+    }
+
+    /**
      * Can the current user add a rating for the specified course
      *
      * Example of checking last access:
@@ -125,6 +144,18 @@ class permission {
      */
     public static function require_can_view_ratings(int $courseid): void {
         if (!self::can_view_ratings($courseid)) {
+            throw new \moodle_exception('cannotview', 'tool_courserating');
+        }
+    }
+
+    /**
+     * Check that user can view reviews or throw exception
+     *
+     * @param int $courseid
+     * @throws \moodle_exception
+     */
+    public static function require_can_view_reviews(int $courseid): void {
+        if (!self::can_view_reviews($courseid)) {
             throw new \moodle_exception('cannotview', 'tool_courserating');
         }
     }

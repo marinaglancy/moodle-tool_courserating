@@ -55,8 +55,10 @@ class renderer extends plugin_renderer_base {
     public function course_ratings_popup(int $courseid): string {
         global $USER;
         $data1 = (new summary_exporter($courseid))->export($this);
-        $data2 = (new ratings_list_exporter(['courseid' => $courseid]))->export($this);
+        $canviewreviews = permission::can_view_reviews($courseid);
+        $data2 = $canviewreviews ? (new ratings_list_exporter(['courseid' => $courseid]))->export($this) : [];
         $data = (array)$data1 + (array)$data2;
+        $data['canviewreviews'] = $canviewreviews;
         $data['canrate'] = permission::can_add_rating($courseid);
         $data['hasrating'] = $data['canrate'] && rating::get_record(['userid' => $USER->id, 'courseid' => $courseid]);
         $this->page->requires->js_call_amd('tool_courserating/rating', 'setupViewRatingsPopup', []);

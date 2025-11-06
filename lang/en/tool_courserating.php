@@ -26,7 +26,14 @@
 defined('MOODLE_INTERNAL') || die();
 
 $string['addrating'] = 'Leave a rating';
-$string['barwithrating'] = '{$a->rating} star represent {$a->percent} of rating';
+$string['allowreviews'] = 'Accompanying rating with a review';
+$string['allowreviewsconfig'] = "- No text reviews allowed - users can only submit star ratings.
+- Students can leave reviews but cannot read others - only users with the tool/courserating:reports capability can see the reviews.
+- Students can leave and read reviews - all users can see published reviews.";
+$string['allowreviewshidden'] = 'Students can leave reviews but cannot read others';
+$string['allowreviewsno'] = 'No text reviews allowed';
+$string['allowreviewsvisible'] = 'Students can leave and read reviews';
+$string['barwithrating'] = '{$a->rating} star represent {$a->percent} of ratings';
 $string['cannotrate'] = 'You don\'t have permission to leave rating to this course';
 $string['cannotview'] = 'You don\'t have permission to view ratings for this course';
 $string['cfielddescription'] = 'Do not edit, the content will be populated automatically every time somebody leaves a rating for this course.';
@@ -110,5 +117,6 @@ $string['summary_sumrating'] = "Total of all ratings";
 $string['usehtml'] = 'Use rich text editor for reviews';
 $string['usehtmlconfig'] = 'Allow students to use rich text editor for the reviews, include links and attach files.';
 $string['usersflagged'] = '{$a} user(s) have flagged this review as inappropriate/offensive.';
+$string['viewallratings'] = 'View all ratings';
 $string['viewallreviews'] = 'View all reviews';
 $string['youflagged'] = 'You have flagged this review as inappropriate/offensive.';

@@ -53,11 +53,14 @@ class addrating extends \core_form\dynamic_form {
         $mform = $this->_form;
         $mform->addElement('hidden', 'courseid', $this->get_course_id());
         $mform->setType('courseid', PARAM_INT);
+        $allowreviews = helper::get_course_allow_reviews($this->get_course_id());
 
         $summary = summary::get_for_course($this->get_course_id());
         if ($summary->get('cntall')) {
             $courseid = $this->get_course_id();
-            $str = get_string('viewallreviews', 'tool_courserating');
+            $str = permission::can_view_reviews($courseid) ?
+                get_string('viewallreviews', 'tool_courserating') :
+                get_string('viewallratings', 'tool_courserating');
             $mform->addElement('html', <<<EOF
 <p class="mdl-align"><a href="#" data-action="tool_courserating-viewratings" data-courseid="$courseid">$str</a></p>
 EOF
@@ -77,23 +80,25 @@ EOF
         $el = $mform->addGroup($radioarray, 'ratinggroup', get_string('rating', 'tool_courserating'), [' ', ' '], false);
         $el->setAttributes($el->getAttributes() + ['class' => 'tool_courserating-form-stars-group']);
 
-        if (helper::get_setting(constants::SETTING_USEHTML)) {
-            $options = helper::review_editor_options($this->get_context_for_dynamic_submission());
-            $mform->addElement(
-                'editor',
-                'review_editor',
-                get_string('review', 'tool_courserating'),
-                ['rows' => 4],
-                $options
-            );
-        } else {
-            $mform->addElement(
-                'textarea',
-                'review',
-                get_string('review', 'tool_courserating'),
-                ['rows' => 4]
-            );
-            $mform->setType('review', PARAM_TEXT);
+        if ($allowreviews != constants::ALLOWREVIEWS_NO) {
+            if (helper::get_setting(constants::SETTING_USEHTML)) {
+                $options = helper::review_editor_options($this->get_context_for_dynamic_submission());
+                $mform->addElement(
+                    'editor',
+                    'review_editor',
+                    get_string('review', 'tool_courserating'),
+                    ['rows' => 4],
+                    $options
+                );
+            } else {
+                $mform->addElement(
+                    'textarea',
+                    'review',
+                    get_string('review', 'tool_courserating'),
+                    ['rows' => 4]
+                );
+                $mform->setType('review', PARAM_TEXT);
+            }
         }
     }
 

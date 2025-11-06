@@ -31,6 +31,8 @@ class constants {
     const CFIELD_RATING = 'tool_courserating';
     /** @var string */
     const CFIELD_RATINGMODE = 'tool_courserating_mode';
+    /** @var string */
+    const CFIELD_ALLOWREVIEWS = 'tool_courserating_reviews';
 
     /** @var int */
     const RATEBY_NOONE = 1;
@@ -41,6 +43,17 @@ class constants {
 
     /** @var string */
     const SETTING_RATINGMODE = 'ratingmode';
+    /** @var int */
+    const ALLOWREVIEWS_NO = 1;
+
+    /** @var int */
+    const ALLOWREVIEWS_HIDDEN = 2;
+
+    /** @var int */
+    const ALLOWREVIEWS_VISIBLE = 3;
+
+    /** @var string */
+    const SETTING_ALLOWREVIEWS = 'allowreviews';
     /** @var string */
     const SETTING_PERCOURSE = 'percourse';
     /** @var string */
@@ -72,6 +85,19 @@ class constants {
             self::RATEBY_NOONE => new \lang_string('ratebynoone', 'tool_courserating'),
             self::RATEBY_ANYTIME => new \lang_string('ratebyanybody', 'tool_courserating'),
             self::RATEBY_COMPLETED => new \lang_string('ratebycompleted', 'tool_courserating'),
+        ];
+    }
+
+    /**
+     * List of options for the 'allowreviews' selector
+     *
+     * @return \lang_string[]
+     */
+    public static function allow_reviews_options() {
+        return [
+            self::ALLOWREVIEWS_NO => new \lang_string('allowreviewsno', 'tool_courserating'),
+            self::ALLOWREVIEWS_HIDDEN => new \lang_string('allowreviewshidden', 'tool_courserating'),
+            self::ALLOWREVIEWS_VISIBLE => new \lang_string('allowreviewsvisible', 'tool_courserating'),
         ];
     }
 }

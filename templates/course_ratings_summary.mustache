@@ -36,10 +36,15 @@
                 <div class="row align-items-center">
                     <div class="col-md-7">
                         <div class="course-rating-bar">
+                            {{#canviewreviews}}
                             <a href="#" data-for="tool_courserating_setwithrating" data-withrating="{{rating}}"
                                     title='{{#str}}barwithrating, tool_courserating, { "rating": "{{rating}}", "percent": "{{percent}}" } {{/str}}'>
                                 <span class="course-rating-bar-rating tool_courserating-barcolor" style="width: {{percent}} !important"></span>
                             </a>
+                            {{/canviewreviews}}
+                            {{^canviewreviews}}
+                                <span class="course-rating-bar-rating tool_courserating-barcolor" style="width: {{percent}} !important"></span>
+                            {{/canviewreviews}}
                         </div>
                     </div>
                     <div class="col-md-5"><span
