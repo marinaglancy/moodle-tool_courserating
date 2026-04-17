@@ -24,15 +24,10 @@
 
 namespace tool_courserating\external;
 
-use core\exception\coding_exception;
-use external_function_parameters;
-use external_single_structure;
-use external_api;
-use external_value;
-
-defined('MOODLE_INTERNAL') || die;
-
-require_once($CFG->libdir . '/externallib.php');
+use core_external\external_function_parameters;
+use core_external\external_single_structure;
+use core_external\external_api;
+use core_external\external_value;
 
 /**
  * Implementation of web service tool_courserating_course_rating_popup

@@ -541,8 +541,7 @@ class helper {
             'context' => $context,
         ];
         if (self::get_setting(constants::SETTING_USEHTML)) {
-            require_once($CFG->libdir . '/externallib.php');
-            [$text, $format] = external_format_text(
+            [$text, $format] = \core_external\util::format_text(
                 $row->review,
                 FORMAT_HTML,
                 $formatparams['context'],

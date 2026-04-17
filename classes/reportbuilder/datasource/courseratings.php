@@ -56,12 +56,7 @@ class courseratings extends datasource {
         $this->add_base_condition_sql("{$coursetablealias}.id != :{$paramsiteid}", [$paramsiteid => SITEID]);
 
         // Join the coursecategory entity.
-        if ($CFG->version > 2022110000) {
-            // Course category entity was renamed in 4.1.
-            $coursecategoryentity = new \core_course\reportbuilder\local\entities\course_category();
-        } else {
-            $coursecategoryentity = new \core_course\local\entities\course_category();
-        }
+        $coursecategoryentity = new \core_course\reportbuilder\local\entities\course_category();
         $coursecategorytablealias = $coursecategoryentity->get_table_alias('course_categories');
         $coursecategoryjoin = "LEFT JOIN {course_categories} {$coursecategorytablealias}
                                ON {$coursecategorytablealias}.id = {$coursetablealias}.category";

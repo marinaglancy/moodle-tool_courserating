@@ -5,6 +5,7 @@ All notable changes to this project will be documented in this file.
 ### Fixed
 - Web service missing validate_context() call - detected by https://mdlshield.com
 - Prevent hooks from being executed during upgrade (missing `global $CFG`)
+- Removed fallbacks to APIs from old versions of Moodle that are no longer supported by this plugin
 
 ## [4.5.0] - 2026032800
 ### Changed

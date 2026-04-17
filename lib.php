@@ -261,8 +261,7 @@ function tool_courserating_get_fontawesome_icon_map() {
  */
 function tool_courserating_inplace_editable($itemtype, $itemid, $newvalue) {
     global $CFG;
-    require_once($CFG->dirroot . '/lib/externallib.php');
-    \external_api::validate_context(context_system::instance());
+    \core_external\external_api::validate_context(context_system::instance());
     if ($itemtype === 'flag') {
         \tool_courserating\permission::require_can_flag_rating($itemid);
         if ($newvalue) {
