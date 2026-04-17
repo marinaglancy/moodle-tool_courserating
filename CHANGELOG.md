@@ -1,6 +1,11 @@
 # Changelog
 All notable changes to this project will be documented in this file.
 
+## Unreleased
+### Fixed
+- Web service missing validate_context() call - detected by https://mdlshield.com
+- Prevent hooks from being executed during upgrade (missing `global $CFG`)
+
 ## [4.5.0] - 2026032800
 ### Changed
 - Minimum supported Moodle version raised to 4.5

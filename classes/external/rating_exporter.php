@@ -19,14 +19,10 @@ namespace tool_courserating\external;
 use core\external\persistent_exporter;
 use core_user\external\user_summary_exporter;
 use tool_courserating\api;
-use tool_courserating\constants;
 use tool_courserating\helper;
 use tool_courserating\local\models\flag;
 use tool_courserating\local\models\rating;
-use tool_courserating\output\renderer;
 use tool_courserating\permission;
-use tool_dataprivacy\category;
-use tool_dataprivacy\context_instance;
 
 /**
  * Class for exporting field data.

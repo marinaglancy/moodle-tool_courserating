@@ -24,6 +24,7 @@
 
 namespace tool_courserating\external;
 
+use core\exception\coding_exception;
 use external_function_parameters;
 use external_single_structure;
 use external_api;
@@ -62,6 +63,9 @@ class course_rating_popup extends external_api {
         require_once($CFG->dirroot . '/' . $CFG->admin . '/tool/courserating/lib.php');
 
         // Basically copied from the core_get_fragment WS except for login check.
+        // No validate_context call here because this WS is available to non-authenticated users.
+        // Instead we just set the page context to system manually.
+        $PAGE->set_context(\context_system::instance());
 
         // Hack alert: Set a default URL to stop the annoying debug.
         $PAGE->set_url('/');
