@@ -114,6 +114,10 @@ EOF
         if (empty($data['rating'])) {
             $errors['ratinggroup'] = get_string('required');
         }
+        $rating = (int)$data['rating'];
+        if ($rating < constants::MIN_ALLOWED_RATING || $rating > constants::MAX_ALLOWED_RATING) {
+            $errors['ratinggroup'] = get_string('invalidrating', 'tool_courserating');
+        }
         return $errors;
     }
 

@@ -47,8 +47,10 @@ class api {
         global $USER;
         // TODO $userid can only be used in phpunit and behat.
         $userid = $userid ?: $USER->id;
-        // TODO validate rating is within limits, trim/crop review.
-        $rating = $data->rating;
+        $rating = (int)$data->rating;
+        if ($rating < constants::MIN_ALLOWED_RATING || $rating > constants::MAX_ALLOWED_RATING) {
+            throw new \moodle_exception('invalidrating', 'tool_courserating');
+        }
         $ratingold = rating::get_record(['userid' => $userid, 'courseid' => $courseid]);
         if ($ratingold) {
             $oldrecord = $ratingold->to_record();

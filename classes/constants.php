@@ -26,6 +26,10 @@ namespace tool_courserating;
 class constants {
     /** @var int */
     const REVIEWS_PER_PAGE = 10;
+    /** @var int */
+    const MAX_ALLOWED_RATING = 5;
+    /** @var int */
+    const MIN_ALLOWED_RATING = 1;
 
     /** @var string */
     const CFIELD_RATING = 'tool_courserating';

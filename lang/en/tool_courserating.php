@@ -58,6 +58,7 @@ $string['event:rating_created'] = 'Course rating created';
 $string['event:rating_deleted'] = 'Course rating deleted';
 $string['event:rating_updated'] = 'Course rating updated';
 $string['flagrating'] = 'Flag';
+$string['invalidrating'] = 'Invalid value for rating';
 $string['parentcss'] = 'CSS selector for parent element';
 $string['parentcssconfig'] = 'Course rating will be displayed on the course page as the last child of the DOM element that matches this selector. You may need to override it if the site uses a custom theme and you want to specify a custom parent. If left empty, the default value "#page-header" will be used.';
 $string['percourseoverride'] = 'Course overrides';
