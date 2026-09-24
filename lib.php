@@ -242,11 +242,8 @@ function tool_courserating_pluginfile($course, $cm, $context, $filearea, $args, 
     }
     // Files are embedded in the reviews, they can be viewed by users who can view the reviews in the course
     // or by the users who can view the course ratings report.
-    if (
-        !\tool_courserating\permission::can_view_reviews($context->instanceid) &&
-        !has_capability('tool/courserating:reports', $context)
-    ) {
-        throw new moodle_exception('cannotview', 'tool_courserating');
+    if (!\tool_courserating\permission::can_view_report($context->instanceid)) {
+        \tool_courserating\permission::require_can_view_reviews($context->instanceid);
     }
 
     if ($filearea !== 'review') {
