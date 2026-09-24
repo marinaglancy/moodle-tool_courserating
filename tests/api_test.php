@@ -241,6 +241,13 @@ final class api_test extends \advanced_testcase {
         $user2 = $this->getDataGenerator()->create_user();
         $course = $this->getDataGenerator()->create_course();
 
+        // Create some ratings in another course so that the ids of the rating and the flag are different.
+        $course2 = $this->getDataGenerator()->create_course();
+        $this->setUser($user);
+        api::set_rating($course2->id, (object)['rating' => 1]);
+        $this->setUser($user2);
+        api::set_rating($course2->id, (object)['rating' => 2]);
+
         // Set rating as the first user.
         $this->setUser($user);
         $rating = api::set_rating($course->id, (object)['rating' => 4]);
@@ -248,7 +255,10 @@ final class api_test extends \advanced_testcase {
         // Flag rating as the second user.
         $this->setUser($user2);
         $sink = $this->redirectEvents();
-        api::flag_review($rating->get('id'));
+        $flag = api::flag_review($rating->get('id'));
+        $this->assertNotEquals($rating->get('id'), $flag->get('id'));
+        $events = $sink->get_events();
+        $this->assertEquals($rating->get('id'), reset($events)->other['ratingid']);
         $this->assert_event(
             $sink,
             flag_created::class,
@@ -259,6 +269,9 @@ final class api_test extends \advanced_testcase {
 
         // Revoke.
         api::revoke_review_flag($rating->get('id'));
+        $events = $sink->get_events();
+        $this->assertEquals($flag->get('id'), reset($events)->objectid);
+        $this->assertEquals($rating->get('id'), reset($events)->other['ratingid']);
         $this->assert_event(
             $sink,
             flag_deleted::class,
