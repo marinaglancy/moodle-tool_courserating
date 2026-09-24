@@ -96,6 +96,40 @@ final class permission_test extends \advanced_testcase {
         }
     }
 
+    public function test_can_view_forcelogin(): void {
+        global $CFG;
+
+        $course = $this->getDataGenerator()->create_course();
+        $user = $this->getDataGenerator()->create_user();
+        $this->get_generator()->set_config(constants::SETTING_ALLOWREVIEWS, constants::ALLOWREVIEWS_VISIBLE);
+
+        // Without forcelogin, visitors who are not logged in can see ratings and reviews.
+        $CFG->forcelogin = 0;
+        $this->setUser(null);
+        $this->assertTrue(permission::can_view_ratings($course->id));
+        $this->assertTrue(permission::can_view_reviews($course->id));
+
+        // With forcelogin, visitors who are not logged in can not see ratings or reviews
+        // (has_capability() returns false for them, so they can not see the course in the course listing).
+        $CFG->forcelogin = 1;
+        $this->assertFalse(permission::can_view_ratings($course->id));
+        $this->assertFalse(permission::can_view_reviews($course->id));
+        try {
+            permission::require_can_view_ratings($course->id);
+            $this->fail('Exception expected');
+        } catch (\moodle_exception $e) {
+            $this->assertEquals('cannotview', $e->errorcode);
+        }
+
+        // Logged in users and guests can still see ratings and reviews with forcelogin.
+        $this->setUser($user);
+        $this->assertTrue(permission::can_view_ratings($course->id));
+        $this->assertTrue(permission::can_view_reviews($course->id));
+        $this->setGuestUser();
+        $this->assertTrue(permission::can_view_ratings($course->id));
+        $this->assertTrue(permission::can_view_reviews($course->id));
+    }
+
     public function test_can_rate(): void {
         $course = $this->getDataGenerator()->create_course();
         $user1 = $this->getDataGenerator()->create_user();
