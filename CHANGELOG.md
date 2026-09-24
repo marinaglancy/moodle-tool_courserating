@@ -1,6 +1,14 @@
 # Changelog
 All notable changes to this project will be documented in this file.
 
+## [Unreleased]
+### Added
+- Support for Moodle 5.3
+
+### Fixed
+- Privacy API: user data export now includes the user's flags and the files embedded in their reviews;
+  deleting user data also deletes these files and the flags on the deleted reviews
+
 ## [4.5.1] - 2026-04-17
 ### Fixed
 - Web service missing validate_context() call - detected by https://mdlshield.com

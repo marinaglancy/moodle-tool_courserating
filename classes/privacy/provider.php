@@ -24,6 +24,7 @@ use core_privacy\local\request\transform;
 use core_privacy\local\request\userlist;
 use core_privacy\local\request\writer;
 use tool_courserating\api;
+use tool_courserating\local\models\flag;
 use tool_courserating\local\models\rating;
 use tool_courserating\task\reindex;
 
@@ -73,6 +74,8 @@ class provider implements
             ],
             'privacy:metadata:tool_courserating_flag'
         );
+
+        $collection->add_subsystem_link('core_files', [], 'privacy:metadata:core_files');
 
         return $collection;
     }
@@ -128,7 +131,9 @@ class provider implements
 
         $courseids = [];
         foreach ($contextlist->get_contexts() as $context) {
-            $courseids[] = $context->instanceid;
+            if ($context->contextlevel == CONTEXT_COURSE) {
+                $courseids[] = $context->instanceid;
+            }
         }
 
         if (empty($courseids)) {
@@ -158,22 +163,62 @@ class provider implements
                 $rating->shortname,
             ];
 
+            $context = \context_course::instance($rating->courseid);
+            $writer = writer::with_context($context);
+
             $data = (object) [
                 'shortname' => $rating->shortname,
                 'fullname' => $rating->fullname,
                 'rating' => $rating->rating,
-                'review' => $rating->review,
+                'review' => $writer->rewrite_pluginfile_urls(
+                    $subcontext,
+                    'tool_courserating',
+                    'review',
+                    $rating->id,
+                    $rating->review
+                ),
                 'hasreview' => $rating->hasreview,
                 'userid' => transform::user($rating->userid),
                 'timecreated' => transform::datetime($rating->timecreated),
                 'timemodified' => transform::datetime($rating->timemodified),
             ];
 
-            $context = \context_course::instance($rating->courseid);
-            writer::with_context($context)->export_data($subcontext, $data);
+            $writer->export_data($subcontext, $data)
+                ->export_area_files($subcontext, 'tool_courserating', 'review', $rating->id);
         }
 
-        // TODO export flags.
+        // Retrieve the flags that the user placed on the reviews of other users.
+        $sql = "SELECT f.id, f.ratingid, f.reasoncode, f.reason, f.timecreated, f.timemodified,
+                       r.courseid,
+                       c.shortname
+                  FROM {tool_courserating_flag} f
+                  JOIN {tool_courserating_rating} r ON r.id = f.ratingid
+                  JOIN {course} c ON c.id = r.courseid
+                 WHERE f.userid = :userid
+                       AND c.id {$coursesql}
+              ORDER BY r.courseid, f.id";
+
+        $flagspercourse = [];
+        foreach ($DB->get_records_sql($sql, $params) as $flag) {
+            $flagspercourse[$flag->courseid]['shortname'] = $flag->shortname;
+            $flagspercourse[$flag->courseid]['flags'][] = (object) [
+                'ratingid' => $flag->ratingid,
+                'reasoncode' => $flag->reasoncode,
+                'reason' => $flag->reason,
+                'timecreated' => transform::datetime($flag->timecreated),
+                'timemodified' => transform::datetime($flag->timemodified),
+            ];
+        }
+
+        foreach ($flagspercourse as $courseid => $coursedata) {
+            $subcontext = [
+                get_string('pluginname', 'tool_courserating'),
+                $coursedata['shortname'],
+                get_string('privacy:flags', 'tool_courserating'),
+            ];
+            writer::with_context(\context_course::instance($courseid))
+                ->export_data($subcontext, (object) ['flags' => $coursedata['flags']]);
+        }
     }
 
     /**
@@ -197,7 +242,9 @@ class provider implements
     public static function delete_data_for_user(approved_contextlist $contextlist) {
         $courseids = [];
         foreach ($contextlist->get_contexts() as $context) {
-            $courseids[] = $context->instanceid;
+            if ($context->contextlevel == CONTEXT_COURSE) {
+                $courseids[] = $context->instanceid;
+            }
         }
         $userid = $contextlist->get_user()->id;
         self::delete_data_for_user_in_courses($userid, $courseids);
@@ -215,7 +262,7 @@ class provider implements
             return;
         }
         [$sql, $params] = $DB->get_in_or_equal($courseids, SQL_PARAMS_NAMED);
-        $sqlrating = 'SELECT courseid FROM {tool_courserating_rating} WHERE courseid ' . $sql . ' AND userid = :userid';
+        $sqlrating = 'SELECT id, courseid FROM {tool_courserating_rating} WHERE courseid ' . $sql . ' AND userid = :userid';
         $params['userid'] = $userid;
         $sqlflags = 'SELECT f.id FROM {tool_courserating_flag} f JOIN {tool_courserating_rating} r ON f.ratingid = r.id
             WHERE r.courseid ' . $sql . ' AND f.userid = :userid';
@@ -224,9 +271,23 @@ class provider implements
             [$sqlf, $pf] = $DB->get_in_or_equal($flags);
             $DB->execute('DELETE FROM {tool_courserating_flag} WHERE id ' . $sqlf, $pf);
         }
-        $affectedcourses = $DB->get_fieldset_sql($sqlrating, $params);
-        foreach ($affectedcourses as $cid) {
-            $DB->delete_records(rating::TABLE, ['userid' => $userid, 'courseid' => $cid]);
+
+        // Delete the user's ratings together with the files embedded in their reviews
+        // and the flags that other users placed on them.
+        $ratings = $DB->get_records_sql_menu($sqlrating, $params);
+        if (!$ratings) {
+            return;
+        }
+        $fs = get_file_storage();
+        foreach ($ratings as $ratingid => $cid) {
+            if ($context = \context_course::instance($cid, IGNORE_MISSING)) {
+                $fs->delete_area_files($context->id, 'tool_courserating', 'review', $ratingid);
+            }
+        }
+        [$sqlr, $pr] = $DB->get_in_or_equal(array_keys($ratings));
+        $DB->delete_records_select(flag::TABLE, 'ratingid ' . $sqlr, $pr);
+        $DB->delete_records_select(rating::TABLE, 'id ' . $sqlr, $pr);
+        foreach (array_unique($ratings) as $cid) {
             reindex::schedule_course($cid);
         }
     }
