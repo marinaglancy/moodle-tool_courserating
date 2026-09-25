@@ -119,7 +119,7 @@ class permission {
         if (!$courseid) {
             $courseid = (new rating($ratingid))->get('courseid');
         }
-        return self::can_view_ratings($courseid);
+        return self::can_view_reviews($courseid);
     }
 
     /**

@@ -212,6 +212,13 @@ final class permission_test extends \advanced_testcase {
         $this->getDataGenerator()->enrol_user($user->id, $course4->id, 'student');
         $this->assertTrue(permission::can_flag_rating($rating4->get('id')));
 
+        // Users can not flag ratings when they can not see the reviews.
+        $this->get_generator()->set_config(constants::SETTING_ALLOWREVIEWS, constants::ALLOWREVIEWS_HIDDEN);
+        $this->assertFalse(permission::can_flag_rating($rating1->get('id')));
+        $this->get_generator()->set_config(constants::SETTING_ALLOWREVIEWS, constants::ALLOWREVIEWS_NO);
+        $this->assertFalse(permission::can_flag_rating($rating1->get('id')));
+        $this->get_generator()->set_config(constants::SETTING_ALLOWREVIEWS, constants::ALLOWREVIEWS_VISIBLE);
+
         // Disable ratings everywhere.
         $this->get_generator()->set_config(constants::SETTING_RATINGMODE, constants::RATEBY_NOONE);
         $this->assertFalse(permission::can_flag_rating($rating1->get('id')));
