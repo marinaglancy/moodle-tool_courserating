@@ -68,7 +68,7 @@ class flag_deleted extends \core\event\base {
             'courseid' => $rating->get('courseid'),
             'relateduserid' => $rating->get('userid'),
             'context' => \context_course::instance($rating->get('courseid')),
-            'other' => ['ratingid' => $object->id],
+            'other' => ['ratingid' => $object->ratingid],
         ]);
         $event->add_record_snapshot($event->data['objecttable'], $object);
         $event->add_record_snapshot(rating::TABLE, $rating->to_record());

@@ -33,7 +33,7 @@
     </div>
     {{#flags}}
         <div class="mdl-right user-flags">
-            <span class="badge badge-warning">{{#str}}usersflagged, tool_courserating, {{.}}{{/str}}</span>
+            <span class="badge bg-warning text-dark">{{#str}}usersflagged, tool_courserating, {{.}}{{/str}}</span>
             {{#candelete}}
                 <a href="#" data-action="tool_courserating-delete-rating" data-ratingid="{{ratingid}}">{{#str}}deleterating, tool_courserating{{/str}}</a>
             {{/candelete}}

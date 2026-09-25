@@ -110,7 +110,7 @@ class rating_exporter extends persistent_exporter {
         if (permission::can_delete_rating($this->data->id, $this->data->courseid)) {
             $flags = flag::count_records(['ratingid' => $this->data->id]);
         } else {
-            $flags = [];
+            $flags = 0;
         }
         $flagged = flag::get_records(['ratingid' => $this->data->id, 'userid' => $USER->id]) ? true : false;
 

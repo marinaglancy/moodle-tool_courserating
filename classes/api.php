@@ -337,7 +337,7 @@ class api {
             $sql .= " ORDER BY c.id DESC";
         }
 
-        $records = $DB->get_records_sql($sql, $params);
+        $records = $DB->get_recordset_sql($sql, $params);
         foreach ($records as $record) {
             $record->actualratingmode = helper::get_setting(constants::SETTING_RATINGMODE);
             if ($percourse && $record->rateby && array_key_exists($record->rateby, constants::rated_courses_options())) {
@@ -345,6 +345,7 @@ class api {
             }
             self::reindex_course($record);
         }
+        $records->close();
     }
 
     /**
@@ -393,6 +394,11 @@ class api {
      */
     public static function delete_all_data_for_course(int $courseid) {
         global $DB;
+        if ($context = \context_course::instance($courseid, IGNORE_MISSING)) {
+            // The context does not exist when this is called after the course was deleted,
+            // in this case the files in the course context were already deleted by core.
+            get_file_storage()->delete_area_files($context->id, 'tool_courserating', 'review');
+        }
         $DB->execute('DELETE from {' . flag::TABLE . '} WHERE ratingid IN (SELECT id FROM {' .
             rating::TABLE . '} WHERE courseid = ?)', [$courseid]);
         $DB->delete_records(rating::TABLE, ['courseid' => $courseid]);

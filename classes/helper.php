@@ -29,42 +29,6 @@ use tool_courserating\external\stars_exporter;
  */
 class helper {
     /**
-     * Temporary function
-     *
-     * @return void
-     */
-    private function wordings() {
-        // @codingStandardsIgnoreStart
-        // Udemy.
-        'You\'ve finished the last lesson in this course! Would you like to leave a review?';
-        [
-            1 => 'Awful, not what I was expecting at all',
-            1.5 => 'Awful / Poor',
-            2 => 'Poor, pretty disappointed',
-            2.5 => 'Poor / Average',
-            3 => 'Average, could be better',
-            3.5 => 'Average / Good',
-            4 => 'Good, what I expected',
-            4.5 => 'Good / Amazing',
-            5 => 'Amazing, above expectations',
-        ];
-        'Tell us about your own personal experience taking this course. Was it a good match for you?';
-
-        'Report'; 'Report abuse';
-        'Flagged content is reviewed by Udemy staff to determine whether it violates Terms of Service or Community Guidelines. If you have a question or technical issue, please contact our Support team here.';
-        'Issue type';
-        [
-            'Inappropriate Course Content',
-            'Inappropriate Behavior',
-            'Udemy Policy Violation',
-            'Spammy Content',
-            'Other',
-        ];
-        'Issue details';
-        // @codingStandardsIgnoreEnd
-    }
-
-    /**
      * Checks if we are on a main course page
      *
      * @return int
@@ -598,6 +562,6 @@ class helper {
      * @return string
      */
     public static function format_flags_in_course_report(?int $nofflags, \stdClass $row): string {
-        return $nofflags ? "<span class=\"badge badge-warning\">$nofflags</span>" : '';
+        return $nofflags ? "<span class=\"badge bg-warning text-dark\">$nofflags</span>" : '';
     }
 }

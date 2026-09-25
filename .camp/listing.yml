@@ -1,0 +1,35 @@
+# camp listing manifest — descriptive content for your plugin's page.
+# Edit freely and commit; camp ingests this file at each tagged release.
+# Schema: https://camp-registry.org/schema/listing.schema.json
+name: Course ratings
+summary: Students rate and review courses. The average rating is displayed on the course page and in course listings.
+category: Ratings and reviews
+description: |
+  Course ratings allows students to add ratings and reviews to courses, and teachers and other
+  users to read them.
+
+  - The average course rating is stored in a custom course field that is created automatically.
+    It is displayed in any course listing that shows custom course fields, for example the
+    "All courses" page and the site home.
+  - The current course rating is also added to each course home page.
+  - Users can flag reviews, and managers can permanently delete the flagged ones.
+  - By default every student enrolled in a course can leave a rating. It can be configured that
+    only students who completed the course can do it.
+  - Course ratings can be enabled or disabled for individual courses.
+  - Optionally, reviews are written in the rich text editor. The colours of the stars and the
+    rating are configurable.
+labels:
+  # Required disclosure labels — pick all that apply (RFC §4.7):
+  #   fully-free | freemium | paid-service | external-account
+  #   donation-supported | commercial-support-available
+  - fully-free
+# screenshots:
+#   - path: .camp/screenshots/overview.png
+#     caption: Main view
+links:
+  docs: https://github.com/marinaglancy/moodle-tool_courserating#readme
+  issues: https://github.com/marinaglancy/moodle-tool_courserating/issues
+  changelog: https://github.com/marinaglancy/moodle-tool_courserating/blob/HEAD/CHANGELOG.md
+badges:
+  - endpoint: https://mdlshield.com/api/badge/tool_courserating
+    link: https://mdlshield.com/plugins/tool_courserating

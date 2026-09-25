@@ -24,81 +24,6 @@
 
 use tool_courserating\external\ratings_list_exporter;
 
-/**
- * Callback allowing to add js to $PAGE->requires
- */
-function tool_courserating_before_http_headers() {
-    // This is an implementation of a legacy callback that will only be called in older Moodle versions.
-    // It will not be called in Moodle versions that contain the hook core\hook\output\before_http_headers,
-    // instead, the callback tool_courserating\local\hooks\output\before_http_headers::callback will be executed.
-
-    global $PAGE, $CFG;
-    if (
-        \tool_courserating\helper::course_ratings_enabled_anywhere() &&
-            !in_array($PAGE->pagelayout, ['redirect', 'embedded'])
-    ) {
-        // Add JS to all pages, the course ratings can be displayed on any page (for example course listings).
-        $branch = $CFG->branch ?? '';
-        $PAGE->requires->js_call_amd(
-            'tool_courserating/rating',
-            'init',
-            [context_system::instance()->id]
-        );
-        if (\tool_courserating\helper::is_course_edit_page()) {
-            $field = \tool_courserating\helper::get_course_rating_field();
-            $PAGE->requires->js_call_amd(
-                'tool_courserating/rating',
-                'hideEditField',
-                [$field->get('shortname')]
-            );
-        }
-    }
-    return null;
-}
-
-/**
- * Callback allowing to add contetnt inside the region-main, in the very end
- *
- * @return string
- */
-function tool_courserating_before_footer() {
-    // This is an implementation of a legacy callback that will only be called in older Moodle versions.
-    // It will not be called in Moodle versions that contain the hook core\hook\output\before_footer_html_generation,
-    // instead, the callback tool_courserating\local\hooks\output\before_footer_html_generation::callback will be executed.
-
-    global $PAGE;
-    $res = '';
-    if (\tool_courserating\helper::course_ratings_enabled_anywhere()) {
-        /** @var tool_courserating\output\renderer $output */
-        $output = $PAGE->get_renderer('tool_courserating');
-        if (
-            ($courseid = \tool_courserating\helper::is_course_page()) ||
-            ($courseid = \tool_courserating\helper::is_single_activity_course_page())
-        ) {
-            $res .= $output->course_rating_block($courseid);
-        }
-    }
-    return $res;
-}
-
-/**
- * Callback allowing to add to <head> of the page
- *
- * @return string
- */
-function tool_courserating_before_standard_html_head() {
-    // This is an implementation of a legacy callback that will only be called in older Moodle versions.
-    // It will not be called in Moodle versions that contain the hook core\hook\output\before_standard_head_html_generation,
-    // instead, the callback tool_courserating\local\hooks\output\before_standard_head_html_generation::callback will be executed.
-
-    $res = '';
-    if (\tool_courserating\helper::course_ratings_enabled_anywhere()) {
-        // Add CSS to all pages, the course ratings can be displayed on any page (for example course listings).
-        $res .= '<style>' . \tool_courserating\helper::get_rating_colour_css() . '</style>';
-    }
-    return $res;
-}
-
 // @codingStandardsIgnoreStart
 /* More callbacks that can be implemented
 
@@ -315,7 +240,11 @@ function tool_courserating_pluginfile($course, $cm, $context, $filearea, $args, 
     if ($context->contextlevel != CONTEXT_COURSE) {
         return false;
     }
-    \tool_courserating\permission::require_can_view_ratings($context->instanceid);
+    // Files are embedded in the reviews, they can be viewed by users who can view the reviews in the course
+    // or by the users who can view the course ratings report.
+    if (!\tool_courserating\permission::can_view_report($context->instanceid)) {
+        \tool_courserating\permission::require_can_view_reviews($context->instanceid);
+    }
 
     if ($filearea !== 'review') {
         return false;

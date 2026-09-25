@@ -1,6 +1,17 @@
 # Changelog
 All notable changes to this project will be documented in this file.
 
+## [Unreleased]
+### Added
+- Support for Moodle 5.3
+
+### Fixed
+- Privacy API: user data export now includes the user's flags and the files embedded in their reviews;
+  deleting user data also deletes these files and the flags on the deleted reviews
+- Images and files embedded in reviews are no longer accessible to users who are not allowed to see the reviews
+- Users can no longer flag ratings in courses where they are not allowed to see the reviews
+- The setting "CSS selector for parent element" now works with selectors that contain `>` and other special characters
+
 ## [4.5.1] - 2026-04-17
 ### Fixed
 - Web service missing validate_context() call - detected by https://mdlshield.com
