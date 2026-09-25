@@ -1,4 +1,4 @@
-# See https://github.com/moodlehq/moodle-plugin-release
+# Publishing to https://marketplace.moodle.com/
 name: Release Plugin version to Moodle Marketplace
 
 on:

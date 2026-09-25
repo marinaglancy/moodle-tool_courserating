@@ -1,4 +1,4 @@
-# See https://github.com/camp-registry/camp-index
+# Publishing to https://github.com/camp-registry/camp-index and https://camp-registry.org/
 name: Publish release to camp
 on:
   push:
