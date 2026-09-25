@@ -48,11 +48,10 @@ class before_http_headers {
                 [\context_system::instance()->id]
             );
             if (\tool_courserating\helper::is_course_edit_page()) {
-                $field = \tool_courserating\helper::get_course_rating_field();
                 $PAGE->requires->js_call_amd(
                     'tool_courserating/rating',
                     'hideEditField',
-                    [$field->get('shortname')]
+                    [\tool_courserating\constants::CFIELD_RATING]
                 );
             }
         }

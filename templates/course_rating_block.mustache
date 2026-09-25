@@ -22,7 +22,7 @@
     }
 
 }}
-<div class="tool_courserating-widget pt-2 pt-0 {{extraclasses}}">
+<div class="tool_courserating-widget pt-2 pt-0 {{extraclasses}}" data-parentelement="{{parentelement}}">
     <div data-for="tool_courserating-cfield-wrapper" data-courseid="{{courseid}}" class="rating-summary">
         {{>tool_courserating/summary_for_cfield}}
     </div>
@@ -43,9 +43,14 @@
     {{#js}}
         /* Move the widget to the header area */
         const widget = document.querySelector(".tool_courserating-widget");
-        const parents = "{{parentelement}}".split(',');
+        const parents = widget.dataset.parentelement.split(',');
         for (let i in parents) {
-            const header = document.querySelector(parents[i]);
+            let header = null;
+            try {
+                header = document.querySelector(parents[i]);
+            } catch (e) {
+                // Invalid CSS selector in the plugin settings, try the next one.
+            }
             if (header) {
                 header.appendChild(widget);
                 break;

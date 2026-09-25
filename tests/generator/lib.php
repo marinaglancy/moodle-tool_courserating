@@ -64,7 +64,6 @@ class tool_courserating_generator extends testing_module_generator {
     public function clear_course_custom_field_cache() {
         try {
             $reflection = new \ReflectionProperty(\core_course\customfield\course_handler::class, 'singleton');
-            $reflection->setAccessible(true);
             $reflection->setValue(null, null);
         // phpcs:ignore Generic.CodeAnalysis.EmptyStatement.DetectedCatch
         } catch (\ReflectionException $e) {

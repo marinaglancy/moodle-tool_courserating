@@ -337,7 +337,7 @@ class api {
             $sql .= " ORDER BY c.id DESC";
         }
 
-        $records = $DB->get_records_sql($sql, $params);
+        $records = $DB->get_recordset_sql($sql, $params);
         foreach ($records as $record) {
             $record->actualratingmode = helper::get_setting(constants::SETTING_RATINGMODE);
             if ($percourse && $record->rateby && array_key_exists($record->rateby, constants::rated_courses_options())) {
@@ -345,6 +345,7 @@ class api {
             }
             self::reindex_course($record);
         }
+        $records->close();
     }
 
     /**
